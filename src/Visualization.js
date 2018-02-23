@@ -81,8 +81,10 @@ class Visualization extends React.Component {
   
     render() {
       return (
-        <div
-          style={{ width: '1000px', height: '800px' }}
+        <div className="Visualization"
+          style={{ width: '800px', 
+                   height: '600px',
+                   backgroundColor: '#FF0000' }}
           ref={(mount) => { this.mount = mount }}
         />
       )
