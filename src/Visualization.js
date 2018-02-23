@@ -24,12 +24,20 @@ class Visualization extends React.Component {
         0.1,
         1000
       )
+      camera.position.z = 4
+      camera.position.y = 1
+
       const renderer = new THREE.WebGLRenderer({ antialias: true })
       const geometry = new THREE.BoxGeometry(1, 1, 1)
       const material = new THREE.MeshBasicMaterial({ color: '#433F81' })
       const cube = new THREE.Mesh(geometry, material)
-  
-      camera.position.z = 4
+      cube.position.y = 2
+
+      var size = 100;
+      var divisions = 100;
+      var gridHelper = new THREE.GridHelper( size, divisions );
+      scene.add( gridHelper );
+      
       scene.add(cube)
       renderer.setClearColor('#000000')
       renderer.setSize(width, height)
@@ -74,7 +82,7 @@ class Visualization extends React.Component {
     render() {
       return (
         <div
-          style={{ width: '400px', height: '400px' }}
+          style={{ width: '1000px', height: '800px' }}
           ref={(mount) => { this.mount = mount }}
         />
       )
