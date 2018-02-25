@@ -10,3 +10,11 @@
 4. Launch backend with **npm run server**
 
 Paleidus nepamirškit po to sustabdyt su **CTRL + C**, o jei CMD jau išjungtas tada su **taskkill /f /im node.exe**
+
+## Vidinis API
+
+Norint gaut duomenis iš serverio reikia kreiptis **GET {server}/storage/current**  
+kodas: **var data = Axios.get("/storage/current");**
+
+Vėliau gerai būtų padaryt {server}/storage/current$?s=x1,x2,x3
+kad galima būtų rinktis, kurias ašis gauti.
