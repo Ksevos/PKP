@@ -37,7 +37,7 @@ class StorageHandler{
 	static getLatest(response){
 		response.json(
 			JSON.parse(
-				FileSystem.readFileSync("./storage/test_data.json","utf8")));
+				FileSystem.readFileSync("./storage/data.json","utf8")));
 	}
 }
 
