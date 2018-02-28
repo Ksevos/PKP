@@ -1,5 +1,7 @@
 //@ts-check
 
 import Server from './Server';
+import Logger from './Logger';
 
-const server =  new Server()
+Logger.turnOn();
+const server = new Server();
