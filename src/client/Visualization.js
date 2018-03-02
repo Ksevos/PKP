@@ -33,9 +33,9 @@ class Visualization extends React.Component {
       const cube = new THREE.Mesh(geometry, material)
       cube.position.y = 2
 
-      var size = 100;
-      var divisions = 100;
-      var gridHelper = new THREE.GridHelper( size, divisions );
+      let size = 100;
+      let divisions = 100;
+      let gridHelper = new THREE.GridHelper( size, divisions );
       scene.add( gridHelper );
       
       scene.add(cube)

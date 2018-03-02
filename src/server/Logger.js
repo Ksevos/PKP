@@ -1,7 +1,7 @@
 //@ts-check
 
 var Logger = (()=>{
-	var _loggerOn = false;
+	let _loggerOn = false;
 
 	return {
 			log: message => {
@@ -13,9 +13,9 @@ var Logger = (()=>{
 					return;
 
 				if(error)
-					console.log(actionDescription + " - failed " + error.message);
+					console.log(`${actionDescription} - failed. ${error.message}`);
 				else
-					console.log(actionDescription + " - successful");
+					console.log(`${actionDescription} - successful`);
 			},
 			turnOn: () =>{_loggerOn = true}
 	};
