@@ -1,5 +1,8 @@
 # See https://help.github.com/ignore-files/ for more about ignoring files.
 
+# file: ~/.gitignore_global
+.idea
+
 # dependencies
 /node_modules
 storage/*.txt
