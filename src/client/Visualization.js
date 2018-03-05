@@ -15,36 +15,40 @@ class Visualization extends React.Component {
     }
   
     componentDidMount() {
-        const width = this.mount.clientWidth
-        const height = this.mount.clientHeight
+      const axesHelper = new THREE.axesHelper(10000);
 
-        const scene = new THREE.Scene()
-        const camera = new THREE.PerspectiveCamera(
-            75,
-            width / height,
-            0.1,
-            1000
-        )
-        camera.position.z = 5
-        camera.position.y = 0
+      const width = this.mount.clientWidth
+      const height = this.mount.clientHeight
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true })
-        const geometry = new THREE.BoxGeometry(1, 1, 1)
+      const scene = new THREE.Scene()
+      const camera = new THREE.PerspectiveCamera(
+          75,
+          width / height,
+          0.1,
+          1000
+      )
+      camera.position.z = 5
+      camera.position.y = 0
 
-        let size = 100;
-        let divisions = 100;
-        let gridHelper = new THREE.GridHelper(size, divisions);
-        scene.add(gridHelper);
+      const renderer = new THREE.WebGLRenderer({ antialias: true })
+      const geometry = new THREE.BoxGeometry(1, 1, 1)
 
-        renderer.setClearColor('#000000')
-        renderer.setSize(width, height)
+      let size = 100;
+      let divisions = 100;
+      let gridHelper = new THREE.GridHelper(size, divisions);
+      scene.add(gridHelper);
 
-        this.scene = scene;
-        this.camera = camera;
-        this.renderer = renderer;
+      renderer.setClearColor('#000000')
+      renderer.setSize(width, height)
 
-        const uploadData = new DataReader();
-        this.uploadData = uploadData;
+      this.scene = scene;
+      this.camera = camera;
+      this.renderer = renderer;
+
+      const uploadData = new DataReader();
+      this.uploadData = uploadData;
+
+      scene.add(axesHelper);
 
       this.mount.appendChild(this.renderer.domElement)
       this.start()
