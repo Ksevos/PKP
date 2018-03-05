@@ -46,24 +46,6 @@ class Visualization extends React.Component {
         const uploadData = new DataReader();
         this.uploadData = uploadData;
 
-<<<<<<< HEAD
-      let size = 100;
-      let divisions = 100;
-      let gridHelper = new THREE.GridHelper( size, divisions );
-      scene.add( gridHelper );
-      
-      scene.add(cube)
-      renderer.setClearColor('#000000')
-      renderer.setSize(width, height)
-  
-      this.scene = scene
-      this.camera = camera
-      this.renderer = renderer
-      this.material = material
-      this.cube = cube
-  
-=======
->>>>>>> origin/develop
       this.mount.appendChild(this.renderer.domElement)
       this.start()
     }
