@@ -16,7 +16,7 @@ class Visualization extends React.Component {
     componentDidMount() {
       const width = this.mount.clientWidth
       const height = this.mount.clientHeight
-  
+  	  const axesHelper = new THREE.axesHelper(10000);
       const scene = new THREE.Scene()
       const camera = new THREE.PerspectiveCamera(
         75,
@@ -47,7 +47,8 @@ class Visualization extends React.Component {
       this.renderer = renderer
       this.material = material
       this.cube = cube
-  
+      
+      scene.add(axesHelper);
       this.mount.appendChild(this.renderer.domElement)
       this.start()
     }
