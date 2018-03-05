@@ -15,7 +15,7 @@ class Visualization extends React.Component {
     }
   
     componentDidMount() {
-      const axesHelper = new THREE.axesHelper(10000);
+      const axesHelper = new THREE.AxesHelper(10000);
 
       const width = this.mount.clientWidth
       const height = this.mount.clientHeight
@@ -49,7 +49,7 @@ class Visualization extends React.Component {
       this.uploadData = uploadData;
 
       scene.add(axesHelper);
-
+      this.uploadData.readDataFromJSON(this.scene);
       this.mount.appendChild(this.renderer.domElement)
       this.start()
     }
