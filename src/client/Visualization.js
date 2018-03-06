@@ -2,6 +2,7 @@
 //@ts-check
 
 import React from 'react';
+import dat from "dat.gui"
 import DataReader from './DataReader';
 import Renderer from './Renderer/Renderer';
 import SocketIOClient from 'socket.io-client';
@@ -11,6 +12,9 @@ class Visualization extends React.Component {
         super(props);
 
         this.dataReader = new DataReader();
+      
+        componentWillReceiveProps(nextProps) {
+            this.renderer.setClearColor(nextProps.bgColor)
 
         this.socket = SocketIOClient("http://localhost:4000/");
         this.socket.on('dataUploaded', (message) => {
@@ -24,6 +28,20 @@ class Visualization extends React.Component {
         this.mount.appendChild(this.threeRenderer.getRenderer().domElement);
         this.threeRenderer.start();
         this.dataReader.addDataToScene(this.threeRenderer.getScene());
+      
+        //ControlsGUI
+        const Controls = function () {
+            this.color = "#000";
+        };
+
+        const text = new Controls(),
+        gui = new dat.GUI();
+        const background = gui.addFolder('Background');
+        background.addColor(text, 'color')
+            .onChange(function () {
+                renderer.setClearColor(text.color)
+            });
+        const scale = gui.addFolder('Scale');
     }
 
     componentWillUnmount() {
@@ -39,11 +57,17 @@ class Visualization extends React.Component {
     render() {
         return (
             <div className="Visualization"
-                 style={{ width: '1000px', 
-                 height: '800px'}}
-                 ref={(mount) => { this.mount = mount }}/>
+                 style={{
+                     width: '1000px',
+                     height: '800px'
+                 }}
+                 ref={(mount) => {
+                     this.mount = mount
+                 }}
+            />
         )
     }
 }
+
 
 export default Visualization;
