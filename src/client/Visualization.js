@@ -14,7 +14,7 @@ class Visualization extends React.Component {
 
         this.dataReader = new DataReader();
 
-        this.socket = SocketIOClient("http://localhost:4000");
+        this.socket = SocketIOClient("http://localhost:4000/");
         this.socket.on('dataUploaded', (message) => {
             if(message && this.threeRenderer)
                 this.dataReader.addDataToScene(this.threeRenderer.getScene());

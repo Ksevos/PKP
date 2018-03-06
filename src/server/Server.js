@@ -10,24 +10,31 @@ class Server{
     constructor(){
         this.app = Express();
         
-        this.app.use((req, res, next)=>{
-            res.header('Access-Control-Allow-Origin', "*");
-            res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-            res.header('Access-Control-Allow-Headers', 'Content-Type');
+        this.app.use((req, res, next) => {
+            res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+            res.header("Access-Control-Allow-Credentials", "true");
+            next();
         });
     
         this.app.set('port', process.env.PORT || 4000);
-        this.server = new HTTP.Server(this.app);
-        this.socket = Socket(this.server);
+				
+
         this.upload = Multer();
 
         this.mapGets(this.app);
         this.mapPosts(this.app);
 
-        this.app.listen(4000, () => console.log('Server listening on port 4000!'));
+        this.server = 
+            this.app.listen(4000, () => console.log('Server listening on port 4000!'));
+
+        //this.server = HTTP.createServer(this.app);
+        //this.socket = Socket(this.server);
+        this.socket = Socket.listen(this.server);
     }
 
     /** 
+		 * Map get requests with their callbacks
      * @param {Express.Router} app
      */
     mapGets(app){
@@ -38,6 +45,7 @@ class Server{
     }
 
     /** 
+		 * Map post requests with their callbacks
      * @param {Express.Router} app
      */
     mapPosts(app){
