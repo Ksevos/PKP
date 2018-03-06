@@ -1,46 +1,68 @@
+//@ts-check
+
 import * as THREE from "three";
+import DataObject from './DataObject';
 import axios from 'axios';
 
 class DataReader {
     constructor(props) {
-        this.lastData = '';
+        this.fileData = DataObject;
     }
 
-    checkFileData(fileData) {
-        if (!Array.isArray(JSON.parse(JSON.stringify(fileData)).values) ||
-            !JSON.parse(JSON.stringify(fileData)).values.length) {
-            return false;
-        } else {
-            return true;
-        }
+    /**
+     * Checks if values are in array and are not empty
+     * @param {DataObject} fileData 
+     */
+    _isDataValid(fileData) {
+        return Array.isArray(fileData.values) && fileData.values.length;
     }
 
+    /**
+     * Asynchronously adds data to the scene
+     * @param {THREE.Scene} scene 
+     */
     addDataToScene(scene) {
-        const geometry = new THREE.SphereGeometry(0.05, 64, 64);
-        const elements = JSON.parse(JSON.stringify(this.lastData)).values[0].length;
-        const material = new THREE.MeshBasicMaterial({ color: '#433F81' });
+        this._queryForData().then(data=>{
+            if(!data)
+                return;
+            const geometry = new THREE.SphereGeometry(0.05, 64, 64);
+            const elements = data.values[0].length;
+            const material = new THREE.MeshBasicMaterial({ color: '#433F81' });
 
-        for (var i = 0; i < elements; i++) {
-            let dot = new THREE.Mesh(geometry, material);
-            dot.position.x = JSON.parse(JSON.stringify(this.lastData)).values[0][i];
-            dot.position.y = JSON.parse(JSON.stringify(this.lastData)).values[1][i];
-            dot.position.z = JSON.parse(JSON.stringify(this.lastData)).values[2][i];
-            scene.add(dot);
-        }
+            for (var i = 0; i < elements; i++) {
+                let dot = new THREE.Mesh(geometry, material);
+                dot.position.x = data.values[0][i];
+                dot.position.y = data.values[1][i];
+                dot.position.z = data.values[2][i];
+                scene.add(dot);
+            }
+        });
     }
 
-    readDataFromJSON(scene) {
-        axios.get("/storage/current")
+    /**
+     * Returns request to the server
+     * @returns {Promise<DataObject>}
+     */
+    _queryForData(){
+        return axios.get("/storage/current")
             .then(response => {
-                const fileData = response.data[0];
-                if (JSON.stringify(this.lastData) !== JSON.stringify(fileData)
-                    && this.checkFileData(fileData)) {
-                    this.lastData = fileData;
-                    this.addDataToScene(scene);
+                const fileData = JSON.parse(JSON.stringify(response.data[0]));
+                if (this.fileData !== fileData
+                    && this._isDataValid(fileData)) {
+                    this.fileData = fileData;
+                    return fileData;
                 }
-            })
+                else
+                    return null;
+            }).catch(error=>console.log(error));
+    }
+
+    /** 
+     * @returns {DataObject} 
+     */
+    getData(){
+        return this.fileData;
     }
 }
-
 
 export default DataReader;

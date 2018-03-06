@@ -34,13 +34,13 @@ class ArffToJsonParser{
   * @param {string[]} data
   */
   _parseArffContents(data){
-    for(let entry in data){
-      if(entry.toLowerCase().indexOf("relation")!=-1)
-        this.relation = entry.split(" ")[1];
-      if(entry.toLowerCase().indexOf("attribute")!=-1)
-        this.attributes.push(entry.split(" ")[1]);
-      if(entry.toLowerCase().indexOf("data")!=-1)
-        this.data = entry.substring(entry.indexOf("\n")+1).split("\n");
+    for(let i =0; i<data.length; i++){
+      if(data[i].toLowerCase().indexOf("relation")!=-1)
+        this.relation = data[i].split(" ")[1];
+      if(data[i].toLowerCase().indexOf("attribute")!=-1)
+        this.attributes.push(data[i].split(" ")[1]);
+      if(data[i].toLowerCase().indexOf("data")!=-1)
+        this.data = data[i].substring(data[i].indexOf("\n")+1).split("\n");
     };
   }
 
@@ -54,9 +54,10 @@ class ArffToJsonParser{
     let jsonFile = `"valueNames":[`;
 
     //Add @ATTRIBUTE entries to Json
-    for(let attribute in this.attributes){
-      jsonFile += `"${attribute}",`;
-        }
+    for(let i=0; i<this.attributes.length; i++){
+        jsonFile += `"${this.attributes[i]}",`;
+        Logger.log(this.attributes[i]);
+    }
         
     //Remove comma at the end
     if(jsonFile[jsonFile.length-1] == ',')
@@ -65,9 +66,10 @@ class ArffToJsonParser{
     jsonFile += `],"values":[`;
 
     //Add @DATA entries to Json
-    for(let line in this.data){
-      if(line!="")
-        jsonFile += `[${line}],`;
+    for(let i=0; i<this.data.length; i++){
+      if(this.data[i]!="")
+        jsonFile += `[${this.data[i]}],`;
+        Logger.log(this.data[i]);
     }
     //Remove comma at the end
     if(jsonFile[jsonFile.length-1] == ',')

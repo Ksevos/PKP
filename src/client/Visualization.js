@@ -49,7 +49,7 @@ class Visualization extends React.Component {
       this.uploadData = uploadData;
 
       scene.add(axesHelper);
-      this.uploadData.readDataFromJSON(this.scene);
+
       this.mount.appendChild(this.renderer.domElement)
       this.start()
     }
@@ -70,7 +70,7 @@ class Visualization extends React.Component {
     }
   
     animate() {
-      this.uploadData.readDataFromJSON(this.scene);
+      this.uploadData.addDataToScene(this.scene);
 
       this.renderScene()
       this.frameId = window.requestAnimationFrame(this.animate)
