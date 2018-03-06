@@ -4,6 +4,7 @@
 import React from 'react';
 import * as THREE from "three";
 import dat from "dat.gui"
+import DataReader from './DataReader';
 
 class Visualization extends React.Component {
     constructor(props) {
@@ -12,63 +13,64 @@ class Visualization extends React.Component {
         this.start = this.start.bind(this)
         this.stop = this.stop.bind(this)
         this.animate = this.animate.bind(this)
-    }
 
-    componentWillReceiveProps(nextProps) {
-        this.renderer.setClearColor(nextProps.bgColor)
+        componentWillReceiveProps(nextProps) {
+            this.renderer.setClearColor(nextProps.bgColor)
+
     }
 
     componentDidMount() {
-        const width = this.mount.clientWidth
-        const height = this.mount.clientHeight
+      const axesHelper = new THREE.axesHelper(10000);
 
-        const scene = new THREE.Scene()
-        const camera = new THREE.PerspectiveCamera(
-            75,
-            width / height,
-            0.1,
-            1000
-        )
-        camera.position.z = 4
-        camera.position.y = 1
+      const width = this.mount.clientWidth
+      const height = this.mount.clientHeight
 
-        const renderer = new THREE.WebGLRenderer({antialias: true})
-        const geometry = new THREE.BoxGeometry(1, 1, 1)
-        const material = new THREE.MeshBasicMaterial({color: '#433F81'})
-        const cube = new THREE.Mesh(geometry, material)
-        cube.position.y = 2
+      const scene = new THREE.Scene()
+      const camera = new THREE.PerspectiveCamera(
+          75,
+          width / height,
+          0.1,
+          1000
+      )
+      camera.position.z = 5
+      camera.position.y = 0
 
-        var size = 100;
-        var divisions = 100;
-        var gridHelper = new THREE.GridHelper(size, divisions);
-        scene.add(gridHelper);
+      const renderer = new THREE.WebGLRenderer({ antialias: true })
+      const geometry = new THREE.BoxGeometry(1, 1, 1)
 
-        //ControlsGUI
-        const Controls = function () {
-            this.color = "#000";
-        };
+      let size = 100;
+      let divisions = 100;
+      let gridHelper = new THREE.GridHelper(size, divisions);
+      scene.add(gridHelper);
 
-        const text = new Controls(),
-        gui = new dat.GUI();
-        const background = gui.addFolder('Background');
-        background.addColor(text, 'color')
-            .onChange(function () {
-                renderer.setClearColor(text.color)
-            });
-        const scale = gui.addFolder('Scale');
+      //ControlsGUI
+      const Controls = function () {
+          this.color = "#000";
+      };
 
-        scene.add(cube)
-        renderer.setClearColor('#000')
-        renderer.setSize(width, height)
+      const text = new Controls(),
+      gui = new dat.GUI();
+      const background = gui.addFolder('Background');
+      background.addColor(text, 'color')
+          .onChange(function () {
+              renderer.setClearColor(text.color)
+          });
+      const scale = gui.addFolder('Scale');
 
-        this.scene = scene
-        this.camera = camera
-        this.renderer = renderer
-        this.material = material
-        this.cube = cube
+      renderer.setClearColor('#000000')
+      renderer.setSize(width, height)
 
-        this.mount.appendChild(this.renderer.domElement)
-        this.start()
+      this.scene = scene;
+      this.camera = camera;
+      this.renderer = renderer;
+
+      const uploadData = new DataReader();
+      this.uploadData = uploadData;
+
+      scene.add(axesHelper);
+
+      this.mount.appendChild(this.renderer.domElement)
+      this.start()
     }
 
     componentWillUnmount() {
@@ -78,6 +80,7 @@ class Visualization extends React.Component {
 
     start() {
         if (!this.frameId) {
+
             this.frameId = requestAnimationFrame(this.animate)
         }
     }
@@ -87,11 +90,10 @@ class Visualization extends React.Component {
     }
 
     animate() {
-        this.cube.rotation.x += 0.01
-        this.cube.rotation.y += 0.01
+      this.uploadData.readDataFromJSON(this.scene);
 
-        this.renderScene()
-        this.frameId = window.requestAnimationFrame(this.animate)
+      this.renderScene()
+      this.frameId = window.requestAnimationFrame(this.animate)
     }
 
     renderScene() {
