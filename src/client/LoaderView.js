@@ -23,11 +23,11 @@ class LoaderView extends Component {
   }
   render() {
 		return(
-      <form onSubmit={(e) =>{this.onFormSubmit(e)}}>
-        <h1>File Upload</h1>
-        <input type="file" name="dataFile" onChange={(e)=>{this.setState({file:e.target.files[0]})}} />
-        <button type="submit">Upload</button>
-      </form>
+            <form onSubmit={(e) =>{this.onFormSubmit(e)}}>
+                <h1>File Upload</h1>
+                <input type="file" name="dataFile" onChange={(e)=>{this.setState({file:e.target.files[0]})}} />
+                <button type="submit">Upload</button>
+            </form>
 		);
   }
 }
