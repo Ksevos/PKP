@@ -1,7 +1,7 @@
 //@ts-check
 
 import * as THREE from "three";
-import DataObject from './DataObject';
+import DataObject from './CustomObjects/DataObject';
 import axios from 'axios';
 
 class DataReader {
@@ -27,7 +27,7 @@ class DataReader {
                 return;
             const geometry = new THREE.SphereGeometry(0.05, 64, 64);
             const elements = data.values[0].length;
-            const material = new THREE.MeshBasicMaterial({ color: '#433F81' });
+            const material = new THREE.MeshBasicMaterial({ color: '#8888FF' });
 
             for (var i = 0; i < elements; i++) {
                 let dot = new THREE.Mesh(geometry, material);

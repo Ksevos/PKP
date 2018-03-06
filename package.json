@@ -13,6 +13,7 @@
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-scripts": "1.1.1",
+    "socket.io": "^2.0.4",
     "three": "^0.90.0"
   },
   "scripts": {

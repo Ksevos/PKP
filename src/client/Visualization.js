@@ -2,82 +2,39 @@
 //@ts-check
 
 import React from 'react';
-import * as THREE from "three";
+//import * as THREE from "three";
 import DataReader from './DataReader';
+import Renderer from './Renderer/Renderer';
+//import Axios from 'axios';
+import SocketIOClient from 'socket.io-client';
 
 class Visualization extends React.Component {
     constructor(props) {
         super(props);
 
-        this.start = this.start.bind(this);
-        this.stop = this.stop.bind(this);
-        this.animate = this.animate.bind(this);
+        this.dataReader = new DataReader();
+
+        this.socket = SocketIOClient("http://localhost:4000");
+        this.socket.on('dataUploaded', (message) => {
+            if(message && this.threeRenderer)
+                this.dataReader.addDataToScene(this.threeRenderer.getScene());
+          });
     }
 
     componentDidMount() {
-        const axesHelper = new THREE.AxesHelper(10000);
-
-        const width = this.mount.clientWidth
-        const height = this.mount.clientHeight
-
-        const scene = new THREE.Scene()
-        const camera = new THREE.PerspectiveCamera(
-        75,
-        width / height,
-        0.1,
-        1000
-        )
-        camera.position.z = 5
-        camera.position.y = 0
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true })
-        const geometry = new THREE.BoxGeometry(1, 1, 1)
-
-        let size = 100;
-        let divisions = 100;
-        let gridHelper = new THREE.GridHelper(size, divisions);
-        scene.add(gridHelper);
-
-        renderer.setClearColor('#000000')
-        renderer.setSize(width, height)
-
-        this.scene = scene;
-        this.camera = camera;
-        this.renderer = renderer;
-
-        const uploadData = new DataReader();
-        this.uploadData = uploadData;
-
-        scene.add(axesHelper);
-
-        this.mount.appendChild(this.renderer.domElement);
-        this.start();
+        this.threeRenderer = new Renderer(this.mount.clientWidth, this.mount.clientHeight);
+        this.mount.appendChild(this.threeRenderer.getRenderer().domElement);
+        this.threeRenderer.start();
+        this.dataReader.addDataToScene(this.threeRenderer.getScene());
     }
 
     componentWillUnmount() {
-        this.stop();
-        this.mount.removeChild(this.renderer.domElement);
+        this.threeRenderer.stop();
+        this.mount.removeChild(this.threeRenderer.getRenderer().domElement);
     }
 
-    start() {
-        if (!this.frameId) {
-            this.frameId = requestAnimationFrame(this.animate);
-        }
-    }
-
-    stop() {
-        cancelAnimationFrame(this.frameId);
-    }
-
-    animate() {
-        this.uploadData.addDataToScene(this.scene);
-
-        this.renderScene();
-        this.frameId = window.requestAnimationFrame(this.animate);
-    }
-
-    renderScene() {
-       this.renderer.render(this.scene, this.camera);
+    onDataLoaded(){
+        this.dataReader.addDataToScene(this.threeRenderer.getScene());
     }
 
     render() {
