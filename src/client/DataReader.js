@@ -25,17 +25,21 @@ class DataReader {
         this._queryForData().then(data=>{
             if(!data)
                 return;
-            const geometry = new THREE.SphereGeometry(0.05, 64, 64);
-            const elements = data.values[0].length;
-            const material = new THREE.MeshBasicMaterial({ color: '#8888FF' });
+            var dotGeometry = new THREE.Geometry();
 
-            for (var i = 0; i < elements; i++) {
-                let dot = new THREE.Mesh(geometry, material);
-                dot.position.x = data.values[0][i];
-                dot.position.y = data.values[1][i];
-                dot.position.z = data.values[2][i];
-                scene.add(dot);
+            for (var i = 0; i < data.values.length; i++) {
+                dotGeometry.vertices.push(
+                    new THREE.Vector3( 
+                        data.values[i][0], 
+                        data.values[i][1], 
+                        data.values[i][2]));
             }
+            var dotMaterial = new THREE.PointsMaterial( { 
+                size: 5, 
+                sizeAttenuation: false, 
+                color: '#FF00FF' } );
+            var dot = new THREE.Points( dotGeometry, dotMaterial );
+            scene.add(dot);
         });
     }
 
@@ -55,13 +59,6 @@ class DataReader {
                 else
                     return null;
             }).catch(error=>console.log(error));
-    }
-
-    /** 
-     * @returns {DataObject} 
-     */
-    getData(){
-        return this.fileData;
     }
 }
 

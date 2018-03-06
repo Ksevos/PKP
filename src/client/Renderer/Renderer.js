@@ -1,41 +1,51 @@
 //@ts-check
 
 import * as THREE from "three";
-//import DataReader from '../DataReader';
 
 class Renderer{
     constructor(width, height) {
         this._animate = this._animate.bind(this);
+        
+        this.renderer = new THREE.WebGLRenderer({ antialias: true })
+        this.renderer.setClearColor('#FFFFFF');
+        this.renderer.setSize(width, height);
 
-        const axesHelper = new THREE.AxesHelper(10000);
+        this.camera = this._createCamera(width, height);  
 
-        const scene = new THREE.Scene()
+        this.scene = this._createScene();
+    }
+
+    /**
+     * Create camera and set it's initial position
+     * @param {number} width 
+     * @param {number} height 
+     */
+    _createCamera(width, height){
         const camera = new THREE.PerspectiveCamera(
-        75,
-        width / height,
-        0.1,
-        1000
-        )
-        camera.position.z = 5
-        camera.position.y = 0
+            75,
+            width / height,
+            0.1,
+            1000);
+        camera.position.z = 5;
+        camera.position.y = 1;
+        return camera;
+    }
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true })
-  //      const geometry = new THREE.BoxGeometry(1, 1, 1)
+    /** 
+     * Create scene and add basic objects to it
+     */
+    _createScene(){
+        const scene = new THREE.Scene();
 
-        let size = 100;
-        let divisions = 100;
-        let gridHelper = new THREE.GridHelper(size, divisions);
+        const axesHelper = new THREE.AxesHelper(100000);
+
+        const gridHelper = new THREE.GridHelper(10, 10);
         gridHelper.translateY(-0.01);
+
         scene.add(gridHelper);
-
-        renderer.setClearColor('#000000')
-        renderer.setSize(width, height)
-
-        this.scene = scene;
-        this.camera = camera;
-        this.renderer = renderer;
-
         scene.add(axesHelper);
+
+        return scene;
     }
 
     start() {
@@ -62,6 +72,14 @@ class Renderer{
     }
     getRenderer(){
         return this.renderer;
+    }
+    removeDataFromScene(){
+        const children = this.scene.children;
+        console.log(children);
+        for(let i=0; i<children.length; i++){ 
+            if(children[i].constructor == THREE.Points)
+                this.scene.remove(children[i]); 
+        }
     }
 }
 

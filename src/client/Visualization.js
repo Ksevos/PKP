@@ -2,10 +2,8 @@
 //@ts-check
 
 import React from 'react';
-//import * as THREE from "three";
 import DataReader from './DataReader';
 import Renderer from './Renderer/Renderer';
-//import Axios from 'axios';
 import SocketIOClient from 'socket.io-client';
 
 class Visualization extends React.Component {
@@ -17,7 +15,7 @@ class Visualization extends React.Component {
         this.socket = SocketIOClient("http://localhost:4000/");
         this.socket.on('dataUploaded', (message) => {
             if(message && this.threeRenderer)
-                this.dataReader.addDataToScene(this.threeRenderer.getScene());
+                this.onDataLoaded();
           });
     }
 
@@ -34,6 +32,7 @@ class Visualization extends React.Component {
     }
 
     onDataLoaded(){
+        this.threeRenderer.removeDataFromScene();
         this.dataReader.addDataToScene(this.threeRenderer.getScene());
     }
 
