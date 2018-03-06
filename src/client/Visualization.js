@@ -5,6 +5,8 @@ import React from 'react';
 import * as THREE from "three";
 import dat from "dat.gui"
 import DataReader from './DataReader';
+import OrbitControls from 'orbit-controls-es6';
+
 
 class Visualization extends React.Component {
     constructor(props) {
@@ -14,13 +16,11 @@ class Visualization extends React.Component {
         this.stop = this.stop.bind(this)
         this.animate = this.animate.bind(this)
 
-        componentWillReceiveProps(nextProps) {
-            this.renderer.setClearColor(nextProps.bgColor)
 
     }
 
     componentDidMount() {
-      const axesHelper = new THREE.axesHelper(10000);
+      const axesHelper = new THREE.AxesHelper(10000);
 
       const width = this.mount.clientWidth
       const height = this.mount.clientHeight
@@ -42,6 +42,13 @@ class Visualization extends React.Component {
       let divisions = 100;
       let gridHelper = new THREE.GridHelper(size, divisions);
       scene.add(gridHelper);
+
+
+      //Orbit controls (Rotate, pan, resize)
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enabled = true;
+      controls.maxDistance = 1500;
+      controls.minDistance = 0;
 
       //ControlsGUI
       const Controls = function () {
