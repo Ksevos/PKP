@@ -13,8 +13,9 @@ class Visualization extends React.Component {
 
         this.dataReader = new DataReader();
       
-        componentWillReceiveProps(nextProps) {
-            this.renderer.setClearColor(nextProps.bgColor)
+        //componentWillReceiveProps(nextProps) {
+        //    this.renderer.setClearColor(nextProps.bgColor)
+        //}
 
         this.socket = SocketIOClient("http://localhost:4000/");
         this.socket.on('dataUploaded', (message) => {
@@ -37,9 +38,10 @@ class Visualization extends React.Component {
         const text = new Controls(),
         gui = new dat.GUI();
         const background = gui.addFolder('Background');
+        let renderer = this.threeRenderer.getRenderer();
         background.addColor(text, 'color')
             .onChange(function () {
-                renderer.setClearColor(text.color)
+                renderer.setClearColor(text.color);
             });
         const scale = gui.addFolder('Scale');
     }

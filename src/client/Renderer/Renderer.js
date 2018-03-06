@@ -70,6 +70,9 @@ class Renderer{
     getScene(){
         return this.scene;
     }
+    /** 
+     * @returns {THREE.WebGLRenderer}
+    */
     getRenderer(){
         return this.renderer;
     }
