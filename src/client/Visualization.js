@@ -5,75 +5,75 @@ import React from 'react';
 import * as THREE from "three";
 import dat from "dat.gui"
 import DataReader from './DataReader';
+import {Link} from 'react-router-dom'
 
 class Visualization extends React.Component {
+    toolbar;
+    Controls = function () {
+        this.color = "#000";
+    };
+
     constructor(props) {
         super(props)
-
         this.start = this.start.bind(this)
         this.stop = this.stop.bind(this)
         this.animate = this.animate.bind(this)
-
-        componentWillReceiveProps(nextProps) {
-            this.renderer.setClearColor(nextProps.bgColor)
-
     }
 
     componentDidMount() {
-      const axesHelper = new THREE.axesHelper(10000);
+        const axesHelper = new THREE.AxesHelper(10000);
 
-      const width = this.mount.clientWidth
-      const height = this.mount.clientHeight
+        const width = this.mount.clientWidth
+        const height = this.mount.clientHeight
 
-      const scene = new THREE.Scene()
-      const camera = new THREE.PerspectiveCamera(
-          75,
-          width / height,
-          0.1,
-          1000
-      )
-      camera.position.z = 5
-      camera.position.y = 0
+        const scene = new THREE.Scene()
+        const camera = new THREE.PerspectiveCamera(
+            75,
+            width / height,
+            0.1,
+            1000
+        )
+        camera.position.z = 5
+        camera.position.y = 0
 
-      const renderer = new THREE.WebGLRenderer({ antialias: true })
-      const geometry = new THREE.BoxGeometry(1, 1, 1)
+        const renderer = new THREE.WebGLRenderer({antialias: true})
+        const geometry = new THREE.BoxGeometry(1, 1, 1)
 
-      let size = 100;
-      let divisions = 100;
-      let gridHelper = new THREE.GridHelper(size, divisions);
-      scene.add(gridHelper);
+        let size = 100;
+        let divisions = 100;
+        let gridHelper = new THREE.GridHelper(size, divisions);
+        scene.add(gridHelper);
 
-      //ControlsGUI
-      const Controls = function () {
-          this.color = "#000";
-      };
+        //ControlsGUI
 
-      const text = new Controls(),
-      gui = new dat.GUI();
-      const background = gui.addFolder('Background');
-      background.addColor(text, 'color')
-          .onChange(function () {
-              renderer.setClearColor(text.color)
-          });
-      const scale = gui.addFolder('Scale');
+        const text = new this.Controls();
+        this.toolbar = new dat.GUI();
 
-      renderer.setClearColor('#000000')
-      renderer.setSize(width, height)
+        const background = this.toolbar.addFolder('Background');
+        background.addColor(text, 'color')
+            .onChange(function () {
+                renderer.setClearColor(text.color)
+            });
+        const scale = this.toolbar.addFolder('Scale');
 
-      this.scene = scene;
-      this.camera = camera;
-      this.renderer = renderer;
+        renderer.setClearColor('#000000')
+        renderer.setSize(width, height)
 
-      const uploadData = new DataReader();
-      this.uploadData = uploadData;
+        this.scene = scene;
+        this.camera = camera;
+        this.renderer = renderer;
 
-      scene.add(axesHelper);
+        // const uploadData = new DataReader();
+        // this.uploadData = uploadData;
 
-      this.mount.appendChild(this.renderer.domElement)
-      this.start()
+        scene.add(axesHelper);
+
+        this.mount.appendChild(this.renderer.domElement)
+        this.start()
     }
 
     componentWillUnmount() {
+        this.toolbar.destroy();
         this.stop()
         this.mount.removeChild(this.renderer.domElement)
     }
@@ -90,10 +90,10 @@ class Visualization extends React.Component {
     }
 
     animate() {
-      this.uploadData.readDataFromJSON(this.scene);
+        // this.uploadData.readDataFromJSON(this.scene);
 
-      this.renderScene()
-      this.frameId = window.requestAnimationFrame(this.animate)
+        this.renderScene()
+        this.frameId = window.requestAnimationFrame(this.animate)
     }
 
     renderScene() {
@@ -104,16 +104,17 @@ class Visualization extends React.Component {
         return (
             <div className="Visualization"
                  style={{
-                     width: '1000px',
-                     height: '800px'
+                     width: '100vw',
+                     height: '100vh'
                  }}
                  ref={(mount) => {
                      this.mount = mount
                  }}
-            />
+            >
+                <Link to={"/"}><span className="close thick"></span></Link>
+            </div>
         )
     }
 }
-
 
 export default Visualization;
