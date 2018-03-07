@@ -18,16 +18,16 @@ class LoaderView extends Component {
     if (this.state.file) {
       let data = new FormData();
 			data.append('file', this.state.file);
-			Axios.post("/storage", data);
+			Axios.post("http://localhost:4000/storage", data);
     }
   }
   render() {
 		return(
-      <form onSubmit={(e) =>{this.onFormSubmit(e)}}>
-        <h1>File Upload</h1>
-        <input type="file" name="dataFile" onChange={(e)=>{this.setState({file:e.target.files[0]})}} />
-        <button type="submit">Upload</button>
-      </form>
+            <form onSubmit={(e) =>{this.onFormSubmit(e)}}>
+                <h1>File Upload</h1>
+                <input type="file" name="dataFile" onChange={(e)=>{this.setState({file:e.target.files[0]})}} />
+                <button type="submit">Upload</button>
+            </form>
 		);
   }
 }
