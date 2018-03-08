@@ -23,6 +23,7 @@ class Visualization extends React.Component {
         //    this.renderer.setClearColor(nextProps.bgColor)
         //}
 
+        //Listens for "dataUploaded" message from the server
         this.socket = SocketIOClient("http://localhost:4000/");
         this.socket.on('dataUploaded', (message) => {
             if(message && this.threeRenderer)
@@ -37,15 +38,15 @@ class Visualization extends React.Component {
         this.dataReader.addDataToScene(this.threeRenderer.getScene());
       
         //ControlsGUI
-        const text = new Controls(),
-        gui = new dat.GUI();
-        const background = gui.addFolder('Background');
+        const text = new this.Controls();
+        this.toolbar = new dat.GUI();
+        const background = this.toolbar.addFolder('Background');
         let renderer = this.threeRenderer.getRenderer();
         background.addColor(text, 'color')
             .onChange(function () {
                 renderer.setClearColor(text.color);
             });
-        const scale = gui.addFolder('Scale');
+        const scale = this.toolbar.addFolder('Scale');
     }
 
     componentWillUnmount() {
