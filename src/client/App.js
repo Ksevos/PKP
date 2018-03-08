@@ -3,6 +3,7 @@
 import React, {Component} from 'react';
 import Visualization from './Visualization';
 import LoaderView from './LoaderView';
+import {Switch, Route} from 'react-router-dom'
 
 class App extends Component {
     constructor(props) {
@@ -15,10 +16,10 @@ class App extends Component {
 
     render() {
         return (
-            <div className="App">
-                <LoaderView/>
-                <Visualization/>
-            </div>
+            <Switch>
+                <Route exact path='/' component={LoaderView}/>
+                <Route path='/viewer' component={Visualization}/>
+            </Switch>
         );
     }
 

@@ -4,10 +4,16 @@
 import React from 'react';
 import dat from "dat.gui"
 import DataReader from './DataReader';
+import {Link} from 'react-router-dom'
 import Renderer from './Renderer/Renderer';
 import SocketIOClient from 'socket.io-client';
 
 class Visualization extends React.Component {
+    toolbar;
+    Controls = function () {
+        this.color = "#000";
+    };
+
     constructor(props) {
         super(props);
 
@@ -31,10 +37,6 @@ class Visualization extends React.Component {
         this.dataReader.addDataToScene(this.threeRenderer.getScene());
       
         //ControlsGUI
-        const Controls = function () {
-            this.color = "#000";
-        };
-
         const text = new Controls(),
         gui = new dat.GUI();
         const background = gui.addFolder('Background');
@@ -47,6 +49,7 @@ class Visualization extends React.Component {
     }
 
     componentWillUnmount() {
+        this.toolbar.destroy();
         this.threeRenderer.stop();
         this.mount.removeChild(this.threeRenderer.getRenderer().domElement);
     }
@@ -60,16 +63,17 @@ class Visualization extends React.Component {
         return (
             <div className="Visualization"
                  style={{
-                     width: '1000px',
-                     height: '800px'
+                     width: '100vw',
+                     height: '100vh'
                  }}
                  ref={(mount) => {
                      this.mount = mount
                  }}
-            />
+            >
+                <Link to={"/"}><span className="close thick"></span></Link>
+            </div>
         )
     }
 }
-
 
 export default Visualization;
