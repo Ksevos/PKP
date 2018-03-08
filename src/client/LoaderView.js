@@ -19,7 +19,7 @@ class LoaderView extends Component {
         if (this.state.file) {
             let data = new FormData();
             data.append('file', this.state.file);
-            Axios.post("/storage", data);
+            Axios.post("http://localhost:4000/storage", data);
         }
     }
 
