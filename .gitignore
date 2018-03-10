@@ -15,6 +15,7 @@ storage/*.json
 
 # production
 /build
+/build-server
 
 # misc
 .DS_Store

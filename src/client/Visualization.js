@@ -23,6 +23,7 @@ class Visualization extends React.Component {
         //    this.renderer.setClearColor(nextProps.bgColor)
         //}
 
+        //Listens for "dataUploaded" message from the server
         this.socket = SocketIOClient("http://localhost:4000/");
         this.socket.on('dataUploaded', (message) => {
             if(message && this.threeRenderer)
