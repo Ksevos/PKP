@@ -4,7 +4,6 @@
 import React from 'react';
 import dat from "dat.gui"
 import DataReader from './DataReader';
-import OrbitControls from 'orbit-controls-es6';
 import {Link} from 'react-router-dom'
 import Renderer from './Renderer/Renderer';
 import SocketIOClient from 'socket.io-client';
@@ -36,12 +35,6 @@ class Visualization extends React.Component {
         this.mount.appendChild(this.threeRenderer.getRenderer().domElement);
         this.threeRenderer.start();
         this.dataReader.addDataToScene(this.threeRenderer.getScene());
-      
-        //Orbit controls (Rotate, pan, resize)
-        const controls = new OrbitControls(camera, renderer.domElement);
-        controls.enabled = true;
-        controls.maxDistance = 1500;
-        controls.minDistance = 0;
 
         //ControlsGUI
         const text = new this.Controls();
