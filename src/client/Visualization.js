@@ -2,125 +2,85 @@
 //@ts-check
 
 import React from 'react';
-import * as THREE from "three";
 import dat from "dat.gui"
 import DataReader from './DataReader';
 import OrbitControls from 'orbit-controls-es6';
-
+import {Link} from 'react-router-dom'
+import Renderer from './Renderer/Renderer';
+import SocketIOClient from 'socket.io-client';
 
 class Visualization extends React.Component {
+    toolbar;
+    Controls = function () {
+        this.color = "#000";
+    };
+
     constructor(props) {
-        super(props)
+        super(props);
 
-        this.start = this.start.bind(this)
-        this.stop = this.stop.bind(this)
-        this.animate = this.animate.bind(this)
+        this.dataReader = new DataReader();
+      
+        //componentWillReceiveProps(nextProps) {
+        //    this.renderer.setClearColor(nextProps.bgColor)
+        //}
 
-
+        this.socket = SocketIOClient("http://localhost:4000/");
+        this.socket.on('dataUploaded', (message) => {
+            if(message && this.threeRenderer)
+                this.onDataLoaded();
+          });
     }
 
     componentDidMount() {
-      const axesHelper = new THREE.AxesHelper(10000);
+        this.threeRenderer = new Renderer(this.mount.clientWidth, this.mount.clientHeight);
+        this.mount.appendChild(this.threeRenderer.getRenderer().domElement);
+        this.threeRenderer.start();
+        this.dataReader.addDataToScene(this.threeRenderer.getScene());
+      
+        //Orbit controls (Rotate, pan, resize)
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enabled = true;
+        controls.maxDistance = 1500;
+        controls.minDistance = 0;
 
-      const width = this.mount.clientWidth
-      const height = this.mount.clientHeight
-
-      const scene = new THREE.Scene()
-      const camera = new THREE.PerspectiveCamera(
-          75,
-          width / height,
-          0.1,
-          1000
-      )
-      camera.position.z = 5
-      camera.position.y = 0
-
-      const renderer = new THREE.WebGLRenderer({ antialias: true })
-      const geometry = new THREE.BoxGeometry(1, 1, 1)
-
-      let size = 100;
-      let divisions = 100;
-      let gridHelper = new THREE.GridHelper(size, divisions);
-      scene.add(gridHelper);
-
-
-      //Orbit controls (Rotate, pan, resize)
-      const controls = new OrbitControls(camera, renderer.domElement);
-      controls.enabled = true;
-      controls.maxDistance = 1500;
-      controls.minDistance = 0;
-
-      //ControlsGUI
-      const Controls = function () {
-          this.color = "#000";
-      };
-
-      const text = new Controls(),
-      gui = new dat.GUI();
-      const background = gui.addFolder('Background');
-      background.addColor(text, 'color')
-          .onChange(function () {
-              renderer.setClearColor(text.color)
-          });
-      const scale = gui.addFolder('Scale');
-
-      renderer.setClearColor('#000000')
-      renderer.setSize(width, height)
-
-      this.scene = scene;
-      this.camera = camera;
-      this.renderer = renderer;
-
-      const uploadData = new DataReader();
-      this.uploadData = uploadData;
-
-      scene.add(axesHelper);
-
-      this.mount.appendChild(this.renderer.domElement)
-      this.start()
+        //ControlsGUI
+        const text = new this.Controls();
+        this.toolbar = new dat.GUI();
+        const background = this.toolbar.addFolder('Background');
+        let renderer = this.threeRenderer.getRenderer();
+        background.addColor(text, 'color')
+            .onChange(function () {
+                renderer.setClearColor(text.color);
+            });
+        const scale = this.toolbar.addFolder('Scale');
     }
 
     componentWillUnmount() {
-        this.stop()
-        this.mount.removeChild(this.renderer.domElement)
+        this.toolbar.destroy();
+        this.threeRenderer.stop();
+        this.mount.removeChild(this.threeRenderer.getRenderer().domElement);
     }
 
-    start() {
-        if (!this.frameId) {
-
-            this.frameId = requestAnimationFrame(this.animate)
-        }
-    }
-
-    stop() {
-        cancelAnimationFrame(this.frameId)
-    }
-
-    animate() {
-      this.uploadData.readDataFromJSON(this.scene);
-
-      this.renderScene()
-      this.frameId = window.requestAnimationFrame(this.animate)
-    }
-
-    renderScene() {
-        this.renderer.render(this.scene, this.camera)
+    onDataLoaded(){
+        this.threeRenderer.removeDataFromScene();
+        this.dataReader.addDataToScene(this.threeRenderer.getScene());
     }
 
     render() {
         return (
             <div className="Visualization"
                  style={{
-                     width: '1000px',
-                     height: '800px'
+                     width: '100vw',
+                     height: '100vh'
                  }}
                  ref={(mount) => {
                      this.mount = mount
                  }}
-            />
+            >
+                <Link to={"/"}><span className="close thick"></span></Link>
+            </div>
         )
     }
 }
-
 
 export default Visualization;
