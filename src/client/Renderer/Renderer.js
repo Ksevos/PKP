@@ -1,6 +1,7 @@
 //@ts-check
 
 import * as THREE from "three";
+import OrbitControls from 'orbit-controls-es6';
 
 class Renderer{
     constructor(width, height) {
@@ -11,6 +12,12 @@ class Renderer{
         this.renderer.setSize(width, height);
 
         this.camera = this._createCamera(width, height);  
+
+        //Orbit controls (Rotate, pan, resize)
+        const controls = new OrbitControls(this.camera, this.renderer.domElement);
+        controls.enabled = true;
+        controls.maxDistance = 1500;
+        controls.minDistance = 0;
 
         this.scene = this._createScene();
     }
