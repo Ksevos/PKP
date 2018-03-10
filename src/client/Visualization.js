@@ -35,17 +35,17 @@ class Visualization extends React.Component {
         this.mount.appendChild(this.threeRenderer.getRenderer().domElement);
         this.threeRenderer.start();
         this.dataReader.addDataToScene(this.threeRenderer.getScene());
-      
+
         //ControlsGUI
-        const text = new Controls(),
-        gui = new dat.GUI();
-        const background = gui.addFolder('Background');
+        const text = new this.Controls();
+        this.toolbar = new dat.GUI();
+        const background = this.toolbar.addFolder('Background');
         let renderer = this.threeRenderer.getRenderer();
         background.addColor(text, 'color')
             .onChange(function () {
                 renderer.setClearColor(text.color);
             });
-        const scale = gui.addFolder('Scale');
+        const scale = this.toolbar.addFolder('Scale');
     }
 
     componentWillUnmount() {
