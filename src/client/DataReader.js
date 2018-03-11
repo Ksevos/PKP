@@ -1,8 +1,8 @@
 //@ts-check
 
-import * as THREE from "three";
 import DataObject from './CustomObjects/DataObject';
 import axios from 'axios';
+import DataFormatter from "./DataFormatter";
 
 class DataReader {
     constructor(props) {
@@ -25,21 +25,13 @@ class DataReader {
         this._queryForData().then(data=>{
             if(!data)
                 return;
-            var dotGeometry = new THREE.Geometry();
 
-            for (var i = 0; i < data.values.length; i++) {
-                dotGeometry.vertices.push(
-                    new THREE.Vector3( 
-                        data.values[i][0], 
-                        data.values[i][1], 
-                        data.values[i][2]));
+            let dataFormatter = new DataFormatter(data);
+            let dataCloud = dataFormatter.getDataCloud();
+
+            for(let i = 0; i < dataCloud.length; i++){
+                scene.add(dataCloud[i]);
             }
-            var dotMaterial = new THREE.PointsMaterial( { 
-                size: 5, 
-                sizeAttenuation: false, 
-                color: '#FF00FF' } );
-            var dot = new THREE.Points( dotGeometry, dotMaterial );
-            scene.add(dot);
         });
     }
 

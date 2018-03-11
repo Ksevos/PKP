@@ -28,13 +28,11 @@ class Server{
         this.server = 
             this.app.listen(4000, () => console.log('Server listening on port 4000!'));
 
-        //this.server = HTTP.createServer(this.app);
-        //this.socket = Socket(this.server);
         this.socket = Socket.listen(this.server);
     }
 
     /** 
-		 * Map get requests with their callbacks
+     * Map get requests with their callbacks
      * @param {Express.Router} app
      */
     mapGets(app){
@@ -45,7 +43,7 @@ class Server{
     }
 
     /** 
-		 * Map post requests with their callbacks
+     * Map post requests with their callbacks
      * @param {Express.Router} app
      */
     mapPosts(app){
