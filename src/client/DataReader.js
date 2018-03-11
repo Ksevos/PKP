@@ -33,10 +33,8 @@ class DataReader {
                 return;
 
             // Get only axis names
-            this.axes = 
-                data.valueNames.filter(
-                    (name,index) => {
-                        index != data.valueNames.length - 1});
+            this.axes = data.valueNames;
+            this.axes.pop();
 
             // Set default axis names based on data
             this._readDefaultAxes(data);
@@ -86,7 +84,6 @@ class DataReader {
                 yAxis, 
                 zAxis);
         let dataCloud = dataFormatter.getDataCloud();
-
         for(let i = 0; i < dataCloud.length; i++){
             scene.add(dataCloud[i]);
         }

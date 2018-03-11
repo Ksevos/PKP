@@ -2,17 +2,14 @@
 //@ts-check
 
 import React from 'react';
-import dat from "dat.gui"
 import DataReader from './DataReader';
 import {Link} from 'react-router-dom'
 import Renderer from './Renderer/Renderer';
 import SocketIOClient from 'socket.io-client';
+import Toolbar from "./Toolbar/Toolbar";
 
 class Visualization extends React.Component {
     toolbar;
-    Controls = function () {
-        this.color = "#000";
-    };
 
     constructor(props) {
         super(props);
@@ -38,15 +35,7 @@ class Visualization extends React.Component {
         this.dataReader.addDataToScene(this.threeRenderer.getScene());
 
         //ControlsGUI
-        const text = new this.Controls();
-        this.toolbar = new dat.GUI();
-        const background = this.toolbar.addFolder('Background');
-        let renderer = this.threeRenderer.getRenderer();
-        background.addColor(text, 'color')
-            .onChange(function () {
-                renderer.setClearColor(text.color);
-            });
-        const scale = this.toolbar.addFolder('Scale');
+        this.toolbar = new Toolbar(this.threeRenderer, this.dataReader);
     }
 
     componentWillUnmount() {

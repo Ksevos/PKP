@@ -8,7 +8,7 @@ class Renderer{
         this._animate = this._animate.bind(this);
         
         this.renderer = new THREE.WebGLRenderer({ antialias: true })
-        this.renderer.setClearColor('#FFFFFF');
+        this.renderer.setClearColor('#000');
         this.renderer.setSize(width, height);
 
         this.camera = this._createCamera(width, height);  
@@ -45,14 +45,26 @@ class Renderer{
         const scene = new THREE.Scene();
 
         const axesHelper = new THREE.AxesHelper(100000);
-
         const gridHelper = new THREE.GridHelper(10, 10);
         gridHelper.translateY(-0.01);
+        gridHelper.name = "GridHelper";
 
         scene.add(gridHelper);
         scene.add(axesHelper);
 
         return scene;
+    }
+
+    addGridHelper() {
+        const gridHelper = new THREE.GridHelper(10, 10);
+        gridHelper.translateY(-0.01);
+        gridHelper.name = "GridHelper";
+
+        this.getScene().add(gridHelper);
+    }
+
+    removeGridHelper() {
+        this.getScene().remove(this.getScene().getObjectByName("GridHelper"));
     }
 
     start() {
@@ -85,10 +97,9 @@ class Renderer{
     }
     removeDataFromScene(){
         const children = this.scene.children;
-        console.log(children);
-        for(let i=0; i<children.length; i++){ 
+        for(let i=0; i<children.length; i++){
             if(children[i].constructor === THREE.Points)
-                this.scene.remove(children[i]); 
+                this.scene.remove(children[i]);
         }
     }
 }

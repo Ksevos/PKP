@@ -31,7 +31,7 @@ class DataFormatter{
             if(!pointMaterials[dataClass])
                 pointMaterials[dataClass] = this._createPointMaterial();
 
-            pointGeometries[dataClass].vertices.push(_getAxisVector(data,i));
+            pointGeometries[dataClass].vertices.push(this._getAxisVector(data,i));
         }
 
         //Create a new Points object for each data class
@@ -43,16 +43,16 @@ class DataFormatter{
      */
     _getAxisVector(data, index){
         if(!data)
-            return new new THREE.Vector3(0,0,0);
+            return new THREE.Vector3(0,0,0);
 
         let x = 0, y = 0, z = 0;
 
-        for(let i = 0; i < data.valueNames; i++){
-            if(data.valueNames[i] == this.xAxis)
+        for(let i = 0; i < data.valueNames.length; i++){
+            if(data.valueNames[i] === this.xAxis)
                 x = data.values[index][i];
-            if(data.valueNames[i] == this.yAxis)
+            if(data.valueNames[i] === this.yAxis)
                 y = data.values[index][i];
-            if(data.valueNames[i] == this.zAxis)
+            if(data.valueNames[i] === this.zAxis)
                 z = data.values[index][i];
         }
 
@@ -77,7 +77,7 @@ class DataFormatter{
     }
 
     /** 
-     * @returns {THREE.PointsMaterial}
+     * @returns {PointsMaterial}
      */
     _createPointMaterial(){
         return new THREE.PointsMaterial( { 
