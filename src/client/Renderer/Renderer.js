@@ -1,7 +1,7 @@
 //@ts-check
 
 import * as THREE from "three";
-import OrbitControls from 'orbit-controls-es6';
+import OrbitControls from '../LocalOrbitControls/OrbitControls.js';
 
 class Renderer{
     constructor(width, height) {
