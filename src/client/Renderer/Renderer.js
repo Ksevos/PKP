@@ -80,7 +80,7 @@ class Renderer{
         const children = this.scene.children;
         console.log(children);
         for(let i=0; i<children.length; i++){ 
-            if(children[i].constructor == THREE.Points)
+            if(children[i].constructor === THREE.Points)
                 this.scene.remove(children[i]); 
         }
     }
