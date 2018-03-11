@@ -48,7 +48,7 @@ class DataFormatter{
     _mergePoints(pointGeometries, pointMaterials, dataClasses){
         let dataCloud = [];
         for(let i = 0; i < dataClasses.length; i++){
-            this.dataCloud.push(
+            dataCloud.push(
                 new THREE.Points( 
                     pointGeometries[dataClasses[i]], 
                     pointMaterials[dataClasses[i]] ));
@@ -72,7 +72,6 @@ class DataFormatter{
      */
     _getColor(){
         let color = this.defaultColors[this.defaultColors.length-1];
-        console.log(this.defaultColors.length);
         if(color)
             this.defaultColors.pop();
         else{
