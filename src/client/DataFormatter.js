@@ -4,8 +4,11 @@ class DataFormatter{
     /**
      * @param {DataObject} data 
      */
-    constructor(data){
+    constructor(data, xAxis, yAxis, zAxis){
         this.defaultColors = ["#FF0000", "#00FFFF", "#FF00FF"];
+        this.xAxis = xAxis; 
+        this.yAxis = yAxis; 
+        this.zAxis = zAxis;
         this.dataCloud = this._createDataCloud(data);
     }
     
@@ -28,15 +31,32 @@ class DataFormatter{
             if(!pointMaterials[dataClass])
                 pointMaterials[dataClass] = this._createPointMaterial();
 
-            pointGeometries[dataClass].vertices.push(
-                new THREE.Vector3( 
-                    data.values[i][0], 
-                    data.values[i][1], 
-                    data.values[i][2]));
+            pointGeometries[dataClass].vertices.push(_getAxisVector(data,i));
         }
 
         //Create a new Points object for each data class
         return this._mergePoints(pointGeometries, pointMaterials, dataClasses);
+    }
+    /**
+     * @param {DataObject} data 
+     * @param {number} index Index of value
+     */
+    _getAxisVector(data, index){
+        if(!data)
+            return new new THREE.Vector3(0,0,0);
+
+        let x = 0, y = 0, z = 0;
+
+        for(let i = 0; i < data.valueNames; i++){
+            if(data.valueNames[i] == this.xAxis)
+                x = data.values[index][i];
+            if(data.valueNames[i] == this.yAxis)
+                y = data.values[index][i];
+            if(data.valueNames[i] == this.zAxis)
+                z = data.values[index][i];
+        }
+
+        return new THREE.Vector3(x, y, z);
     }
 
     /**
