@@ -87,7 +87,6 @@ class Renderer{
     }
     removeDataFromScene(){
         const children = this.scene.children;
-        console.log(children);
         for(let i=0; i<children.length; i++){ 
             if(children[i].constructor === THREE.Points)
                 this.scene.remove(children[i]); 
@@ -100,15 +99,13 @@ class Renderer{
      * @param {DownloadEventArgs} args 
      */
     onDataDownloaded(sender, args){
-        console.log("Notification received");
         this.removeDataFromScene();
 
         this.addToScene(
             args.getData(),
-            args.getAxes()[0],
-            args.getAxes()[1],
-            args.getAxes()[2]);
-
+            args.getAxes().x,
+            args.getAxes().y,
+            args.getAxes().z);
     }
 
     addToScene(data, xAxis, yAxis, zAxis){

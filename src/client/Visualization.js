@@ -19,10 +19,6 @@ class Visualization extends React.Component {
 
         this.dataReader = new DataReader();
 
-        //componentWillReceiveProps(nextProps) {
-        //    this.renderer.setClearColor(nextProps.bgColor)
-        //}
-
         //Listens for "dataUploaded" message from the server
         this.socket = SocketIOClient("http://localhost:4000/");
         this.socket.on('dataUploaded', (message) => {
@@ -34,15 +30,20 @@ class Visualization extends React.Component {
     componentDidMount() {
         if(!this.threeRenderer)
             this.threeRenderer = new Renderer(this.mount.clientWidth, this.mount.clientHeight);
-        this.dataReader.subscribeToDownloadEvent(this.threeRenderer.onDataDownloaded);
+        this.dataReader.subscribeToDownloadEvent(this.threeRenderer.onDataDownloaded.bind(this.threeRenderer));
         this.mount.appendChild(this.threeRenderer.getRenderer().domElement);
         this.threeRenderer.start();
-        this.threeRenderer.addToScene(
-            this.dataReader.getData(), 
-            this.dataReader.getAllAxes()[0],
-            this.dataReader.getAllAxes()[1],
-            this.dataReader.getAllAxes()[2]
-        );
+
+        if(!this.dataReader.getData()){
+            this.dataReader.downloadData();
+        }
+        else{
+            this.threeRenderer.addToScene(
+                this.dataReader.getData(), 
+                this.dataReader.getAllAxes()[0],
+                this.dataReader.getAllAxes()[1],
+                this.dataReader.getAllAxes()[2]);
+        }
         
         //ControlsGUI
         const text = new this.Controls();

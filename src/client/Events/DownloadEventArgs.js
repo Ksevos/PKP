@@ -1,23 +1,27 @@
 //@ts-check
 
-import DataObject from '../CustomObjects/DataObject';
-
 class DownloadEventArgs{
     /**
-     * 
-     * @param {DataObject} data 
+     * @param {{valueNames:string[],values:[number[]]}} data 
+     * @param {{x:string,y:string,z:string}} axes 
      */
     constructor(data, axes){
         this.data = data;
         this.axes = axes;
     }
 
+    /**
+     * @returns {{valueNames:string[],values:[number[]]}}
+     */
     getData(){
-        this.data;
+        return this.data;
     }
 
+    /** 
+     * @returns {{x:string,y:string,z:string}}}
+     */
     getAxes(){
-        this.axes;
+        return this.axes;
     }
 }
 

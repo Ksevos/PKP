@@ -43,19 +43,18 @@ class DataFormatter{
      */
     _getAxisVector(data, index){
         if(!data)
-            return new new THREE.Vector3(0,0,0);
+            return new THREE.Vector3(0,0,0);
 
         let x = 0, y = 0, z = 0;
 
-        for(let i = 0; i < data.valueNames; i++){
-            if(data.valueNames[i] == this.xAxis)
+        for(let i = 0; i < data.valueNames.length; i++){
+            if(data.valueNames[i] === this.xAxis)
                 x = data.values[index][i];
-            if(data.valueNames[i] == this.yAxis)
+            if(data.valueNames[i] === this.yAxis)
                 y = data.values[index][i];
-            if(data.valueNames[i] == this.zAxis)
+            if(data.valueNames[i] === this.zAxis)
                 z = data.values[index][i];
         }
-
         return new THREE.Vector3(x, y, z);
     }
 
