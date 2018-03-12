@@ -2,8 +2,13 @@
 
 import * as THREE from "three";
 import OrbitControls from '../LocalOrbitControls/OrbitControls.js';
+import AxesPainter from "./AxesPainter";
 
 class Renderer{
+
+    GRID_SIZE = 100;
+    GRID_DIVISION = 20;
+
     constructor(width, height) {
         this._animate = this._animate.bind(this);
         
@@ -44,13 +49,15 @@ class Renderer{
     _createScene(){
         const scene = new THREE.Scene();
 
-        const axesHelper = new THREE.AxesHelper(100000);
+        //const axesHelper = new THREE.AxesHelper(100000);
+        const axesPainter = new AxesPainter(this.GRID_SIZE, this.GRID_DIVISION);
 
-        const gridHelper = new THREE.GridHelper(10, 10);
+        const gridHelper = new THREE.GridHelper(this.GRID_SIZE, this.GRID_DIVISION);
         gridHelper.translateY(-0.01);
 
         scene.add(gridHelper);
-        scene.add(axesHelper);
+
+        axesPainter.setScene(scene);
 
         return scene;
     }
