@@ -3,10 +3,12 @@
 import * as THREE from "three";
 import DataObject from './CustomObjects/DataObject';
 import axios from 'axios';
+import UploadEvent from "./Events/Event";
 
 class DataReader {
     constructor(props) {
         this.fileData = DataObject;
+        this.dataUploadEvent = new UploadEvent(this); 
     }
 
     /**
