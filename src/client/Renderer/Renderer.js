@@ -2,6 +2,8 @@
 
 import * as THREE from "three";
 import OrbitControls from '../LocalOrbitControls/OrbitControls.js';
+import DownloadEventArgs from '../Events/DownloadEventArgs';
+import DataFormatter from "./DataFormatter.js";
 
 class Renderer{
     constructor(width, height) {
@@ -89,6 +91,40 @@ class Renderer{
         for(let i=0; i<children.length; i++){ 
             if(children[i].constructor === THREE.Points)
                 this.scene.remove(children[i]); 
+        }
+    }
+
+    /**
+     * 
+     * @param {object} sender 
+     * @param {DownloadEventArgs} args 
+     */
+    onDataDownloaded(sender, args){
+        console.log("Notification received");
+        this.removeDataFromScene();
+
+        this.addToScene(
+            args.getData(),
+            args.getAxes()[0],
+            args.getAxes()[1],
+            args.getAxes()[2]);
+
+    }
+
+    addToScene(data, xAxis, yAxis, zAxis){
+        if(!data)
+            return;
+
+        let dataFormatter = 
+            new DataFormatter(
+                data,
+                xAxis, 
+                yAxis, 
+                zAxis);
+        let dataCloud = dataFormatter.getDataCloud();
+
+        for(let i = 0; i < dataCloud.length; i++){
+            this.scene.add(dataCloud[i]);
         }
     }
 }

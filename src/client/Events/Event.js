@@ -1,18 +1,32 @@
-//ts-check
-function Event(sender){
-    this.sender = sender;
-    this.listeners = [];
-}
+//@ts-check
 
-Event.prototype = {
-    subscribe: function(listener) {
+class Event{
+    /**
+     * 
+     * @param {object} sender 
+     */
+    constructor(sender){
+        this.sender = sender;
+        this.listeners = [];
+    }
+
+    /**
+     * 
+     * @param {function} listener 
+     */
+    subscribe(listener) {
         this.listeners.push(listener);
-    },
-    notify: function(args) {
+    }
+    unsubscribe(listener) {
+        const index = this.listeners.indexOf(listener);
+        if(index > -1)
+            this.listeners.splice(index, 1);
+    }
+    notify(eventArgs) {
         for(let i=0; i<this.listeners.length; i++){
-            this.listeners[i](this.sender, args);
+            this.listeners[i](this.sender, eventArgs);
         }
     }
 }
 
-module.exports = {Event};
+export default Event;

@@ -18,7 +18,7 @@ class Visualization extends React.Component {
         super(props);
 
         this.dataReader = new DataReader();
-      
+
         //componentWillReceiveProps(nextProps) {
         //    this.renderer.setClearColor(nextProps.bgColor)
         //}
@@ -27,16 +27,23 @@ class Visualization extends React.Component {
         this.socket = SocketIOClient("http://localhost:4000/");
         this.socket.on('dataUploaded', (message) => {
             if(message && this.threeRenderer)
-                this.onDataLoaded();
+                this.dataReader.downloadData();
           });
     }
 
     componentDidMount() {
-        this.threeRenderer = new Renderer(this.mount.clientWidth, this.mount.clientHeight);
+        if(!this.threeRenderer)
+            this.threeRenderer = new Renderer(this.mount.clientWidth, this.mount.clientHeight);
+        this.dataReader.subscribeToDownloadEvent(this.threeRenderer.onDataDownloaded);
         this.mount.appendChild(this.threeRenderer.getRenderer().domElement);
         this.threeRenderer.start();
-        this.dataReader.addDataToScene(this.threeRenderer.getScene());
-
+        this.threeRenderer.addToScene(
+            this.dataReader.getData(), 
+            this.dataReader.getAllAxes()[0],
+            this.dataReader.getAllAxes()[1],
+            this.dataReader.getAllAxes()[2]
+        );
+        
         //ControlsGUI
         const text = new this.Controls();
         this.toolbar = new dat.GUI();
@@ -52,12 +59,8 @@ class Visualization extends React.Component {
     componentWillUnmount() {
         this.toolbar.destroy();
         this.threeRenderer.stop();
+        this.dataReader.unsubscribeFromDownloadEvent(this.threeRenderer.onDataDownloaded);
         this.mount.removeChild(this.threeRenderer.getRenderer().domElement);
-    }
-
-    onDataLoaded(){
-        this.threeRenderer.removeDataFromScene();
-        this.dataReader.addDataToScene(this.threeRenderer.getScene());
     }
 
     render() {

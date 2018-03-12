@@ -2,24 +2,15 @@
 
 import DataObject from './CustomObjects/DataObject';
 import axios from 'axios';
-<<<<<<< HEAD
 import UploadEvent from "./Events/Event";
-=======
-import DataFormatter from './DataFormatter';
->>>>>>> 62a0d12fdd7df0504158893f681e8a6ce254f0a9
+import DownloadEventArgs from './Events/DownloadEventArgs';
 
 class DataReader {
+    
     constructor(props) {
         this.fileData = DataObject;
-<<<<<<< HEAD
-        this.dataUploadEvent = new UploadEvent(this); 
-=======
+        this.dataDownloadEvent = new UploadEvent(this); 
         this.axes = [];
-        this.xAxis = null;
-        this.yAxis = null;
-        this.zAxis = null;
-        this.scene = null;
->>>>>>> 62a0d12fdd7df0504158893f681e8a6ce254f0a9
     }
 
     /**
@@ -30,16 +21,34 @@ class DataReader {
         return Array.isArray(fileData.values) && fileData.values.length;
     }
 
-    /**
-     * Asynchronously adds data to the scene
-     * @param {THREE.Scene} scene 
-     */
+    downloadData(){
+        this._queryForData().then(data=>{
+            if(!data)
+                return;
+            this.fileData = data;
+
+            // Get only axis names
+            this.axes = 
+                data.valueNames.filter(
+                    (name,index) => {
+                        index != data.valueNames.length - 1});
+            
+            console.log("Notifying subscribers");
+            this.dataDownloadEvent.notify(
+                new DownloadEventArgs(
+                    data, 
+                    this._getDefaultAxes()));
+        });
+    }
+
+    /*
     addDataToScene(scene) {
         this.scene = scene;
         this._queryForData().then(data=>{
             if(!data)
                 return;
-
+            this.dataDownloadEvent.notify(data);
+            
             // Get only axis names
             this.axes = 
                 data.valueNames.filter(
@@ -56,13 +65,8 @@ class DataReader {
                 this.zAxis);
         });
     }
-
-    /**
-     * 
-     * @param {string} xAxis 
-     * @param {string} yAxis 
-     * @param {string} zAxis 
-     */
+*/
+    /*
     changeAxes(xAxis, yAxis, zAxis){
         this.xAxis = xAxis;
         this.yAxis = yAxis;
@@ -74,15 +78,17 @@ class DataReader {
             this.yAxis,
             this.zAxis);
     }
+*/
+    _getDefaultAxes(){
+        if(!this.axes)
+            return null;
 
-    _readDefaultAxes(data){
-        if(!data.valueNames)
-            return;
-        this.xAxis = data.valueNames[0];
-        this.yAxis = data.valueNames[1];
-        this.zAxis = data.valueNames[2];
+        return {
+            x: this.axes[0],
+            y: this.axes[1],
+            z: this.axes[2]};
     }
-
+/*
     _addToScene(scene, xAxis, yAxis, zAxis){
         if(!this.fileData)
             return;
@@ -99,7 +105,7 @@ class DataReader {
             scene.add(dataCloud[i]);
         }
     }
-
+*/
     /**
      * Returns request to the server
      * @returns {Promise<DataObject>}
@@ -110,7 +116,6 @@ class DataReader {
                 const fileData = JSON.parse(JSON.stringify(response.data[0]));
                 if (this.fileData !== fileData
                     && this._isDataValid(fileData)) {        
-                    this.fileData = fileData;
                     return fileData;
                 }
                 else
@@ -126,10 +131,20 @@ class DataReader {
     }
 
     /**
-     * @param {THREE.Scene} scene 
+     * 
+     * @param {function} listener 
      */
-    setTHREEScene(scene){
-        this.scene = scene;
+    subscribeToDownloadEvent(listener){
+        console.log(listener + " subscribed to download event");
+        this.dataDownloadEvent.subscribe(listener);
+    }
+    unsubscribeFromDownloadEvent(listener){
+        console.log(listener + " unsubscribed from download event");
+        this.dataDownloadEvent.unsubscribe(listener);
+    }
+
+    getData(){
+        return this.fileData;
     }
 }
 

@@ -31,7 +31,7 @@ class DataFormatter{
             if(!pointMaterials[dataClass])
                 pointMaterials[dataClass] = this._createPointMaterial();
 
-            pointGeometries[dataClass].vertices.push(_getAxisVector(data,i));
+            pointGeometries[dataClass].vertices.push(this._getAxisVector(data,i));
         }
 
         //Create a new Points object for each data class
