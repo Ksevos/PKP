@@ -6,7 +6,7 @@ import AxesPainter from "./AxesPainter";
 
 class Renderer{
 
-    GRID_SIZE = 100;
+    GRID_SIZE = 10;
     GRID_DIVISION = 20;
 
     constructor(width, height) {
@@ -50,7 +50,7 @@ class Renderer{
         const scene = new THREE.Scene();
 
         //const axesHelper = new THREE.AxesHelper(100000);
-        const axesPainter = new AxesPainter(this.GRID_SIZE, this.GRID_DIVISION);
+        const axesPainter = new AxesPainter(this.GRID_SIZE, this.GRID_DIVISION, 4);
 
         const gridHelper = new THREE.GridHelper(this.GRID_SIZE, this.GRID_DIVISION);
         gridHelper.translateY(-0.01);
