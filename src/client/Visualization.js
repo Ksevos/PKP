@@ -1,12 +1,11 @@
-// Paimta is https://stackoverflow.com/questions/41248287/how-to-connect-threejs-to-react
 //@ts-check
 
 import React from 'react';
 import dat from "dat.gui"
-import DataReader from './DataReader';
+import DataHandler from './DataHandler';
 import {Link} from 'react-router-dom'
 import Renderer from './Renderer/Renderer';
-import SocketIOClient from 'socket.io-client';
+//import SocketIOClient from 'socket.io-client';
 
 class Visualization extends React.Component {
     toolbar;
@@ -17,34 +16,27 @@ class Visualization extends React.Component {
     constructor(props) {
         super(props);
 
-        this.dataReader = new DataReader();
+        this.dataHandler = new DataHandler();
 
+        /*
         //Listens for "dataUploaded" message from the server
         this.socket = SocketIOClient("http://localhost:4000/");
         this.socket.on('dataUploaded', (message) => {
             if(message && this.threeRenderer)
                 this.dataReader.downloadData();
           });
+          */
     }
 
     componentDidMount() {
         if(!this.threeRenderer)
             this.threeRenderer = new Renderer(this.mount.clientWidth, this.mount.clientHeight);
-        this.dataReader.subscribeToDownloadEvent(this.threeRenderer.onDataDownloaded.bind(this.threeRenderer));
+        this.dataHandler.subscribeToChangeEvent(this.threeRenderer.onDataChange.bind(this.threeRenderer));
         this.mount.appendChild(this.threeRenderer.getRenderer().domElement);
         this.threeRenderer.start();
 
-        if(!this.dataReader.getData()){
-            this.dataReader.downloadData();
-        }
-        else{
-            this.threeRenderer.addToScene(
-                this.dataReader.getData(), 
-                this.dataReader.getAllAxes()[0],
-                this.dataReader.getAllAxes()[1],
-                this.dataReader.getAllAxes()[2]);
-        }
-        
+        this.dataHandler.downloadData();
+
         //ControlsGUI
         const text = new this.Controls();
         this.toolbar = new dat.GUI();
@@ -60,7 +52,7 @@ class Visualization extends React.Component {
     componentWillUnmount() {
         this.toolbar.destroy();
         this.threeRenderer.stop();
-        this.dataReader.unsubscribeFromDownloadEvent(this.threeRenderer.onDataDownloaded);
+        this.dataHandler.unsubscribeFromChangeEvent(this.threeRenderer.onDataDownloaded);
         this.mount.removeChild(this.threeRenderer.getRenderer().domElement);
     }
 

@@ -1,8 +1,15 @@
 import * as THREE from "three";
+import DataObject from '../CustomObjects/DataObject';
 
+/**
+ * Used for data convertion into format, that three.js can use
+ */
 class DataFormatter{
     /**
      * @param {DataObject} data 
+     * @param {string} xAxis 
+     * @param {string} yAxis 
+     * @param {string} zAxis 
      */
     constructor(data, xAxis, yAxis, zAxis){
         this.defaultColors = ["#FF0000", "#00FFFF", "#FF00FF"];
@@ -40,6 +47,7 @@ class DataFormatter{
     /**
      * @param {DataObject} data 
      * @param {number} index Index of value
+     * @returns {THREE.Vector3}
      */
     _getAxisVector(data, index){
         if(!data)
@@ -59,6 +67,7 @@ class DataFormatter{
     }
 
     /**
+     * Relate geometry and materials together into a data cloud
      * @param {THREE.Geometry} pointGeometries
      * @param {THREE.PointsMaterial} pointMaterials
      * @param {THREE.string} dataClasses

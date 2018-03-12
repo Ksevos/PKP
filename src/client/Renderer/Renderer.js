@@ -2,10 +2,14 @@
 
 import * as THREE from "three";
 import OrbitControls from '../LocalOrbitControls/OrbitControls.js';
-import DownloadEventArgs from '../Events/DownloadEventArgs';
+import ChangeEventArgs from '../Events/ChangeEventArgs';
 import DataFormatter from "./DataFormatter.js";
 
 class Renderer{
+    /**
+     * @param {number} width 
+     * @param {number} height 
+     */
     constructor(width, height) {
         this._animate = this._animate.bind(this);
         
@@ -27,7 +31,8 @@ class Renderer{
     /**
      * Create camera and set it's initial position
      * @param {number} width 
-     * @param {number} height 
+     * @param {number} height
+     * @returns {THREE.Camera} 
      */
     _createCamera(width, height){
         const camera = new THREE.PerspectiveCamera(
@@ -42,6 +47,7 @@ class Renderer{
 
     /** 
      * Create scene and add basic objects to it
+     * @returns {THREE.Scene}
      */
     _createScene(){
         const scene = new THREE.Scene();
@@ -74,17 +80,22 @@ class Renderer{
 
     _renderScene() {
         this.renderer.render(this.scene, this.camera);
-     }
+    }
 
+    /**
+     * @returns {THREE.Scene}
+     */
     getScene(){
         return this.scene;
     }
+
     /** 
      * @returns {THREE.WebGLRenderer}
     */
     getRenderer(){
         return this.renderer;
     }
+
     removeDataFromScene(){
         const children = this.scene.children;
         for(let i=0; i<children.length; i++){ 
@@ -94,21 +105,27 @@ class Renderer{
     }
 
     /**
-     * 
+     * Callback function to change data in the scene
      * @param {object} sender 
-     * @param {DownloadEventArgs} args 
+     * @param {ChangeEventArgs} args 
      */
-    onDataDownloaded(sender, args){
+    onDataChange(sender, args){
         this.removeDataFromScene();
 
-        this.addToScene(
+        this.addDataToScene(
             args.getData(),
             args.getAxes().x,
             args.getAxes().y,
             args.getAxes().z);
     }
 
-    addToScene(data, xAxis, yAxis, zAxis){
+    /**
+     * @param {{valueNames:string[], values: any}} data 
+     * @param {string} xAxis 
+     * @param {string} yAxis 
+     * @param {string} zAxis 
+     */
+    addDataToScene(data, xAxis, yAxis, zAxis){
         if(!data)
             return;
 

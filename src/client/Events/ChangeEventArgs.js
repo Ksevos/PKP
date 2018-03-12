@@ -1,6 +1,6 @@
 //@ts-check
 
-class DownloadEventArgs{
+class ChangeEventArgs{
     /**
      * @param {{valueNames:string[],values:[number[]]}} data 
      * @param {{x:string,y:string,z:string}} axes 
@@ -25,4 +25,4 @@ class DownloadEventArgs{
     }
 }
 
-export default DownloadEventArgs;
+export default ChangeEventArgs;
