@@ -1,7 +1,7 @@
 //@ts-check
 
 import * as THREE from "three";
-import OrbitControls from 'orbit-controls-es6';
+import OrbitControls from '../LocalOrbitControls/OrbitControls.js';
 
 class Renderer{
     constructor(width, height) {
@@ -87,7 +87,7 @@ class Renderer{
         const children = this.scene.children;
         console.log(children);
         for(let i=0; i<children.length; i++){ 
-            if(children[i].constructor == THREE.Points)
+            if(children[i].constructor === THREE.Points)
                 this.scene.remove(children[i]); 
         }
     }

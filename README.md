@@ -1,5 +1,8 @@
 # PKP
 
+Master [![Build Status](https://travis-ci.org/Ksevos/PKP.svg?branch=master)](https://travis-ci.org/Ksevos/PKP)  
+Develop [![Build Status](https://travis-ci.org/Ksevos/PKP.svg?branch=develop)](https://travis-ci.org/Ksevos/PKP)
+
 ## 2D/3D visualization app
 
 ## Coding style
