@@ -5,30 +5,72 @@ import Express from 'express';
 import Multer from 'multer';
 import HTTP from 'http';
 import Socket from 'socket.io';
+import Path from 'path';
 
 class Server{
     constructor(){
         this.app = Express();
-        
-        this.app.use((req, res, next) => {
-            res.header("Access-Control-Allow-Origin", "http://localhost:3000");
-            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-            res.header("Access-Control-Allow-Credentials", "true");
-            next();
-        });
-    
         this.app.set('port', process.env.PORT || 4000);
-				
+        this.app.use(this.configureAccessControl);
 
-        this.upload = Multer();
+        this.upload = this.configureMulter();
 
-        this.mapGets(this.app);
-        this.mapPosts(this.app);
+        this.mapGets(this.app); // Route get requests
+        this.mapPosts(this.app); // Route post requests
+
+        // Error handlers, must be last
+        this.app.use(this.configureUploadErrorHandling);
 
         this.server = 
             this.app.listen(4000, () => console.log('Server listening on port 4000!'));
 
         this.socket = Socket.listen(this.server);
+    }
+
+
+    /**
+     * Configure parameters necessary for Socket
+     * @param {*} req 
+     * @param {Express.Request} req 
+     * @param {Express.Response} res 
+     * @param {Express.NextFunction} next 
+     */
+    configureAccessControl(req, res, next){
+        res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        res.header("Access-Control-Allow-Credentials", "true");
+        next();
+    }
+
+    /**
+     * Handle failed upload requests
+     * @param {Error} error 
+     * @param {Express.Request} req 
+     * @param {Express.Response} res 
+     * @param {Express.NextFunction} next 
+     */
+    configureUploadErrorHandling(error, req, res, next){
+        if(error.message === 'Only .arff files are allowed')
+            res.sendStatus(415).json({
+                type: 'UploadError',
+                message: error.message
+                });
+        next(error);
+    }
+
+    /**
+     * @returns {Multer.Instance}
+     */
+    configureMulter(){
+        return Multer({
+            fileFilter: (req, file, callback) => {
+                let extention = Path.extname(file.originalname);
+                if(extention !== '.arff') {
+                    return callback(new Error('Only .arff files are allowed'), false);
+                }
+                callback(null, true);
+            }
+        });
     }
 
     /** 
@@ -47,7 +89,12 @@ class Server{
      * @param {Express.Router} app
      */
     mapPosts(app){
-        app.post('/storage', this.upload.any(), (req, res) => StorageHandler.save(req, res, this.socket));
+        app.post(
+            '/storage', 
+            this.upload.single('dataFile'), 
+            (req, res) => {
+                StorageHandler.save(req, res, this.socket);
+            });
     }
 }
 

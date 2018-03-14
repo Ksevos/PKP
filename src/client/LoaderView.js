@@ -14,11 +14,11 @@ class LoaderView extends Component {
     }
 
     onFormSubmit(e) {
-        e.preventDefault(); // Stop form submit
+        e.preventDefault(); // Stop from submit
 
         if (this.state.file) {
             let data = new FormData();
-            data.append('file', this.state.file);
+            data.append('dataFile', this.state.file);
             Axios.post("http://localhost:4000/storage", data);
         }
     }
