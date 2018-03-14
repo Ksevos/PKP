@@ -4,10 +4,10 @@ import * as THREE from "three";
 import OrbitControls from '../LocalOrbitControls/OrbitControls.js';
 import AxesPainter from "./AxesPainter";
 
-class Renderer{
+const GRID_SIZE = 10;
+const GRID_DIVISION = 10;
 
-    GRID_SIZE = 10;
-    GRID_DIVISION = 20;
+class Renderer{
 
     constructor(width, height) {
         this._animate = this._animate.bind(this);
@@ -49,10 +49,8 @@ class Renderer{
     _createScene(){
         const scene = new THREE.Scene();
 
-        //const axesHelper = new THREE.AxesHelper(100000);
-        const axesPainter = new AxesPainter(this.GRID_SIZE, this.GRID_DIVISION, 4);
-
-        const gridHelper = new THREE.GridHelper(this.GRID_SIZE, this.GRID_DIVISION);
+        const axesPainter = new AxesPainter(GRID_SIZE, GRID_DIVISION, 3);
+        const gridHelper = new THREE.GridHelper(GRID_SIZE, GRID_DIVISION);
         gridHelper.translateY(-0.01);
 
         scene.add(gridHelper);
