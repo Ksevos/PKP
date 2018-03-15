@@ -4,6 +4,7 @@ import * as THREE from "three";
 import OrbitControls from '../LocalOrbitControls/OrbitControls.js';
 import ChangeEventArgs from '../Events/ChangeEventArgs';
 import DataFormatter from "./DataFormatter.js";
+import DataHandler from "../DataHandler";
 
 class Renderer{
     /**
@@ -20,11 +21,11 @@ class Renderer{
         this.camera = this._createCamera(width, height);  
 
         //Orbit controls (Rotate, pan, resize)
-        const controls = new OrbitControls(this.camera, this.renderer.domElement);
-        controls.enabled = true;
-        controls.maxDistance = 1500;
-        controls.minDistance = 0;
-        this.controls = controls;
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.enabled = true;
+        this.controls.maxDistance = 1500;
+        this.controls.minDistance = 0;
+
         this.scene = this._createScene();
     }
 
@@ -32,7 +33,7 @@ class Renderer{
      * Create camera and set it's initial position
      * @param {number} width 
      * @param {number} height
-     * @returns {THREE.Camera} 
+     * @returns {THREE.PerspectiveCamera} 
      */
     _createCamera(width, height){
         const camera = new THREE.PerspectiveCamera(
@@ -117,6 +118,8 @@ class Renderer{
             args.getAxes().x,
             args.getAxes().y,
             args.getAxes().z);
+        
+        this.updateCamera(sender);
     }
 
     /**
@@ -141,6 +144,16 @@ class Renderer{
             this.scene.add(dataCloud[i]);
         }
     }
+
+    /**
+    * Update camera and controls position
+    * @param {DataHandler} dataHandler
+    */
+   updateCamera(dataHandler) {
+    
+    dataHandler._changeCameraPosition(dataHandler.getData(), this.camera);
+    dataHandler._changeControlsCenter(dataHandler.getData(), this.controls);
+   }
 }
 
 export default Renderer;
