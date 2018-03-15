@@ -35,7 +35,9 @@ class Visualization extends React.Component {
         this.mount.appendChild(this.threeRenderer.getRenderer().domElement);
         this.threeRenderer.start();
 
+
         this.dataHandler.downloadData();
+        //this.dataReader.updateCamera(this.threeRenderer.camera, this.threeRenderer.controls);
 
         //ControlsGUI
         const text = new this.Controls();
@@ -52,7 +54,7 @@ class Visualization extends React.Component {
     componentWillUnmount() {
         this.toolbar.destroy();
         this.threeRenderer.stop();
-        this.dataHandler.unsubscribeFromChangeEvent(this.threeRenderer.onDataDownloaded);
+        this.dataHandler.unsubscribeFromChangeEvent(this.threeRenderer.onDataChange);
         this.mount.removeChild(this.threeRenderer.getRenderer().domElement);
     }
 
