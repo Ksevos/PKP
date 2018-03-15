@@ -36,6 +36,7 @@ class Visualization extends React.Component {
         this.mount.appendChild(this.threeRenderer.getRenderer().domElement);
         this.threeRenderer.start();
         this.dataReader.addDataToScene(this.threeRenderer.getScene());
+        this.dataReader.updateCamera(this.threeRenderer.camera, this.threeRenderer.controls);
 
         //ControlsGUI
         const text = new this.Controls();
