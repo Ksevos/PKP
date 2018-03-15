@@ -18,7 +18,7 @@ class Renderer{
         controls.enabled = true;
         controls.maxDistance = 1500;
         controls.minDistance = 0;
-
+        this.controls = controls;
         this.scene = this._createScene();
     }
 
