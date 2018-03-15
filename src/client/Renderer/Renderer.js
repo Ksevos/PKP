@@ -5,6 +5,7 @@ import OrbitControls from '../LocalOrbitControls/OrbitControls.js';
 import ChangeEventArgs from '../Events/ChangeEventArgs';
 import DataFormatter from "./DataFormatter.js";
 import DataHandler from "../DataHandler";
+import DataObject from "../CustomObjects/DataObject"
 
 class Renderer{
     /**
@@ -119,7 +120,7 @@ class Renderer{
             args.getAxes().y,
             args.getAxes().z);
         
-        this.updateCamera(sender);
+        this.centerCameraToData(sender);
     }
 
     /**
@@ -146,14 +147,29 @@ class Renderer{
     }
 
     /**
-    * Update camera and controls position
-    * @param {DataHandler} dataHandler
-    */
-   updateCamera(dataHandler) {
-    
-    dataHandler._changeCameraPosition(dataHandler.getData(), this.camera);
-    dataHandler._changeControlsCenter(dataHandler.getData(), this.controls);
-   }
+     * Update camera and controls position
+     * @param {DataHandler} dataHandler
+     */
+    centerCameraToData(dataHandler) {   
+        let coordinates = dataHandler.getCenterCoordinates();
+        let x = dataHandler.getMaxValue(0) - coordinates.x;
+        let y = (dataHandler.getMaxValue(1) * 2) - (coordinates.y * 2);
+        let z = dataHandler.getMaxValue(2) * 1.5 + x;
+
+        this.camera.position.set(coordinates.x, coordinates.y, Math.max(x, y, z));
+
+        this._changeControlsPivotPoint(coordinates);
+    }
+
+    /**
+     * Change a point around which controls rotate. Default is 0;0;0
+     * @param {{x:number,y:number,z:number}} coordinates
+     */
+    _changeControlsPivotPoint(coordinates) {
+        this.controls.target.set(coordinates.x, coordinates.y, coordinates.z);
+        this.controls.update();
+    }
+
 }
 
 export default Renderer;
