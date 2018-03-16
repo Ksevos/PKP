@@ -16,7 +16,7 @@ class Renderer{
      * @param {number} height 
      */
     constructor(width, height) {
-        this.animate = this.animate.bind(this);
+        this._animate = this._animate.bind(this);
         
         this.renderer = new THREE.WebGLRenderer({ antialias: true })
         this.renderer.setClearColor('#FFFFFF');
@@ -70,7 +70,7 @@ class Renderer{
 
     start() {
         if (!this.frameId) {
-            this.frameId = requestAnimationFrame(this.animate);
+            this.frameId = requestAnimationFrame(this._animate);
         }
     }
 
@@ -78,9 +78,9 @@ class Renderer{
         cancelAnimationFrame(this.frameId);
     }
 
-    animate() {
+    _animate() {
         this._renderScene();
-        this.frameId = window.requestAnimationFrame(this.animate);
+        this.frameId = window.requestAnimationFrame(this._animate);
     }
 
     _renderScene() {
