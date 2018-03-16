@@ -23,7 +23,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "server": "set port=4000 & nodemon ./src/server/index.js --exec babel-node --presets=latest",
+    "server": "set port=4000 & nodemon --watch ./src/server ./src/server/index.js --exec babel-node --presets=latest",
     "build-server": "babel -d ./build-server ./src/server --presets=latest",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
