@@ -1,13 +1,14 @@
 //@ts-check
 
-import DataObject from './CustomObjects/DataObject';
+//For jsdoc only
+import DataObject from './CustomObjects/DataObject'; // eslint-disable-line
+
 import axios from 'axios';
 import ChangeEvent from "./Events/Event";
-import ChangeEventArgs from './Events/ChangeEventArgs';
-import OrbitControls from './LocalOrbitControls/OrbitControls'
 
 class DataHandler {
     constructor() {
+        /** @type {DataObject} */
         this.fileData = null;
         this.dataChangeEvent = new ChangeEvent(this); 
         this.axes = [];
@@ -39,10 +40,7 @@ class DataHandler {
             
             this.currentSetAxes = this._getDefaultAxes();
 
-            this.dataChangeEvent.notify(
-                new ChangeEventArgs(
-                    data, 
-                    this.currentSetAxes));
+            this.dataChangeEvent.notify(null);
         });
     }
 
@@ -105,14 +103,11 @@ class DataHandler {
             y:yAxis,
             z:zAxis
         };
-        this.dataChangeEvent.notify(
-            new ChangeEventArgs(
-                this.fileData, 
-                this.currentSetAxes));
+        this.dataChangeEvent.notify(null);
     }
 
     /**
-     * @param {function({}, ChangeEventArgs)} listener A callback function, 
+     * @param {function(*,*)} listener A callback function, 
      * which will be called when Change Event fires
      */
     subscribeToChangeEvent(listener){
@@ -120,7 +115,7 @@ class DataHandler {
     }
 
     /**
-     * @param {function({}, ChangeEventArgs)} listener 
+     * @param {function(*,*)} listener 
      */
     unsubscribeFromChangeEvent(listener){
         this.dataChangeEvent.unsubscribe(listener);

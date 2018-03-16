@@ -1,11 +1,14 @@
 //@ts-check
 
-import * as THREE from "three";
-import OrbitControls from '../LocalOrbitControls/OrbitControls.js';
-import ChangeEventArgs from '../Events/ChangeEventArgs';
-import DataFormatter from "./DataFormatter.js";
+//For jsdoc only
+/* eslint-disable */
 import DataHandler from "../DataHandler";
 import DataObject from "../CustomObjects/DataObject"
+/* eslint-enable */
+
+import * as THREE from "three";
+import OrbitControls from '../LocalOrbitControls/OrbitControls.js';
+import DataFormatter from "./DataFormatter.js";
 
 class Renderer{
     /**
@@ -13,7 +16,7 @@ class Renderer{
      * @param {number} height 
      */
     constructor(width, height) {
-        this._animate = this._animate.bind(this);
+        this.animate = this.animate.bind(this);
         
         this.renderer = new THREE.WebGLRenderer({ antialias: true })
         this.renderer.setClearColor('#FFFFFF');
@@ -67,7 +70,7 @@ class Renderer{
 
     start() {
         if (!this.frameId) {
-            this.frameId = requestAnimationFrame(this._animate);
+            this.frameId = requestAnimationFrame(this.animate);
         }
     }
 
@@ -75,9 +78,9 @@ class Renderer{
         cancelAnimationFrame(this.frameId);
     }
 
-    _animate() {
+    animate() {
         this._renderScene();
-        this.frameId = window.requestAnimationFrame(this._animate);
+        this.frameId = window.requestAnimationFrame(this.animate);
     }
 
     _renderScene() {
@@ -108,23 +111,23 @@ class Renderer{
 
     /**
      * Callback function to change data in the scene
-     * @param {object} sender 
-     * @param {ChangeEventArgs} args 
+     * @param {DataHandler} sender 
+     * @param {null} args 
      */
     onDataChange(sender, args){
         this.removeDataFromScene();
 
         this.addDataToScene(
-            args.getData(),
-            args.getAxes().x,
-            args.getAxes().y,
-            args.getAxes().z);
+            sender.getData(),
+            sender.getCurrentAxes().x,
+            sender.getCurrentAxes().y,
+            sender.getCurrentAxes().z);
         
         this.centerCameraToData(sender);
     }
 
     /**
-     * @param {{valueNames:string[], values: any}} data 
+     * @param {DataObject} data 
      * @param {string} xAxis 
      * @param {string} yAxis 
      * @param {string} zAxis 
