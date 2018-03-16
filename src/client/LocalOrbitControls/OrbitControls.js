@@ -25,8 +25,6 @@ import {
   Quaternion,
   Spherical,
   Vector2,
-  OrthographicCamera,
-  PerspectiveCamera,
   EventDispatcher,
 } from 'three';
 
@@ -581,6 +579,8 @@ export default class OrbitControls extends EventDispatcher {
           scope.update();
           break;
 
+        default:
+            return;
       }
 
     }
@@ -929,73 +929,8 @@ export default class OrbitControls extends EventDispatcher {
 
   };
 
-
   get center() {
     console.warn('OrbitControls: .center has been renamed to .target');
     return this.target;
-  }
-
-  // backward compatibility
-
-  get noZoom() {
-
-      console.warn('OrbitControls: .noZoom has been deprecated. Use .enableZoom instead.');
-      return !this.enableZoom;
-  }
-
-  set noZoom(value) {
-    console.warn('OrbitControls: .noZoom has been deprecated. Use .enableZoom instead.');
-    this.enableZoom = !value;
-  }
-
-  get noRotate() {
-    console.warn('OrbitControls: .noRotate has been deprecated. Use .enableRotate instead.');
-    return !this.enableRotate;
-  }
-
-  set noRotate(value) {
-    console.warn('OrbitControls: .noRotate has been deprecated. Use .enableRotate instead.');
-    this.enableRotate = !value;
-  }
-
-  get noPan() {
-    console.warn('OrbitControls: .noPan has been deprecated. Use .enablePan instead.');
-    return !this.enablePan;
-  }
-
-  set noPan(value) {
-    console.warn('OrbitControls: .noPan has been deprecated. Use .enablePan instead.');
-    this.enablePan = !value;
-  }
-
-  get noKeys() {
-    console.warn('OrbitControls: .noKeys has been deprecated. Use .enableKeys instead.');
-    return !this.enableKeys;
-  }
-
-  set noKeys(value) {
-    console.warn('OrbitControls: .noKeys has been deprecated. Use .enableKeys instead.');
-    this.enableKeys = !value;
-  }
-
-  get staticMoving() {
-    console.warn('OrbitControls: .staticMoving has been deprecated. Use .enableDamping instead.');
-    return !this.enableDamping;
-  }
-
-  set staticMoving(value) {
-    console.warn('OrbitControls: .staticMoving has been deprecated. Use .enableDamping instead.');
-    this.enableDamping = !value;
-  }
-
-  get dynamicDampingFactor() {
-    console.warn('OrbitControls: .dynamicDampingFactor has been renamed. Use .dampingFactor instead.');
-    return this.dampingFactor;
-
-  }
-
-  set dynamicDampingFactor(value) {
-    console.warn('OrbitControls: .dynamicDampingFactor has been renamed. Use .dampingFactor instead.');
-    this.dampingFactor = value;
   }
 }
