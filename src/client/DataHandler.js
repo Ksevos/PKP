@@ -48,7 +48,7 @@ class DataHandler {
 
             this.currentSetAxes = this._getDefaultAxes();
 
-            this.dataChangeEvent.notify(null);
+            this.dataChangeEvent.notify(true);
         });
     }
 
@@ -118,7 +118,7 @@ class DataHandler {
             y:yAxis,
             z:zAxis
         };
-        this.dataChangeEvent.notify(null);
+        this.dataChangeEvent.notify(false);
     }
 
     /**

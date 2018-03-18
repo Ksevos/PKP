@@ -140,9 +140,9 @@ class Renderer{
     /**
      * Callback function to change data in the scene
      * @param {DataHandler} sender 
-     * @param {null} args 
+     * @param {boolean} newDataDownloaded 
      */
-    onDataChange(sender, args){
+    onDataChange(sender, newDataDownloaded){
         this.removeDataFromScene();
 
         this.addDataToScene(
@@ -151,7 +151,8 @@ class Renderer{
             sender.getCurrentAxes().y,
             sender.getCurrentAxes().z);
         
-        this.centerCameraToData(sender);
+        if(newDataDownloaded)
+            this.centerCameraToData(sender);
     }
 
     /**
