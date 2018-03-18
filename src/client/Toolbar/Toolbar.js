@@ -3,7 +3,7 @@
 import dat from "dat.gui";
 
 const Options = function () {
-    this.color = "#000";
+    this.color = "#FFF";
     this.xAxis = 'x1';
     this.yAxis = 'x2';
     this.zAxis = 'x3';
@@ -15,7 +15,7 @@ class Toolbar extends dat.GUI {
         super();
         this.isView3D = true;
         this.threeRendererInstance = threeRendererInstance;
-        this.dataReaderInstance = dataHandlerInstance;
+        this.dataHandlerInstance = dataHandlerInstance;
 
         this.options = new Options();
         const renderer = threeRendererInstance.getRenderer();
@@ -52,22 +52,22 @@ class Toolbar extends dat.GUI {
 
     /**
      * Creates axes select list
-     * @param folder
-     * @param name
-     * @param axisArray
-     * @returns {Controller}
+     * @param {dat.GUI} folder
+     * @param {string} optionName
+     * @param {string[]} axisNames
+     * @returns {dat.GUIController}
      * @private
      */
-    _addAxis(folder, name, axisArray) {
-        return folder.add(this.options, name, axisArray)
-            .onChange(() => {
+    _addAxis(folder, optionName, axisNames) {
+        let controller =  folder.add(this.options, optionName, axisNames);
+        controller.onChange(() => {
                 this._rerenderAxis();
             });
+        return controller;
     }
 
     _rerenderAxis() {
-        this.threeRendererInstance.removeDataFromScene();
-        this.dataReaderInstance.changeAxes(this.options.xAxis, this.options.yAxis, this.isView3D ? this.options.zAxis : null);
+        this.dataHandlerInstance.changeAxes(this.options.xAxis, this.options.yAxis, this.isView3D ? this.options.zAxis : null);
     }
 }
 

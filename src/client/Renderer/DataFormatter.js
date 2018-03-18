@@ -67,6 +67,7 @@ class DataFormatter{
             if(data.valueNames[i] === this.zAxis)
                 z = data.values[index][i];
         }
+
         return new THREE.Vector3(x, y, z);
     }
 
@@ -89,7 +90,7 @@ class DataFormatter{
     }
 
     /** 
-     * @returns {PointsMaterial}
+     * @returns {THREE.PointsMaterial}
      */
     _createPointMaterial(){
         return new THREE.PointsMaterial( { 
