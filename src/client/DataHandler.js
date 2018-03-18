@@ -5,6 +5,7 @@ import DataObject from './CustomObjects/DataObject'; // eslint-disable-line
 
 import axios from 'axios';
 import ChangeEvent from "./Events/Event";
+import * as Rx from "rxjs";
 
 class DataHandler {
     constructor() {
@@ -13,6 +14,11 @@ class DataHandler {
         this.dataChangeEvent = new ChangeEvent(this); 
         this.axes = [];
         this.currentSetAxes = {x: null, y: null, z: null};
+        /**
+         * Needs to get AxesNames once in toolbar when data is fetch from server
+         * @type {Rx.Subject<any>}
+         */
+        this.axesNames = new Rx.Subject();
     }
 
     /**
@@ -37,7 +43,9 @@ class DataHandler {
                 data.valueNames.filter(
                     (name,index) => {
                         return index !== data.valueNames.length - 1;});
-            
+
+            this.axesNames.next(this.axes);
+
             this.currentSetAxes = this._getDefaultAxes();
 
             this.dataChangeEvent.notify(null);
@@ -81,6 +89,13 @@ class DataHandler {
      */
     getAllAxes(){
         return this.axes;
+    }
+
+    /**
+     * @returns {Rx.Subject}
+     */
+    getAxesNames() {
+        return this.axesNames;
     }
 
     /**
@@ -139,6 +154,9 @@ class DataHandler {
     getMaxValue(axis) {
         let axisIndex = this._getAxisIndex(this._getAxisName(axis));
 
+        if(axisIndex < 0)
+        return 0;
+
         let values = [];
         for (var i = 0; i < this.fileData.values.length; i++) {
             values.push(this.fileData.values[i][axisIndex]);
@@ -156,6 +174,9 @@ class DataHandler {
      */
     getMinValue(axis) {
         let axisIndex = this._getAxisIndex(this._getAxisName(axis));
+
+        if(axisIndex < 0)
+            return 0;
 
         let values = [];
         for (var i = 0; i < this.fileData.values.length; i++) {

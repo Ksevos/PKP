@@ -1,7 +1,8 @@
 //@ts-check
 
 import React from 'react';
-import dat from "dat.gui"
+
+import Toolbar from "./Toolbar/Toolbar";
 import DataHandler from './DataHandler';
 import {Link} from 'react-router-dom'
 import Renderer from './Renderer/Renderer';
@@ -12,11 +13,6 @@ import './Visualization.css';
 import './DataInfoBox.css';
 
 class Visualization extends React.Component {
-    toolbar;
-    Controls = function () {
-        this.color = "#000";
-    };
-
     constructor(props) {
         super(props);
         this.dataHandler = new DataHandler();
@@ -33,15 +29,8 @@ class Visualization extends React.Component {
         this.dataHandler.downloadData();
 
         //ControlsGUI
-        const text = new this.Controls();
-        this.toolbar = new dat.GUI();
-        const background = this.toolbar.addFolder('Background');
-        let renderer = this.threeRenderer.getRenderer();
-        background.addColor(text, 'color')
-            .onChange(function () {
-                renderer.setClearColor(text.color);
-            });
-        const scale = this.toolbar.addFolder('Scale');
+        this.toolbar = new Toolbar(this.threeRenderer, this.dataHandler);
+        this.toolbar.subscribeToToggle2DEvent(this.threeRenderer.on2DToggled.bind(this.threeRenderer));
     }
 
     componentWillUnmount() {
@@ -55,8 +44,10 @@ class Visualization extends React.Component {
     }
 
     _onDataChange(sender, args){
-        let dataInfoBox = new DataInfoBox(sender);
-        this.mount.appendChild(dataInfoBox.getDom());
+        if(this.dataInfoBox)
+            this.mount.removeChild(this.dataInfoBox.getDom());
+        this.dataInfoBox = new DataInfoBox(sender);
+        this.mount.appendChild(this.dataInfoBox.getDom());
     }
 
     render() {

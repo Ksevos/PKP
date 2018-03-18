@@ -19,7 +19,7 @@ class Renderer{
         this._animate = this._animate.bind(this);
         
         this.renderer = new THREE.WebGLRenderer({ antialias: true })
-        this.renderer.setClearColor('#FFFFFF');
+        this.renderer.setClearColor('#FFF');
         this.renderer.setSize(width, height);
 
         this.camera = this._createCamera(width, height);  
@@ -60,14 +60,25 @@ class Renderer{
         const scene = new THREE.Scene();
 
         const axesHelper = new THREE.AxesHelper(100000);
-
-        const gridHelper = new THREE.GridHelper(10, 10);
-        gridHelper.translateY(-0.01);
-
-        scene.add(gridHelper);
         scene.add(axesHelper);
+        
+        const gridHelper = this.addGridHelper(scene);
 
         return scene;
+    }
+
+    addGridHelper(scene) {
+        const gridHelper = new THREE.GridHelper(10, 10);
+        gridHelper.translateY(-0.001);
+        gridHelper.name = "GridHelper";
+
+        scene.add(gridHelper);
+
+        return gridHelper;
+    }
+
+    removeGridHelper() {
+        this.getScene().remove(this.getScene().getObjectByName("GridHelper"));
     }
 
     start() {
@@ -104,10 +115,25 @@ class Renderer{
     }
 
     removeDataFromScene(){
-        const children = this.scene.children;
-        for(let i=0; i<children.length; i++){ 
-            if(children[i].constructor === THREE.Points)
-                this.scene.remove(children[i]); 
+        const children = this.scene.children.slice();
+
+        for(let i=0; i<children.length; i++){
+            if(children[i].constructor === THREE.Points){
+                this.scene.remove(children[i]);
+            }
+        }
+    }
+
+    on2DToggled(sender, status){
+        if(status){ // Go 2D
+            this.removeGridHelper();
+            this.camera.rotation.set(0,0,0);
+
+            this.controls.enableRotate = false;
+        }
+        else{ // Go 3D
+            this.addGridHelper(this.scene);
+            this.controls.enableRotate = true;
         }
     }
 
