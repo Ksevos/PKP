@@ -18,12 +18,13 @@
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",
     "react-scripts": "1.1.1",
+    "rxjs": "^5.5.7",
     "socket.io": "^2.0.4",
     "three": "^0.90.0"
   },
   "scripts": {
     "start": "react-scripts start",
-    "server": "set port=4000 & nodemon ./src/server/index.js --exec babel-node --presets=latest",
+    "server": "set port=4000 & nodemon --watch ./src/server ./src/server/index.js --exec babel-node --presets=latest",
     "build-server": "babel -d ./build-server ./src/server --presets=latest",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",

@@ -11,11 +11,11 @@ const Options = function () {
 };
 
 class Toolbar extends dat.GUI {
-    constructor(threeRendererInstance, dataReaderInstance) {
+    constructor(threeRendererInstance, dataHandlerInstance) {
         super();
         this.isView3D = true;
         this.threeRendererInstance = threeRendererInstance;
-        this.dataReaderInstance = dataReaderInstance;
+        this.dataReaderInstance = dataHandlerInstance;
 
         this.options = new Options();
         const renderer = threeRendererInstance.getRenderer();
@@ -24,25 +24,23 @@ class Toolbar extends dat.GUI {
         const backgroundFolder = this.addFolder('Background');
 
         backgroundFolder.addColor(this.options, 'color')
-            .onChange(function () {
-                renderer.setClearColor(this.options.color);
+            .onChange((value) => {
+                renderer.setClearColor(value);
             });
 
         //viewFolder
         const viewFolder = this.addFolder('View');
 
-        dataReaderInstance._queryForData().then(response => {
-            const axis = response.valueNames;
-            axis.splice(-1, 1);
-            const xAxis = this._addAxis(viewFolder, 'xAxis', axis);
-            const yAxis = this._addAxis(viewFolder, 'yAxis', axis);
-            let zAxis = this._addAxis(viewFolder, 'zAxis', axis);
+        dataHandlerInstance.getAxesNames().subscribe((axes) => {
+            this._addAxis(viewFolder, 'xAxis', axes);
+            this._addAxis(viewFolder, 'yAxis', axes);
+            let zAxis = this._addAxis(viewFolder, 'zAxis', axes);
 
             this.add(this.options, 'dimension', ['2D', '3D']).name('Dimension')
                 .onChange((value) => {
                     if (value === '3D') {
                         this.isView3D = true;
-                        zAxis = this._addAxis(viewFolder, 'zAxis', axis);
+                        zAxis = this._addAxis(viewFolder, 'zAxis', axes);
                     } else {
                         this.isView3D = false;
                         viewFolder.remove(zAxis);
@@ -52,12 +50,19 @@ class Toolbar extends dat.GUI {
         });
     }
 
+    /**
+     * Creates axes select list
+     * @param folder
+     * @param name
+     * @param axisArray
+     * @returns {Controller}
+     * @private
+     */
     _addAxis(folder, name, axisArray) {
         return folder.add(this.options, name, axisArray)
             .onChange(() => {
                 this._rerenderAxis();
             });
-        ;
     }
 
     _rerenderAxis() {

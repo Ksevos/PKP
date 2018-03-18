@@ -3,7 +3,7 @@
 import React, {Component} from 'react';
 import './LoaderView.css';
 import Axios from 'axios';
-import {Link} from 'react-router-dom'
+import SocketIOClient from 'socket.io-client';
 
 class LoaderView extends Component {
     constructor(props) {
@@ -11,6 +11,13 @@ class LoaderView extends Component {
         this.state = {
             file: null
         };
+
+        //Listens for "dataUploaded" message from the server
+        this.socket = SocketIOClient("http://localhost:4000/");
+        this.socket.on('dataUploaded', (message) => {
+            if(this.props)
+                this.props.history.push('/viewer');
+        });
     }
 
     onFormSubmit(e) {
@@ -36,7 +43,6 @@ class LoaderView extends Component {
                     <button className={'btn btn-primary'} type="submit">Upload</button>
                 </form>
                 <br/>
-                <Link to='viewer'>Viewer</Link>
             </div>
         );
     }
