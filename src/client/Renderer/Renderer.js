@@ -116,10 +116,13 @@ class Renderer{
     }
 
     removeDataFromScene(){
-        const children = this.scene.children;
+        const children = this.scene.children.slice();
+
         for(let i=0; i<children.length; i++){
-            if(children[i].constructor === THREE.Points)
+            if(children[i].constructor === THREE.Points){
+                console.log(i);
                 this.scene.remove(children[i]);
+            }
         }
     }
 
