@@ -6,30 +6,25 @@ import Toolbar from "./Toolbar/Toolbar";
 import DataHandler from './DataHandler';
 import {Link} from 'react-router-dom'
 import Renderer from './Renderer/Renderer';
-//import SocketIOClient from 'socket.io-client';
+import DataInfoBox from "./DataInfoBox";
+
+//CSS
+import './Visualization.css';
+import './DataInfoBox.css';
 
 class Visualization extends React.Component {
     toolbar;
 
     constructor(props) {
         super(props);
-
         this.dataHandler = new DataHandler();
-
-        /*
-        //Listens for "dataUploaded" message from the server
-        this.socket = SocketIOClient("http://localhost:4000/");
-        this.socket.on('dataUploaded', (message) => {
-            if(message && this.threeRenderer)
-                this.dataReader.downloadData();
-          });
-          */
     }
 
     componentDidMount() {
         if(!this.threeRenderer)
             this.threeRenderer = new Renderer(this.mount.clientWidth, this.mount.clientHeight);
         this.dataHandler.subscribeToChangeEvent(this.threeRenderer.onDataChange.bind(this.threeRenderer));
+        this.dataHandler.subscribeToChangeEvent(this._onDataChange.bind(this));
         this.mount.appendChild(this.threeRenderer.getRenderer().domElement);
         this.threeRenderer.start();
 
@@ -42,17 +37,21 @@ class Visualization extends React.Component {
     componentWillUnmount() {
         this.toolbar.destroy();
         this.threeRenderer.stop();
-        this.dataHandler.unsubscribeFromChangeEvent(this.threeRenderer.onDataDownloaded);
-        this.mount.removeChild(this.threeRenderer.getRenderer().domElement);
+        this.dataHandler.unsubscribeFromChangeEvent(this.threeRenderer.onDataChange);
+        //Remove all children
+        while(this.mount.firstChild){
+            this.mount.removeChild(this.mount.firstChild);
+        }
+    }
+
+    _onDataChange(sender, args){
+        let dataInfoBox = new DataInfoBox(sender);
+        this.mount.appendChild(dataInfoBox.getDom());
     }
 
     render() {
         return (
             <div className="Visualization"
-                 style={{
-                     width: '100vw',
-                     height: '100vh'
-                 }}
                  ref={(mount) => {
                      this.mount = mount
                  }}

@@ -1,14 +1,15 @@
 //@ts-check
 
-import DataObject from './CustomObjects/DataObject';
+//For jsdoc only
+import DataObject from './CustomObjects/DataObject'; // eslint-disable-line
+
 import axios from 'axios';
 import ChangeEvent from "./Events/Event";
-import ChangeEventArgs from './Events/ChangeEventArgs';
 import * as Rx from "rxjs";
 
 class DataHandler {
-    
     constructor() {
+        /** @type {DataObject} */
         this.fileData = null;
         this.dataChangeEvent = new ChangeEvent(this); 
         this.axes = [];
@@ -47,10 +48,7 @@ class DataHandler {
 
             this.currentSetAxes = this._getDefaultAxes();
 
-            this.dataChangeEvent.notify(
-                new ChangeEventArgs(
-                    data, 
-                    this.currentSetAxes));
+            this.dataChangeEvent.notify(null);
         });
     }
 
@@ -120,14 +118,11 @@ class DataHandler {
             y:yAxis,
             z:zAxis
         };
-        this.dataChangeEvent.notify(
-            new ChangeEventArgs(
-                this.fileData, 
-                this.currentSetAxes));
+        this.dataChangeEvent.notify(null);
     }
 
     /**
-     * @param {function({}, ChangeEventArgs)} listener A callback function, 
+     * @param {function(*,*)} listener A callback function, 
      * which will be called when Change Event fires
      */
     subscribeToChangeEvent(listener){
@@ -135,7 +130,7 @@ class DataHandler {
     }
 
     /**
-     * @param {function({}, ChangeEventArgs)} listener 
+     * @param {function(*,*)} listener 
      */
     unsubscribeFromChangeEvent(listener){
         this.dataChangeEvent.unsubscribe(listener);
@@ -146,6 +141,101 @@ class DataHandler {
      */
     getData(){
         return this.fileData;
+    }
+
+    /**
+     * Return Axis max value
+     * @param {string|number} axis 
+     * 'x', 'y', 'z'
+     * OR
+     * 0, 1, 2, 
+     * @returns {number}
+     */
+    getMaxValue(axis) {
+        let axisIndex = this._getAxisIndex(this._getAxisName(axis));
+
+        let values = [];
+        for (var i = 0; i < this.fileData.values.length; i++) {
+            values.push(this.fileData.values[i][axisIndex]);
+        }
+        return Math.max(...values);
+    }
+
+    /**
+     * Return Axis min value
+     * @param {string|number} axis 
+     * 'x', 'y', 'z'
+     * OR
+     * 0, 1, 2, 
+     * @returns {number}
+     */
+    getMinValue(axis) {
+        let axisIndex = this._getAxisIndex(this._getAxisName(axis));
+
+        let values = [];
+        for (var i = 0; i < this.fileData.values.length; i++) {
+            values.push(this.fileData.values[i][axisIndex]);
+        }
+        return Math.min(...values);
+    }
+
+    /**
+     * Returns axis middle value
+     * @param {Array} values
+     * @returns {number}
+     */
+    _getMiddle(values) {
+        return (Math.max(...values) + Math.min(...values)) / 2;
+    }
+
+    /**
+     * Returns data center point (x,y,z)
+     * @returns {{x:number,y:number,z:number}}
+     */
+    getCenterCoordinates() {
+        let xValues = [];
+        let yValues = [];
+        let zValues = [];
+
+        for (var i = 0; i < this.fileData.values.length; i++) {
+            xValues.push(this.fileData.values[i][0]);
+            yValues.push(this.fileData.values[i][1]);
+            zValues.push(this.fileData.values[i][2]);
+        }
+        return {x: this._getMiddle(xValues), y: this._getMiddle(yValues), z: this._getMiddle(zValues)};
+    }
+
+    /**
+     * Gets axis index for value list
+     * @param {string} axisName 
+     * @returns {number}
+     */
+    _getAxisIndex(axisName){
+        let axisIndex = -1;
+        for(let i = 0; i < this.fileData.valueNames.length; i++){
+            if(this.fileData.valueNames[i] === axisName){
+                axisIndex = i;
+                break;
+            }
+        }
+        return axisIndex;
+    }
+
+    /**
+     * Get axis name based on current set axis
+     * @param {string|number} axis 
+     * 'x', 'y', 'z'
+     * OR
+     * 0, 1, 2, 
+     * @returns {string}
+     */
+    _getAxisName(axis){
+        if(axis === 'x' || axis === 0)
+            return this.currentSetAxes.x;
+        if(axis === 'y' || axis === 1)
+            return this.currentSetAxes.y;
+        if(axis === 'z' || axis === 2)
+            return this.currentSetAxes.z;
     }
 }
 
