@@ -13,8 +13,6 @@ import './Visualization.css';
 import './DataInfoBox.css';
 
 class Visualization extends React.Component {
-    toolbar;
-
     constructor(props) {
         super(props);
         this.dataHandler = new DataHandler();
@@ -32,6 +30,7 @@ class Visualization extends React.Component {
 
         //ControlsGUI
         this.toolbar = new Toolbar(this.threeRenderer, this.dataHandler);
+        this.toolbar.subscribeToToggle2DEvent(this.threeRenderer.on2DToggled.bind(this.threeRenderer));
     }
 
     componentWillUnmount() {
@@ -45,8 +44,10 @@ class Visualization extends React.Component {
     }
 
     _onDataChange(sender, args){
-        let dataInfoBox = new DataInfoBox(sender);
-        this.mount.appendChild(dataInfoBox.getDom());
+        if(this.dataInfoBox)
+            this.mount.removeChild(this.dataInfoBox.getDom());
+        this.dataInfoBox = new DataInfoBox(sender);
+        this.mount.appendChild(this.dataInfoBox.getDom());
     }
 
     render() {

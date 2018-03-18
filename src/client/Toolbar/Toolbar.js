@@ -1,6 +1,8 @@
 //@ts-check
 
 import dat from "dat.gui";
+import Toggle2DEvent from '../Events/Event';
+
 
 const Options = function () {
     this.color = "#FFF";
@@ -13,6 +15,8 @@ const Options = function () {
 class Toolbar extends dat.GUI {
     constructor(threeRendererInstance, dataHandlerInstance) {
         super();
+        this.toggle2DEvent = new Toggle2DEvent(this);
+
         this.isView3D = true;
         this.threeRendererInstance = threeRendererInstance;
         this.dataHandlerInstance = dataHandlerInstance;
@@ -46,6 +50,7 @@ class Toolbar extends dat.GUI {
                         viewFolder.remove(zAxis);
                     }
                     this._rerenderAxis();
+                    this.toggle2DEvent.notify(!this.isView3D);
                 });
         });
     }
@@ -68,6 +73,10 @@ class Toolbar extends dat.GUI {
 
     _rerenderAxis() {
         this.dataHandlerInstance.changeAxes(this.options.xAxis, this.options.yAxis, this.isView3D ? this.options.zAxis : null);
+    }
+
+    subscribeToToggle2DEvent(listener){
+        this.toggle2DEvent.subscribe(listener);
     }
 }
 
