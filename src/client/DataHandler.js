@@ -147,6 +147,24 @@ class DataHandler {
     }
 
     /**
+     * Return Axis min value
+     * @param {string|number} axis 
+     * 'x', 'y', 'z'
+     * OR
+     * 0, 1, 2, 
+     * @returns {number}
+     */
+    getMinValue(axis) {
+        let axisIndex = this._getAxisIndex(this._getAxisName(axis));
+
+        let values = [];
+        for (var i = 0; i < this.fileData.values.length; i++) {
+            values.push(this.fileData.values[i][axisIndex]);
+        }
+        return Math.min(...values);
+    }
+
+    /**
      * Returns axis middle value
      * @param {Array} values
      * @returns {number}
