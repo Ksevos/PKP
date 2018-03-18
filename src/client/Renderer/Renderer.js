@@ -31,6 +31,8 @@ class Renderer{
         this.controls.minDistance = 0;
 
         this.scene = this._createScene();
+
+        window.addEventListener('resize', this._onWindowResize.bind(this), false);
     }
 
     /**
@@ -173,6 +175,14 @@ class Renderer{
         this.controls.update();
     }
 
+    _onWindowResize(){
+
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+    
+        this.renderer.setSize( window.innerWidth, window.innerHeight );
+    
+    }
 }
 
 export default Renderer;
