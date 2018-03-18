@@ -10,6 +10,9 @@ const Options = function () {
     this.yAxis = 'x2';
     this.zAxis = 'x3';
     this.dimension = '3D';
+    this.restore = () => {
+
+    };
 };
 
 class Toolbar extends dat.GUI {
@@ -18,7 +21,7 @@ class Toolbar extends dat.GUI {
         this.toggle2DEvent = new Toggle2DEvent(this);
 
         this.isView3D = true;
-        this.threeRendererInstance = threeRendererInstance;
+        this.threeRenderer = threeRendererInstance;
         this.dataHandlerInstance = dataHandlerInstance;
 
         this.options = new Options();
@@ -52,6 +55,9 @@ class Toolbar extends dat.GUI {
                     this._rerenderAxis();
                     this.toggle2DEvent.notify(!this.isView3D);
                 });
+            this.add(this.options, 'restore').name('Restore').onChange((value) => {
+                this.threeRenderer.centerCameraToData(this.dataHandlerInstance);
+            });
         });
     }
 
@@ -64,11 +70,15 @@ class Toolbar extends dat.GUI {
      * @private
      */
     _addAxis(folder, optionName, axisNames) {
-        let controller =  folder.add(this.options, optionName, axisNames);
+        let controller = folder.add(this.options, optionName, axisNames);
         controller.onChange(() => {
                 this._rerenderAxis();
             });
         return controller;
+    }
+
+    restoreView() {
+        console.log('aa');
     }
 
     _rerenderAxis() {
