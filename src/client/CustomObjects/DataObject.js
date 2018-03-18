@@ -2,7 +2,7 @@
 
 /**
  * JSON response data object
- * @typedef {Object} DataObject
+ * @typedef {*} DataObject
  * @property {string[]} valueNames Axes names and additional properties
  * @property {[[]]} values Axis values
  */
