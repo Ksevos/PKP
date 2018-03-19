@@ -5,7 +5,6 @@ import dat from "dat.gui"
 import DataHandler from './DataHandler';
 import {Link} from 'react-router-dom'
 import Renderer from './Renderer/Renderer';
-//import SocketIOClient from 'socket.io-client';
 
 class Visualization extends React.Component {
     toolbar;
@@ -17,15 +16,6 @@ class Visualization extends React.Component {
         super(props);
 
         this.dataHandler = new DataHandler();
-
-        /*
-        //Listens for "dataUploaded" message from the server
-        this.socket = SocketIOClient("http://localhost:4000/");
-        this.socket.on('dataUploaded', (message) => {
-            if(message && this.threeRenderer)
-                this.dataReader.downloadData();
-          });
-          */
     }
 
     componentDidMount() {
