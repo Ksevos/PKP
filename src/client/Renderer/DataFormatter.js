@@ -1,5 +1,9 @@
+//@ts-check
+
+//For jsdoc only
+import DataObject from '../CustomObjects/DataObject'; // eslint-disable-line
+
 import * as THREE from "three";
-import DataObject from '../CustomObjects/DataObject';
 
 /**
  * Used for data convertion into format, that three.js can use
@@ -63,14 +67,15 @@ class DataFormatter{
             if(data.valueNames[i] === this.zAxis)
                 z = data.values[index][i];
         }
+
         return new THREE.Vector3(x, y, z);
     }
 
     /**
      * Relate geometry and materials together into a data cloud
-     * @param {THREE.Geometry} pointGeometries
-     * @param {THREE.PointsMaterial} pointMaterials
-     * @param {THREE.string} dataClasses
+     * @param {Object<string, THREE.Geometry>} pointGeometries
+     * @param {Object<string, THREE.PointsMaterial>} pointMaterials
+     * @param {string[]} dataClasses
      * @returns {THREE.Points[]}
      */
     _mergePoints(pointGeometries, pointMaterials, dataClasses){
@@ -96,10 +101,10 @@ class DataFormatter{
 
     /** 
      * Get one of default colors. If none found create a random color
-     * @returns {string}
+     * @returns {THREE.Color}
      */
     _getColor(){
-        let color = this.defaultColors[this.defaultColors.length-1];
+        let color = new THREE.Color( this.defaultColors[this.defaultColors.length-1] );
         if(color)
             this.defaultColors.pop();
         else{

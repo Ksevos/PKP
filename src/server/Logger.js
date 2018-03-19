@@ -1,5 +1,8 @@
 //@ts-check
 
+/**
+ * Helper for server logging
+ */
 var Logger = (()=>{
     let _loggerOn = false;
 

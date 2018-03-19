@@ -1,11 +1,14 @@
 //@ts-check
 
-import * as THREE from "three";
-import OrbitControls from '../LocalOrbitControls/OrbitControls.js';
-import ChangeEventArgs from '../Events/ChangeEventArgs';
-import DataFormatter from "./DataFormatter.js";
+//For jsdoc only
+/* eslint-disable */
 import DataHandler from "../DataHandler";
 import DataObject from "../CustomObjects/DataObject"
+/* eslint-enable */
+
+import * as THREE from "three";
+import OrbitControls from '../LocalOrbitControls/OrbitControls.js';
+import DataFormatter from "./DataFormatter.js";
 
 class Renderer{
     /**
@@ -16,7 +19,7 @@ class Renderer{
         this._animate = this._animate.bind(this);
         
         this.renderer = new THREE.WebGLRenderer({ antialias: true })
-        this.renderer.setClearColor('#FFFFFF');
+        this.renderer.setClearColor('#FFF');
         this.renderer.setSize(width, height);
 
         this.camera = this._createCamera(width, height);  
@@ -28,6 +31,8 @@ class Renderer{
         this.controls.minDistance = 0;
 
         this.scene = this._createScene();
+
+        window.addEventListener('resize', this._onWindowResize.bind(this), false);
     }
 
     /**
@@ -55,14 +60,25 @@ class Renderer{
         const scene = new THREE.Scene();
 
         const axesHelper = new THREE.AxesHelper(100000);
-
-        const gridHelper = new THREE.GridHelper(10, 10);
-        gridHelper.translateY(-0.01);
-
-        scene.add(gridHelper);
         scene.add(axesHelper);
+        
+        const gridHelper = this.addGridHelper(scene);
 
         return scene;
+    }
+
+    addGridHelper(scene) {
+        const gridHelper = new THREE.GridHelper(10, 10);
+        gridHelper.translateY(-0.001);
+        gridHelper.name = "GridHelper";
+
+        scene.add(gridHelper);
+
+        return gridHelper;
+    }
+
+    removeGridHelper() {
+        this.getScene().remove(this.getScene().getObjectByName("GridHelper"));
     }
 
     start() {
@@ -99,32 +115,48 @@ class Renderer{
     }
 
     removeDataFromScene(){
-        const children = this.scene.children;
-        for(let i=0; i<children.length; i++){ 
-            if(children[i].constructor === THREE.Points)
-                this.scene.remove(children[i]); 
+        const children = this.scene.children.slice();
+
+        for(let i=0; i<children.length; i++){
+            if(children[i].constructor === THREE.Points){
+                this.scene.remove(children[i]);
+            }
+        }
+    }
+
+    on2DToggled(sender, status){
+        if(status){ // Go 2D
+            this.removeGridHelper();
+            this.camera.rotation.set(0,0,0);
+
+            this.controls.enableRotate = false;
+        }
+        else{ // Go 3D
+            this.addGridHelper(this.scene);
+            this.controls.enableRotate = true;
         }
     }
 
     /**
      * Callback function to change data in the scene
-     * @param {object} sender 
-     * @param {ChangeEventArgs} args 
+     * @param {DataHandler} sender 
+     * @param {boolean} newDataDownloaded 
      */
-    onDataChange(sender, args){
+    onDataChange(sender, newDataDownloaded){
         this.removeDataFromScene();
 
         this.addDataToScene(
-            args.getData(),
-            args.getAxes().x,
-            args.getAxes().y,
-            args.getAxes().z);
+            sender.getData(),
+            sender.getCurrentAxes().x,
+            sender.getCurrentAxes().y,
+            sender.getCurrentAxes().z);
         
-        this.centerCameraToData(sender);
+        if(newDataDownloaded)
+            this.centerCameraToData(sender);
     }
 
     /**
-     * @param {{valueNames:string[], values: any}} data 
+     * @param {DataObject} data 
      * @param {string} xAxis 
      * @param {string} yAxis 
      * @param {string} zAxis 
@@ -170,6 +202,14 @@ class Renderer{
         this.controls.update();
     }
 
+    _onWindowResize(){
+
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+    
+        this.renderer.setSize( window.innerWidth, window.innerHeight );
+    
+    }
 }
 
 export default Renderer;
