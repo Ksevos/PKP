@@ -3,7 +3,6 @@
 import StorageHandler from './StorageHandler';
 import Express from 'express';
 import Multer from 'multer';
-import HTTP from 'http';
 import Socket from 'socket.io';
 import Path from 'path';
 
@@ -12,7 +11,6 @@ class Server{
         this.app = Express();
         this.app.set('port', process.env.PORT || 4000);
         this.app.use(this.configureAccessControl);
-
         this.upload = this.configureMulter();
 
         this.mapGets(this.app); // Route get requests
@@ -26,7 +24,6 @@ class Server{
 
         this.socket = Socket.listen(this.server);
     }
-
 
     /**
      * Configure parameters necessary for Socket
@@ -51,10 +48,15 @@ class Server{
      */
     configureUploadErrorHandling(error, req, res, next){
         if(error.message === 'Only .arff files are allowed')
-            res.sendStatus(415).json({
+            res.status(415).send({
                 type: 'UploadError',
                 message: error.message
                 });
+        if(error.code === 'LIMIT_FILE_SIZE')
+            res.status(413).send({
+                type: 'UploadError',
+                message: 'File is too large. Max 5Mb'
+            });
         next(error);
     }
 
@@ -63,6 +65,7 @@ class Server{
      */
     configureMulter(){
         return Multer({
+            limits: {fileSize: 5*1024*1024, files:1},
             fileFilter: (req, file, callback) => {
                 let extention = Path.extname(file.originalname);
                 if(extention !== '.arff') {

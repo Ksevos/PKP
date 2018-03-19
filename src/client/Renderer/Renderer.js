@@ -62,7 +62,7 @@ class Renderer{
         const axesHelper = new THREE.AxesHelper(100000);
         scene.add(axesHelper);
         
-        const gridHelper = this.addGridHelper(scene);
+        this.addGridHelper(scene);
 
         return scene;
     }
