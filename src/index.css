@@ -49,3 +49,8 @@ canvas {
   height: 4px;
   margin-top: -2px;
 }
+
+.dg .c input[type=text] {
+  padding: 0!important;
+  margin: 0!important;
+}
