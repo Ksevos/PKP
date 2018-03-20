@@ -110,6 +110,8 @@ class Renderer{
         
         if(newDataDownloaded)
             this.centerCameraToData(sender);
+
+        this.sceneConfigurator.sceneGrid.scaleTo(this.dataHandler.getAbsMax());
     }
 
     /**

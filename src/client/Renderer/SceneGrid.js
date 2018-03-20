@@ -33,6 +33,15 @@ class SceneGrid {
     }
 
     /**
+     * Changes grid size
+     * @param size
+     */
+    scaleTo(size) {
+        this.scale = Math.ceil(size) * 2 + 2;
+        this._updateGridHelper();
+    }
+
+    /**
      * Adds grid to specified scene
      * @param {THREE.Scene} scene 
      */
