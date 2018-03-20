@@ -33,7 +33,7 @@ class RendererConfigurator{
      * Sets perspective camera
      */
     turnOn3D(){
-        if(this.currentDimension == Enum.DimensionType.THREE_D)
+        if(this.currentDimension === Enum.DimensionType.THREE_D)
             return null;
         
         this.camera = this._createPerspectiveCamera();
@@ -45,7 +45,7 @@ class RendererConfigurator{
      * Sets orthographic camera and resets any rotation 
      */
     turnOn2D(){
-        if(this.currentDimension == Enum.DimensionType.TWO_D)
+        if(this.currentDimension === Enum.DimensionType.TWO_D)
             return null;
         
         this.camera = this._createOrthographicCamera();
@@ -86,14 +86,14 @@ class RendererConfigurator{
      * Callback to window resize event
      */
     onWindowResize(){
-        if(this.currentDimension = Enum.DimensionType.THREE_D){
+        if(this.currentDimension === Enum.DimensionType.THREE_D){
             /** @type {THREE.PerspectiveCamera} */
             //@ts-ignore
             let camera = this.camera;
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
         }
-        else if(this.currentDimension = Enum.DimensionType.TWO_D){
+        else if(this.currentDimension === Enum.DimensionType.TWO_D){
             /** @type {THREE.OrthographicCamera} */
             //@ts-ignore
             let camera = this.camera;

@@ -6,7 +6,7 @@ import DataHandler from "../DataHandler";
 import DataObject from "../CustomObjects/DataObject"
 /* eslint-enable */
 
-import * as THREE from "three";
+// import * as THREE from "three";
 import RendererConfigurator from "./RendererConfigurator";
 import SceneConfigurator from "./SceneConfigurator";
 import Controls from "./Controls";

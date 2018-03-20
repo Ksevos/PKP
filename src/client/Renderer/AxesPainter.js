@@ -1,8 +1,8 @@
 import * as THREE from 'three';
+import {Axis} from "../CustomObjects/Enum";
 
 const DASH_LENGTH = 0.025;
 const DASH_L_LENGTH = DASH_LENGTH + 0.1;
-const AXIS = Object.freeze({'X': 1, 'Y': 2, 'Z': 3});
 
 class AxesPainter {
 
@@ -46,9 +46,9 @@ class AxesPainter {
                     z: this._scaleDashDistance(i, j)
                 };
 
-                this.lines.push(AxesPainter._createAxisDash(dashX, materialX, AXIS.X));
-                this.lines.push(AxesPainter._createAxisDash(dashY, materialY, AXIS.Y));
-                this.lines.push(AxesPainter._createAxisDash(dashZ, materialZ, AXIS.Z));
+                this.lines.push(AxesPainter._createAxisDash(dashX, materialX, Axis.X));
+                this.lines.push(AxesPainter._createAxisDash(dashY, materialY, Axis.Y));
+                this.lines.push(AxesPainter._createAxisDash(dashZ, materialZ, Axis.Z));
             }
 
             // intermediate (longer) dashes
@@ -71,9 +71,9 @@ class AxesPainter {
                     z: this._scaleDashDistance(i + 1, 0)
                 };
 
-                this.lines.push(AxesPainter._createAxisDash(longerDashX, materialX, AXIS.X));
-                this.lines.push(AxesPainter._createAxisDash(longerDashY, materialY, AXIS.Y));
-                this.lines.push(AxesPainter._createAxisDash(longerDashZ, materialZ, AXIS.Z));
+                this.lines.push(AxesPainter._createAxisDash(longerDashX, materialX, Axis.X));
+                this.lines.push(AxesPainter._createAxisDash(longerDashY, materialY, Axis.Y));
+                this.lines.push(AxesPainter._createAxisDash(longerDashZ, materialZ, Axis.Z));
             }
         }
     }
@@ -102,20 +102,23 @@ class AxesPainter {
         let geometry = new THREE.Geometry();
 
         switch (alignment) {
-            case AXIS.X:
+            case Axis.X:
                 geometry.vertices.push(new THREE.Vector3( centerPoint.x, centerPoint.y, centerPoint.z ));
                 geometry.vertices.push(new THREE.Vector3( centerPoint.x, centerPoint.y,-centerPoint.z ));
                 break;
 
-            case AXIS.Y:
+            case Axis.Y:
                 geometry.vertices.push(new THREE.Vector3( centerPoint.x, centerPoint.y, centerPoint.z ));
                 geometry.vertices.push(new THREE.Vector3(-centerPoint.x, centerPoint.y, centerPoint.z ));
                 break;
 
-            case AXIS.Z:
+            case Axis.Z:
                 geometry.vertices.push(new THREE.Vector3( centerPoint.x, centerPoint.y, centerPoint.z ));
                 geometry.vertices.push(new THREE.Vector3(-centerPoint.x, centerPoint.y, centerPoint.z ));
                 break;
+
+            default:
+                throw new Error('Undefined dash alignment!');
         }
 
         return new THREE.Line(geometry,material);
