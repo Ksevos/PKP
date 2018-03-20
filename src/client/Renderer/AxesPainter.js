@@ -4,7 +4,11 @@ import {Axis} from "../CustomObjects/Enum";
 const DASH_LENGTH = 0.025;
 const DASH_L_LENGTH = DASH_LENGTH + 0.1;
 
-class AxesPainter {
+const MATERIAL_X = new THREE.LineBasicMaterial( {color: '#ff0000'} );
+const MATERIAL_Y = new THREE.LineBasicMaterial( {color: '#00ff00'} );
+const MATERIAL_Z = new THREE.LineBasicMaterial( {color: '#0000ff'} );
+
+class AxesPainter extends THREE.Group {
 
     lines = [];
     axesHelper;
@@ -14,16 +18,34 @@ class AxesPainter {
     dashes;
 
     constructor(size, division, dashes) {
+        super();
+
         this.size = size            || 10;
         this.division = division    || 10;
         this.dashes = dashes        || 3;
         this.axesHelper = new THREE.AxesHelper(size / 2);
 
-        const materialX = new THREE.LineBasicMaterial( {color: '#ff0000'} );
-        const materialY = new THREE.LineBasicMaterial( {color: '#00ff00'} );
-        const materialZ = new THREE.LineBasicMaterial( {color: '#0000ff'} );
+        this._paint();
 
-        let limit = division / 2;
+        this.add(this.axesHelper);
+    }
+
+    scaleTo(size) {
+        size = Math.ceil(size) * 2 + 2;
+
+        this.size = size;
+        this.division = size;
+
+        this.remove(this.axesHelper);
+        this.add(new THREE.AxesHelper(size / 2));
+
+        this.remove(...this.lines);
+        this.lines.length = 0;
+        this._paint();
+    }
+
+    _paint() {
+        let limit = this.division / 2;
 
         for(let i = 0; i < limit; i++) {
             for (let j = 1; j <= this.dashes; j++) {
@@ -46,9 +68,9 @@ class AxesPainter {
                     z: this._scaleDashDistance(i, j)
                 };
 
-                this.lines.push(AxesPainter._createAxisDash(dashX, materialX, Axis.X));
-                this.lines.push(AxesPainter._createAxisDash(dashY, materialY, Axis.Y));
-                this.lines.push(AxesPainter._createAxisDash(dashZ, materialZ, Axis.Z));
+                this.lines.push(AxesPainter._createAxisDash(dashX, MATERIAL_X, Axis.X));
+                this.lines.push(AxesPainter._createAxisDash(dashY, MATERIAL_Y, Axis.Y));
+                this.lines.push(AxesPainter._createAxisDash(dashZ, MATERIAL_Z, Axis.Z));
             }
 
             // intermediate (longer) dashes
@@ -71,19 +93,15 @@ class AxesPainter {
                     z: this._scaleDashDistance(i + 1, 0)
                 };
 
-                this.lines.push(AxesPainter._createAxisDash(longerDashX, materialX, Axis.X));
-                this.lines.push(AxesPainter._createAxisDash(longerDashY, materialY, Axis.Y));
-                this.lines.push(AxesPainter._createAxisDash(longerDashZ, materialZ, Axis.Z));
+                this.lines.push(AxesPainter._createAxisDash(longerDashX, MATERIAL_X, Axis.X));
+                this.lines.push(AxesPainter._createAxisDash(longerDashY, MATERIAL_Y, Axis.Y));
+                this.lines.push(AxesPainter._createAxisDash(longerDashZ, MATERIAL_Z, Axis.Z));
             }
         }
-    }
 
-    setScene(scene) {
-        scene.add(this.axesHelper);
-
-        this.lines.forEach(function (line) {
-            scene.add(line);
-        })
+        for(let i = 0; i < this.lines.length; i++) {
+            this.add(this.lines[i]);
+        }
     }
 
     // returns the point on the axis at which the next dash should be drawn

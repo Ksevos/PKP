@@ -21,8 +21,8 @@ class SceneConfigurator{
 
         this.sceneGrid = new SceneGrid();
 
-        const axesPainter = new AxesPainter(this.sceneGrid.scale, this.sceneGrid.scale, 3);
-        axesPainter.setScene(scene);
+        this.axesPainter = new AxesPainter(this.sceneGrid.scale, this.sceneGrid.scale, 3);
+        scene.add(this.axesPainter);
 
         this.scene = scene;
         this.turnOn3D();

@@ -111,7 +111,10 @@ class Renderer{
         if(newDataDownloaded)
             this.centerCameraToData(sender);
 
-        this.sceneConfigurator.sceneGrid.scaleTo(this.dataHandler.getAbsMax());
+        let absMax = this.dataHandler.getAbsMax();
+
+        this.sceneConfigurator.sceneGrid.scaleTo(absMax);
+        this.sceneConfigurator.axesPainter.scaleTo(absMax);
     }
 
     /**
