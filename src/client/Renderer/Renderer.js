@@ -7,9 +7,9 @@ import DataObject from "../CustomObjects/DataObject"
 /* eslint-enable */
 
 import * as THREE from "three";
-import OrbitControls from '../LocalOrbitControls/OrbitControls.js';
 import RendererConfigurator from "./RendererConfigurator";
 import SceneConfigurator from "./SceneConfigurator";
+import Controls from "./Controls";
 
 class Renderer{
     /**
@@ -24,11 +24,7 @@ class Renderer{
         this.renderer = this.rendererConfigurator.getRenderer();
         this.camera = this.rendererConfigurator.getCamera();  
 
-        //Orbit controls (Rotate, pan, resize)
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.enabled = true;
-        this.controls.maxDistance = 1500;
-        this.controls.minDistance = 0;
+        this.controls = new Controls(this.camera, this.renderer.domElement);
 
         this.sceneConfigurator = new SceneConfigurator();
         this.scene = this.sceneConfigurator.getScene();
@@ -60,11 +56,7 @@ class Renderer{
 
     updateCamera(){
         this.camera = this.rendererConfigurator.getCamera();
-
-        let isEnabled = this.controls.enableRotate;
-
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.enableRotate = isEnabled;
+        this.controls.setCamera(this.camera);
     }
 
     /**
@@ -90,12 +82,12 @@ class Renderer{
         if(status){ // Go 2D
             this.sceneConfigurator.turnOn2D();
             this.rendererConfigurator.turnOn2D();
-            this.controls.enableRotate = false;
+            this.controls.turnOn2D();
         }
         else{ // Go 3D
             this.sceneConfigurator.turnOn3D();
             this.rendererConfigurator.turnOn3D();
-            this.controls.enableRotate = true;
+            this.controls.turnOn3D();
         }
         this.updateCamera();
         this.centerCameraToData(this.dataHandler);
@@ -132,16 +124,7 @@ class Renderer{
 
         this.camera.position.set(coordinates.x, coordinates.y, Math.max(x, y, z));
 
-        this._changeControlsPivotPoint(coordinates);
-    }
-
-    /**
-     * Change a point around which controls rotate. Default is 0;0;0
-     * @param {{x:number,y:number,z:number}} coordinates
-     */
-    _changeControlsPivotPoint(coordinates) {
-        this.controls.target.set(coordinates.x, coordinates.y, coordinates.z);
-        this.controls.update();
+        this.controls.changePivotPoint(coordinates);
     }
 }
 
