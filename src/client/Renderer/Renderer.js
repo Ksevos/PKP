@@ -8,7 +8,6 @@ import DataObject from "../CustomObjects/DataObject"
 
 import * as THREE from "three";
 import OrbitControls from '../LocalOrbitControls/OrbitControls.js';
-import DataFormatter from "./DataFormatter.js";
 import RendererConfigurator from "./RendererConfigurator";
 import SceneConfigurator from "./SceneConfigurator";
 
@@ -19,6 +18,7 @@ class Renderer{
      */
     constructor(width, height) {
         this._animate = this._animate.bind(this);
+        /** @type {DataObject} */
         this.dataHandler = null;
         this.rendererConfigurator = new RendererConfigurator(width, height);
         this.renderer = this.rendererConfigurator.getRenderer();
@@ -81,6 +81,11 @@ class Renderer{
         return this.renderer;
     }
 
+    /**
+     * Callback function to change between 2D and 3D modes
+     * @param {DataHandler} sender 
+     * @param {boolean} status true means go 2D, false means go 3D 
+     */
     on2DToggled(sender, status){
         if(status){ // Go 2D
             this.sceneConfigurator.turnOn2D();

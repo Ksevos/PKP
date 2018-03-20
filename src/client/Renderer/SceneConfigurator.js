@@ -1,11 +1,19 @@
 //@ts-check
 
+//For Jsdoc
+/* eslint-disable */
+import DataObject from "../CustomObjects/DataObject"
+/* eslint-enable */
+
 import * as THREE from "three";
 import SceneGrid from './SceneGrid';
 import Enum from '../CustomObjects/Enum';
 import DataFormatter from './DataFormatter';
 
 class SceneConfigurator{
+    /**
+     * Creates scene, adds axes and grid
+     */
     constructor(){
         this.currentDimension = Enum.DimensionType.NONE;
         const scene = new THREE.Scene();
@@ -19,6 +27,9 @@ class SceneConfigurator{
         this.turnOn3D();
     }
 
+    /**
+     * Shows grid and turns on z axis
+     */
     turnOn3D(){
         if(this.currentDimension == Enum.DimensionType.THREE_D)
             return null;
@@ -26,6 +37,10 @@ class SceneConfigurator{
         this.sceneGrid.addToScene(this.scene);
         // Turn on z axis
     }   
+
+    /**
+     * Hides grid and z axis
+     */
     turnOn2D(){
         if(this.currentDimension == Enum.DimensionType.TWO_D)
             return null;
@@ -34,10 +49,16 @@ class SceneConfigurator{
         // Turn off z axis
     } 
 
+    /**
+     * Adds data to the scene
+     * @param {DataObject} data 
+     * @param {string} xAxis 
+     * @param {string} yAxis 
+     * @param {string} zAxis 
+     */
     addData(data, xAxis, yAxis, zAxis){
         if(!data)
             return;
-
 
         console.log(xAxis,yAxis,zAxis);
         let dataFormatter = 
@@ -53,6 +74,9 @@ class SceneConfigurator{
         }
     }
 
+    /**
+     * Removes data only from the scene
+     */
     removeAllData(){
         const children = this.scene.children.slice();
 
@@ -63,6 +87,9 @@ class SceneConfigurator{
         }
     }
 
+    /**
+     * @returns {THREE.Scene}
+     */
     getScene(){
         return this.scene;
     }
