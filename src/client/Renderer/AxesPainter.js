@@ -31,6 +31,30 @@ export default class AxesPainter extends THREE.Group {
         this.add(...this.lines);
     }
 
+    /*
+     * Change axis on 3D
+     */
+   setAxisLine3D(){
+    let axisLines = ([
+        0, 0, 0,	this.size/2, 0, 0,
+        0, 0, 0,	0, this.size/2, 0,
+        0, 0, 0,	0, 0, this.size/2
+    ]);
+    let axis = this.axesHelper.geometry.attributes.position.array;
+    axis.set(axisLines);
+   }
+   /*
+    * Extend axis on 2D
+    */
+   setAxisLine2D(){
+    let axisLines = ([
+        -this.size/2, 0, 0,	this.size/2, 0, 0,
+        0, -this.size/2, 0,	0, this.size/2, 0,
+        0, 0, -this.size/2,	0, 0, this.size/2
+    ]);
+    let axis = this.axesHelper.geometry.attributes.position.array;
+    axis.set(axisLines);
+   }
     /**
      * Scales axes to new grid size
      * @param {number} size
