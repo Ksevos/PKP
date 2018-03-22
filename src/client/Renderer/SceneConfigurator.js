@@ -35,6 +35,7 @@ class SceneConfigurator{
         if(this.currentDimension === Enum.DimensionType.THREE_D)
             return null;
         
+        this.axesPainter.setAxisLine3D();
         this.sceneGrid.addToScene(this.scene);
         // Turn on z axis
     }   
@@ -46,6 +47,7 @@ class SceneConfigurator{
         if(this.currentDimension === Enum.DimensionType.TWO_D)
             return null;
         
+        this.axesPainter.setAxisLine2D();            
         this.sceneGrid.removeFromScene(this.scene);
         // Turn off z axis
     } 
