@@ -186,6 +186,20 @@ class DataHandler {
     }
 
     /**
+     * Gets absolute maximum value
+     * @returns {number}
+     */
+    getAbsMax() {
+        let absValues = [];
+
+        this.fileData.values.forEach(function (value) {
+            absValues.push(Math.abs(...value));
+        });
+
+        return Math.max(...absValues);
+    }
+
+    /**
      * Returns axis middle value
      * @param {Array} values
      * @returns {number}
