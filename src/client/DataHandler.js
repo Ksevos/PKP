@@ -71,7 +71,7 @@ class DataHandler {
      * @returns {Promise<DataObject>}
      */
     _queryForData(){
-        return axios.get("/storage/current")
+        return axios.get("http://localhost:4000/storage/current")
             .then(response => {
                 const fileData = JSON.parse(JSON.stringify(response.data[0]));
                 if (this.fileData !== fileData
@@ -193,7 +193,7 @@ class DataHandler {
         let absValues = [];
 
         this.fileData.values.forEach(function (value) {
-            absValues.push(Math.abs(...value));
+            absValues.push(Math.abs(value));
         });
 
         return Math.max(...absValues);
