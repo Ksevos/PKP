@@ -1,78 +1,63 @@
-// Paimta is https://stackoverflow.com/questions/41248287/how-to-connect-threejs-to-react
 //@ts-check
 
 import React from 'react';
-import dat from "dat.gui"
-import DataReader from './DataReader';
+
+import Toolbar from "./Toolbar/Toolbar";
+import DataHandler from './DataHandler';
 import {Link} from 'react-router-dom'
 import Renderer from './Renderer/Renderer';
-import SocketIOClient from 'socket.io-client';
+import DataInfoBox from "./DataInfoBox";
+
+//CSS
+import './Visualization.css';
+import './DataInfoBox.css';
 
 class Visualization extends React.Component {
-    toolbar;
-    Controls = function () {
-        this.color = "#000";
-    };
-
     constructor(props) {
         super(props);
-
-        this.dataReader = new DataReader();
-      
-        //componentWillReceiveProps(nextProps) {
-        //    this.renderer.setClearColor(nextProps.bgColor)
-        //}
-
-        //Listens for "dataUploaded" message from the server
-        this.socket = SocketIOClient("http://localhost:4000/");
-        this.socket.on('dataUploaded', (message) => {
-            if(message && this.threeRenderer)
-                this.onDataLoaded();
-          });
+        this.dataHandler = new DataHandler();
     }
 
     componentDidMount() {
-        this.threeRenderer = new Renderer(this.mount.clientWidth, this.mount.clientHeight);
+        if(!this.threeRenderer)
+            this.threeRenderer = new Renderer(this.mount.clientWidth, this.mount.clientHeight);
+        this.dataHandler.subscribeToChangeEvent(this.threeRenderer.onDataChange.bind(this.threeRenderer));
+        this.dataHandler.subscribeToChangeEvent(this._onDataChange.bind(this));
         this.mount.appendChild(this.threeRenderer.getRenderer().domElement);
         this.threeRenderer.start();
-        this.dataReader.addDataToScene(this.threeRenderer.getScene());
-        this.dataReader.updateCamera(this.threeRenderer.camera, this.threeRenderer.controls);
+
+        this.dataHandler.downloadData();
 
         //ControlsGUI
-        const text = new this.Controls();
-        this.toolbar = new dat.GUI();
-        const background = this.toolbar.addFolder('Background');
-        let renderer = this.threeRenderer.getRenderer();
-        background.addColor(text, 'color')
-            .onChange(function () {
-                renderer.setClearColor(text.color);
-            });
-        const scale = this.toolbar.addFolder('Scale');
+        this.toolbar = new Toolbar(this.threeRenderer, this.dataHandler);
+        this.toolbar.subscribeToToggle2DEvent(this.threeRenderer.on2DToggled.bind(this.threeRenderer));
     }
 
     componentWillUnmount() {
         this.toolbar.destroy();
         this.threeRenderer.stop();
-        this.mount.removeChild(this.threeRenderer.getRenderer().domElement);
+        this.dataHandler.unsubscribeFromChangeEvent(this.threeRenderer.onDataChange);
+        //Remove all children
+        while(this.mount.firstChild){
+            this.mount.removeChild(this.mount.firstChild);
+        }
     }
 
-    onDataLoaded(){
-        this.threeRenderer.removeDataFromScene();
-        this.dataReader.addDataToScene(this.threeRenderer.getScene());
+    _onDataChange(sender, args){
+        if(this.dataInfoBox)
+            this.mount.removeChild(this.dataInfoBox.getDom());
+        this.dataInfoBox = new DataInfoBox(sender);
+        this.mount.appendChild(this.dataInfoBox.getDom());
     }
 
     render() {
         return (
             <div className="Visualization"
-                 style={{
-                     width: '100vw',
-                     height: '100vh'
-                 }}
                  ref={(mount) => {
                      this.mount = mount
                  }}
             >
-                <Link to={"/"}><span className="close thick"></span></Link>
+                <Link to={"/"}><span className="close-back thick"></span></Link>
             </div>
         )
     }

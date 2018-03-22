@@ -1,58 +1,39 @@
 //@ts-check
 
-import * as THREE from "three";
-import OrbitControls from '../LocalOrbitControls/OrbitControls.js';
+//For jsdoc only
+/* eslint-disable */
+import DataHandler from "../DataHandler";
+import DataObject from "../CustomObjects/DataObject"
+/* eslint-enable */
+
+// import * as THREE from "three";
+import RendererConfigurator from "./RendererConfigurator";
+import SceneConfigurator from "./SceneConfigurator";
+import Controls from "./Controls";
 
 class Renderer{
-    constructor(width, height) {
-        this._animate = this._animate.bind(this);
-        
-        this.renderer = new THREE.WebGLRenderer({ antialias: true })
-        this.renderer.setClearColor('#FFFFFF');
-        this.renderer.setSize(width, height);
-
-        this.camera = this._createCamera(width, height);  
-
-        //Orbit controls (Rotate, pan, resize)
-        const controls = new OrbitControls(this.camera, this.renderer.domElement);
-        controls.enabled = true;
-        controls.maxDistance = 1500;
-        controls.minDistance = 0;
-        this.controls = controls;
-        this.scene = this._createScene();
-    }
-
     /**
-     * Create camera and set it's initial position
      * @param {number} width 
      * @param {number} height 
      */
-    _createCamera(width, height){
-        const camera = new THREE.PerspectiveCamera(
-            75,
-            width / height,
-            0.1,
-            1000);
-        camera.position.z = 5;
-        camera.position.y = 1;
-        return camera;
-    }
+    constructor(width, height) {
+        this._animate = this._animate.bind(this);
+        /** @type {DataObject} */
+        this.dataHandler = null;
+        this.rendererConfigurator = new RendererConfigurator(width, height);
+        this.renderer = this.rendererConfigurator.getRenderer();
+        this.camera = this.rendererConfigurator.getCamera();  
 
-    /** 
-     * Create scene and add basic objects to it
-     */
-    _createScene(){
-        const scene = new THREE.Scene();
+        this.controls = new Controls(this.camera, this.renderer.domElement);
 
-        const axesHelper = new THREE.AxesHelper(100000);
 
-        const gridHelper = new THREE.GridHelper(10, 10);
-        gridHelper.translateY(-0.01);
+        this.sceneConfigurator = new SceneConfigurator();
+        this.scene = this.sceneConfigurator.getScene();
 
-        scene.add(gridHelper);
-        scene.add(axesHelper);
-
-        return scene;
+        window.addEventListener(
+            'resize', 
+            this.rendererConfigurator.onWindowResize.bind(this.rendererConfigurator), 
+            false);
     }
 
     start() {
@@ -72,24 +53,83 @@ class Renderer{
 
     _renderScene() {
         this.renderer.render(this.scene, this.camera);
-     }
+    }
 
+    updateCamera(){
+        this.camera = this.rendererConfigurator.getCamera();
+        this.controls.setCamera(this.camera);
+    }
+
+    /**
+     * @returns {THREE.Scene}
+     */
     getScene(){
         return this.scene;
     }
+
     /** 
      * @returns {THREE.WebGLRenderer}
     */
     getRenderer(){
         return this.renderer;
     }
-    removeDataFromScene(){
-        const children = this.scene.children;
-        console.log(children);
-        for(let i=0; i<children.length; i++){ 
-            if(children[i].constructor === THREE.Points)
-                this.scene.remove(children[i]); 
+
+    /**
+     * Callback function to change between 2D and 3D modes
+     * @param {DataHandler} sender 
+     * @param {boolean} status true means go 2D, false means go 3D 
+     */
+    on2DToggled(sender, status){
+        if(status){ // Go 2D
+            this.sceneConfigurator.turnOn2D();
+            this.rendererConfigurator.turnOn2D();
+            this.controls.turnOn2D();
         }
+        else{ // Go 3D
+            this.sceneConfigurator.turnOn3D();
+            this.rendererConfigurator.turnOn3D();
+            this.controls.turnOn3D();
+        }
+        this.updateCamera();
+        this.centerCameraToData(this.dataHandler);
+    }
+
+    /**
+     * Callback function to change data in the scene
+     * @param {DataHandler} sender 
+     * @param {boolean} newDataDownloaded 
+     */
+    onDataChange(sender, newDataDownloaded){
+        this.dataHandler = sender;
+        this.sceneConfigurator.removeAllData();
+
+        this.sceneConfigurator.addData(
+            sender.getData(),
+            sender.getCurrentAxes().x,
+            sender.getCurrentAxes().y,
+            sender.getCurrentAxes().z);
+        
+        if(newDataDownloaded)
+            this.centerCameraToData(sender);
+
+        let absMax = this.dataHandler.getAbsMax();
+        this.sceneConfigurator.sceneGrid.scaleTo(absMax);
+        this.sceneConfigurator.axesPainter.scaleTo(absMax);
+    }
+
+    /**
+     * Update camera and controls position
+     * @param {DataHandler} dataHandler
+     */
+    centerCameraToData(dataHandler) {   
+        let coordinates = dataHandler.getCenterCoordinates();
+        let x = dataHandler.getMaxValue(0) - coordinates.x;
+        let y = (dataHandler.getMaxValue(1) * 2) - (coordinates.y * 2);
+        let z = dataHandler.getMaxValue(2) * 1.5 + x;
+
+        this.camera.position.set(coordinates.x, coordinates.y, Math.max(x, y, z));
+
+        this.controls.changePivotPoint(coordinates);
     }
 }
 
