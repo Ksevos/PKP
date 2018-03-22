@@ -38,6 +38,21 @@ isValid()
 
 Paleidus nepamirškit po to sustabdyt su **CTRL + C**, o jei CMD jau išjungtas tada su **taskkill /f /im node.exe**
 
+## Launch built website
+
+Before doing anything **npm install -g serve**
+
+cmd 1
+
+1. **npm run build-server**
+2. **node build-server/index.js**
+
+cmd 2
+
+1. **npm run build**
+2. **serve -s -p 3000 build**
+3. View localhost:3000 in web
+
 ## Vidinis API
 
 Norint gaut duomenis iš serverio reikia kreiptis **GET {server}/storage/current**  
