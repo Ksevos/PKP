@@ -25,36 +25,49 @@ export default class AxesPainter extends THREE.Group {
         this.axesHelper = new THREE.AxesHelper(this.size / 2);
         this.lines = [];
 
+        // TODO: refactor this and it's uses
+        this.dashesX = [];
+
         this._paint();
 
         this.add(this.axesHelper);
         this.add(...this.lines);
     }
 
-    /*
+    /**
      * Change axis on 3D
      */
    setAxisLine3D(){
-    let axisLines = ([
-        0, 0, 0,	this.size/2, 0, 0,
-        0, 0, 0,	0, this.size/2, 0,
-        0, 0, 0,	0, 0, this.size/2
-    ]);
-    let axis = this.axesHelper.geometry.attributes.position.array;
-    axis.set(axisLines);
+       let axisLines = ([
+           0, 0, 0,	this.size/2, 0, 0,
+           0, 0, 0,	0, this.size/2, 0,
+           0, 0, 0,	0, 0, this.size/2
+       ]);
+       let axis = this.axesHelper.geometry.attributes.position.array;
+       axis.set(axisLines);
+
+       this.dashesX.forEach(function (line) {
+           line.rotateX(0);
+       })
    }
-   /*
+
+   /**
     * Extend axis on 2D
     */
    setAxisLine2D(){
-    let axisLines = ([
-        -this.size/2, 0, 0,	this.size/2, 0, 0,
-        0, -this.size/2, 0,	0, this.size/2, 0,
-        0, 0, -this.size/2,	0, 0, this.size/2
-    ]);
-    let axis = this.axesHelper.geometry.attributes.position.array;
-    axis.set(axisLines);
+       let axisLines = ([
+           -this.size/2, 0, 0,	this.size/2, 0, 0,
+           0, -this.size/2, 0,	0, this.size/2, 0,
+           0, 0, -this.size/2,	0, 0, this.size/2
+       ]);
+       let axis = this.axesHelper.geometry.attributes.position.array;
+       axis.set(axisLines);
+
+       this.dashesX.forEach(function (line) {
+           line.rotateX(1.5708);
+       })
    }
+
     /**
      * Scales axes to new grid size
      * @param {number} size
@@ -78,8 +91,11 @@ export default class AxesPainter extends THREE.Group {
 
         this.remove(...this.lines);
         this.lines.length = 0;
+        this.dashesX.length = 0;
         this._paint();
         this.add(...this.lines);
+
+        console.log(this.dashesX);
     }
 
     /**
@@ -111,6 +127,7 @@ export default class AxesPainter extends THREE.Group {
                 };
 
                 this.lines.push(AxesPainter._createAxisDash(dashX, Axis.X));
+                this.dashesX.push(this.lines[this.lines.length - 1]);
                 this.lines.push(AxesPainter._createAxisDash(dashY, Axis.Y));
                 this.lines.push(AxesPainter._createAxisDash(dashZ, Axis.Z));
             }
@@ -136,6 +153,7 @@ export default class AxesPainter extends THREE.Group {
                 };
 
                 this.lines.push(AxesPainter._createAxisDash(longerDashX, Axis.X));
+                this.dashesX.push(this.lines[this.lines.length - 1]);
                 this.lines.push(AxesPainter._createAxisDash(longerDashY, Axis.Y));
                 this.lines.push(AxesPainter._createAxisDash(longerDashZ, Axis.Z));
             }
