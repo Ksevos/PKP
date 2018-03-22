@@ -5,10 +5,13 @@
 
 # dependencies
 /node_modules
+
 storage/*.txt
 storage/*.arff
 storage/*.json
 !storage/test_data.json
+
+src/resources/duomenys_generated.arff
 
 # testing
 /coverage

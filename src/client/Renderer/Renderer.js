@@ -26,6 +26,7 @@ class Renderer{
 
         this.controls = new Controls(this.camera, this.renderer.domElement);
 
+
         this.sceneConfigurator = new SceneConfigurator();
         this.scene = this.sceneConfigurator.getScene();
 

@@ -16,7 +16,7 @@ class StorageHandler{
     static save(request, response, socket){
         FileSystem.writeFile(
             "./storage/data.arff",
-            request.files[0].buffer, 
+            request.file.buffer, 
             err => {
                 Logger.assertError(err, "File upload");
                 if(!err){
