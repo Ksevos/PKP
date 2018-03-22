@@ -1,13 +1,24 @@
 # See https://help.github.com/ignore-files/ for more about ignoring files.
 
+# file: ~/.gitignore_global
+.idea
+
 # dependencies
 /node_modules
+
+storage/*.txt
+storage/*.arff
+storage/*.json
+!storage/test_data.json
+
+src/resources/duomenys_generated.arff
 
 # testing
 /coverage
 
 # production
 /build
+/build-server
 
 # misc
 .DS_Store
