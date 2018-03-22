@@ -6,7 +6,7 @@ import DataHandler from "../DataHandler";
 import DataObject from "../CustomObjects/DataObject"
 /* eslint-enable */
 
-import * as THREE from "three";
+// import * as THREE from "three";
 import RendererConfigurator from "./RendererConfigurator";
 import SceneConfigurator from "./SceneConfigurator";
 import Controls from "./Controls";
@@ -111,6 +111,10 @@ class Renderer{
         
         if(newDataDownloaded)
             this.centerCameraToData(sender);
+
+        let absMax = this.dataHandler.getAbsMax();
+        this.sceneConfigurator.sceneGrid.scaleTo(absMax);
+        this.sceneConfigurator.axesPainter.scaleTo(absMax);
     }
 
     /**

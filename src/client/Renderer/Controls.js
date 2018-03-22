@@ -21,7 +21,7 @@ class Controls {
      * Configures controls for 3D
      */
     turnOn3D(){
-        if(this.currentDimension == Enum.DimensionType.THREE_D)
+        if(this.currentDimension === Enum.DimensionType.THREE_D)
             return null;
         
         this.controls.enableRotate = true;
@@ -33,7 +33,7 @@ class Controls {
      * Configures controls for 2D
      */   
     turnOn2D(){
-        if(this.currentDimension == Enum.DimensionType.TWO_D)
+        if(this.currentDimension === Enum.DimensionType.TWO_D)
             return null;
         
         this.controls.enableRotate = false;

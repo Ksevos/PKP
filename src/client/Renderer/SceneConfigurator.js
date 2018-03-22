@@ -9,6 +9,7 @@ import * as THREE from "three";
 import SceneGrid from './SceneGrid';
 import Enum from '../CustomObjects/Enum';
 import DataFormatter from './DataFormatter';
+import AxesPainter from "./AxesPainter";
 
 class SceneConfigurator{
     /**
@@ -18,10 +19,10 @@ class SceneConfigurator{
         this.currentDimension = Enum.DimensionType.NONE;
         const scene = new THREE.Scene();
 
-        const axesHelper = new THREE.AxesHelper(100000);
-        scene.add(axesHelper);
-        
         this.sceneGrid = new SceneGrid();
+
+        this.axesPainter = new AxesPainter(this.sceneGrid.scale, this.sceneGrid.scale, 3);
+        scene.add(this.axesPainter);
 
         this.scene = scene;
         this.turnOn3D();
@@ -31,7 +32,7 @@ class SceneConfigurator{
      * Shows grid and turns on z axis
      */
     turnOn3D(){
-        if(this.currentDimension == Enum.DimensionType.THREE_D)
+        if(this.currentDimension === Enum.DimensionType.THREE_D)
             return null;
         
         this.sceneGrid.addToScene(this.scene);
@@ -42,7 +43,7 @@ class SceneConfigurator{
      * Hides grid and z axis
      */
     turnOn2D(){
-        if(this.currentDimension == Enum.DimensionType.TWO_D)
+        if(this.currentDimension === Enum.DimensionType.TWO_D)
             return null;
         
         this.sceneGrid.removeFromScene(this.scene);
