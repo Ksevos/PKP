@@ -190,13 +190,16 @@ class DataHandler {
      * @returns {number}
      */
     getAbsMax() {
-        let absValues = [];
+        let maxValue = 0;
 
-        this.fileData.values.forEach(function (value) {
-            absValues.push(Math.abs(value));
-        });
-
-        return Math.max(...absValues);
+        for(let i=0; i< this.fileData.values.length; i++){
+            for(let j=0; j< this.fileData.values[i].length - 1; j++){
+                let value = Math.abs(this.fileData.values[i][j]);
+                if(value > maxValue)
+                    maxValue = value;
+            }
+        }
+        return maxValue;
     }
 
     /**

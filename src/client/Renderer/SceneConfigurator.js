@@ -63,7 +63,6 @@ class SceneConfigurator{
         if(!data)
             return;
 
-        console.log(xAxis,yAxis,zAxis);
         let dataFormatter = 
             new DataFormatter(
                 data,
