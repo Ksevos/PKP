@@ -94,8 +94,6 @@ export default class AxesPainter extends THREE.Group {
         this.dashesX.length = 0;
         this._paint();
         this.add(...this.lines);
-
-        console.log(this.dashesX);
     }
 
     /**
