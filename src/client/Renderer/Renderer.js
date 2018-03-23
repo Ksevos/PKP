@@ -10,6 +10,7 @@ import DataObject from "../CustomObjects/DataObject"
 import RendererConfigurator from "./RendererConfigurator";
 import SceneConfigurator from "./SceneConfigurator";
 import Controls from "./Controls";
+import * as THREE from 'three';
 
 class Renderer{
     /**
@@ -18,7 +19,7 @@ class Renderer{
      */
     constructor(width, height) {
         this._animate = this._animate.bind(this);
-        /** @type {DataObject} */
+        /** @type {DataHandler} */
         this.dataHandler = null;
         this.rendererConfigurator = new RendererConfigurator(width, height);
         this.renderer = this.rendererConfigurator.getRenderer();
@@ -26,14 +27,24 @@ class Renderer{
 
         this.controls = new Controls(this.camera, this.renderer.domElement);
 
-
         this.sceneConfigurator = new SceneConfigurator();
         this.scene = this.sceneConfigurator.getScene();
+
+
+        this.raycaster = new THREE.Raycaster();
+        this.raycaster.params.Points.threshold = 0.01;
+        this.mouse = new THREE.Vector2(0,0);
+        this.clock = new THREE.Clock();
+        this.toggle = 0;
 
         window.addEventListener(
             'resize', 
             this.rendererConfigurator.onWindowResize.bind(this.rendererConfigurator), 
             false);
+        window.addEventListener(
+            'mousemove', 
+            this.onMouseMove.bind(this), 
+            false );
     }
 
     start() {
@@ -52,7 +63,54 @@ class Renderer{
     }
 
     _renderScene() {
+        this.raycaster.setFromCamera( this.mouse, this.camera );
+        var intersections = this.raycaster.intersectObjects( this.pointCloud );
+        
+        let intersection = ( intersections.length ) > 0 ? intersections[ 0 ] : null;
+
+        if ( this.toggle > 1 && intersection !== null) {
+            this.toggle = 0;
+
+            console.log(intersection.point);
+            console.log(this._getDataIndexFromPosition(intersection.point));
+        }
+        this.toggle += this.clock.getDelta();
+
         this.renderer.render(this.scene, this.camera);
+    }
+
+    /**
+     * 
+     * @param {THREE.Vector3} position 
+     * @returns {number}
+     */
+    _getDataIndexFromPosition(position){
+        let values = this.dataHandler.getData().values;
+        let bestMatch = {
+            index:0, 
+            deltaDistance: Number.MAX_VALUE};
+
+        for(let i=0; i<values.length; i++){
+            let distance = 0;
+            if(position.z != 0)
+                distance = position.distanceTo(
+                    new THREE.Vector3(
+                        values[i][0],
+                        values[i][1],
+                        values[i][2]));
+            else{
+                distance = position.distanceTo(
+                    new THREE.Vector3(
+                        values[i][0],
+                        values[i][1],
+                        0));
+            }
+            if(bestMatch.deltaDistance > distance){
+                bestMatch.deltaDistance = distance;
+                bestMatch.index = i;
+            }
+        }
+        return bestMatch.index;
     }
 
     updateCamera(){
@@ -72,6 +130,12 @@ class Renderer{
     */
     getRenderer(){
         return this.renderer;
+    }
+
+    onMouseMove( event ) {
+        event.preventDefault();
+        this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
     }
 
     /**
@@ -103,11 +167,12 @@ class Renderer{
         this.dataHandler = sender;
         this.sceneConfigurator.removeAllData();
 
-        this.sceneConfigurator.addData(
-            sender.getData(),
-            sender.getCurrentAxes().x,
-            sender.getCurrentAxes().y,
-            sender.getCurrentAxes().z);
+        this.pointCloud = 
+            this.sceneConfigurator.addData(
+                sender.getData(),
+                sender.getCurrentAxes().x,
+                sender.getCurrentAxes().y,
+                sender.getCurrentAxes().z);
         
         if(newDataDownloaded)
             this.centerCameraToData(sender);
