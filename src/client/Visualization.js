@@ -16,6 +16,7 @@ class Visualization extends React.Component {
     constructor(props) {
         super(props);
         this.dataHandler = new DataHandler();
+        this.reactComponents = null;
     }
 
     componentDidMount() {
@@ -50,14 +51,20 @@ class Visualization extends React.Component {
         this.mount.appendChild(this.dataInfoBox.getDom());
     }
 
+    _onChildComponentsUpdate(sender, args){
+        this.reactComponents = args
+    }
+
     render() {
         return (
-            <div className="Visualization"
-                 ref={(mount) => {
-                     this.mount = mount
-                 }}
-            >
-                <Link to={"/"}><span className="close-back thick"></span></Link>
+            <div>
+                <div className="Visualization"
+                    ref={(mount) => {
+                        this.mount = mount
+                    }}>
+                    <Link to={"/"}><span className="close-back thick"></span></Link>
+                </div>
+                {this.reactComponents}
             </div>
         )
     }
