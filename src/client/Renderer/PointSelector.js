@@ -2,24 +2,24 @@
 
 //For jsdoc only
 /* eslint-disable */
-import DataHandler from "../../DataHandler";
+import DataHandler from "../DataHandler";
 /* eslint-enable */
 
-import PointInfoBox from './PointInfoBox';
 import * as THREE from 'three';
+import HoveredOnPointEvent from '../Events/Event';
+import HoveredOnPointEventArgs from '../Events/HoveredOnPointEventArgs'
 
 //TODO change to use octree
 class PointSelector {
     constructor(){
+        this.hoveredOnPointEvent = new HoveredOnPointEvent(this);
+
         this.raycaster = new THREE.Raycaster();
         this.raycaster.params.Points.threshold = 0.01;
         this.mouse = new THREE.Vector2(0,0);
         this.clock = new THREE.Clock();
         this.toggle = 0;
         this.mouseMoved = false;
-
-        this.infoBox = new PointInfoBox();
-        this.isInfoBoxDisplayed = false;
 
         window.addEventListener(
             'mousemove', 
@@ -43,25 +43,14 @@ class PointSelector {
             let intersection = ( intersections.length ) > 0 ? intersections[ 0 ] : null;
 
             if(intersection !== null){
-                this.asyncCreateInfoBox(dataHandler,intersection.point);
+                this.hoveredOnPointEvent.notify(
+                    new HoveredOnPointEventArgs(
+                        true, 
+                        {x:this.mouse.x, y: this.mouse.y}, 
+                        this._getDataIndexFromPosition(dataHandler, intersection.point)));
             }
         }
         this.toggle += this.clock.getDelta();
-    }
-
-    async asyncCreateInfoBox(dataHandler, position){
-        if(!this.pointSearchPromise){
-            this.pointSearchPromise =
-                await new Promise(resolve => {
-                    setTimeout(() => {
-                        resolve(this._getDataIndexFromPosition(dataHandler, position));
-                      }, 5000);
-                });
-            this.infoBox.setPointIndex(this.pointSearchPromise);
-            this.isInfoBoxDisplayed = true;
-            console.log(this.pointSearchPromise);
-        }
-        this.pointSearchPromise = null;
     }
 
     /**
@@ -104,11 +93,12 @@ class PointSelector {
         this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
         this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
         this.mouseMoved = true;
-        this.isInfoBoxDisplayed = false;
+
+        this.hoveredOnPointEvent.notify(new HoveredOnPointEventArgs(false, null, null ))
     }
 
-    getInfoBoxReactComponent(){
-        return this.infoBox.render();
+    subscribeToHoveredOnPointEvent(listener){
+        this.hoveredOnPointEvent.subscribe(listener);
     }
 }
 

@@ -10,8 +10,7 @@ import DataObject from "../CustomObjects/DataObject"
 import RendererConfigurator from "./RendererConfigurator";
 import SceneConfigurator from "./SceneConfigurator";
 import Controls from "./Controls";
-import PointSelector from "./PointSelector/PointSelector";
-import StateChangedEvent from '../Events/Event';
+import PointSelector from "./PointSelector";
 
 class Renderer{
     /**
@@ -19,8 +18,6 @@ class Renderer{
      * @param {number} height 
      */
     constructor(width, height) {
-        this.StateChangedEvent = new StateChangedEvent(this);
-
         this._animate = this._animate.bind(this);
         /** @type {DataHandler} */
         this.dataHandler = null;
@@ -141,12 +138,8 @@ class Renderer{
         this.controls.changePivotPoint(coordinates);
     }
 
-    getReactComponents(){
-        return [this.pointSelector.getInfoBoxReactComponent()];
-    }
-
-    subscribeToStateChangedEvent(listener){
-        this.StateChangedEvent.subscribe(listener);
+    subscribeToHoveredOnPointEvent(listener){
+        this.pointSelector.subscribeToHoveredOnPointEvent(listener);
     }
 }
 
