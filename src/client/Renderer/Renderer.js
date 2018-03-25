@@ -10,6 +10,7 @@ import DataObject from "../CustomObjects/DataObject"
 import RendererConfigurator from "./RendererConfigurator";
 import SceneConfigurator from "./SceneConfigurator";
 import Controls from "./Controls";
+import PointSelector from "./PointSelector";
 
 class Renderer{
     /**
@@ -18,7 +19,7 @@ class Renderer{
      */
     constructor(width, height) {
         this._animate = this._animate.bind(this);
-        /** @type {DataObject} */
+        /** @type {DataHandler} */
         this.dataHandler = null;
         this.rendererConfigurator = new RendererConfigurator(width, height);
         this.renderer = this.rendererConfigurator.getRenderer();
@@ -26,9 +27,10 @@ class Renderer{
 
         this.controls = new Controls(this.camera, this.renderer.domElement);
 
-
         this.sceneConfigurator = new SceneConfigurator();
         this.scene = this.sceneConfigurator.getScene();
+
+        this.pointSelector = new PointSelector();
 
         window.addEventListener(
             'resize', 
@@ -52,6 +54,9 @@ class Renderer{
     }
 
     _renderScene() {
+        if(this.dataHandler && this.pointCloud)
+            this.pointSelector.onRender( this.dataHandler, this.pointCloud, this.camera);
+
         this.renderer.render(this.scene, this.camera);
     }
 
@@ -103,11 +108,12 @@ class Renderer{
         this.dataHandler = sender;
         this.sceneConfigurator.removeAllData();
 
-        this.sceneConfigurator.addData(
-            sender.getData(),
-            sender.getCurrentAxes().x,
-            sender.getCurrentAxes().y,
-            sender.getCurrentAxes().z);
+        this.pointCloud = 
+            this.sceneConfigurator.addData(
+                sender.getData(),
+                sender.getCurrentAxes().x,
+                sender.getCurrentAxes().y,
+                sender.getCurrentAxes().z);
         
         if(newDataDownloaded)
             this.centerCameraToData(sender);
@@ -130,6 +136,10 @@ class Renderer{
         this.camera.position.set(coordinates.x, coordinates.y, Math.max(x, y, z));
 
         this.controls.changePivotPoint(coordinates);
+    }
+
+    subscribeToHoveredOnPointEvent(listener){
+        this.pointSelector.subscribeToHoveredOnPointEvent(listener);
     }
 }
 

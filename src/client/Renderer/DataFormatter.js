@@ -28,26 +28,65 @@ class DataFormatter{
      * @returns {THREE.Points[]}
      */
     _createDataCloud(data){
+        /** @type {Object.<string,THREE.BufferGeometry>} */
         let pointGeometries = {};
+        /** @type {Object.<string,THREE.PointsMaterial>} */
         let pointMaterials = {};
+        /** @type {Object.<string,number>} */
+        let indexes = {};
+        /** @type {string[]} */
         let dataClasses = [];
+        /** @type {Object.<string,Float32Array>} */
+        var positions = {};
+
+        var counts = this._countDataInEachClass(data);
 
         for (let i = 0; i < data.values.length; i++) {
             let dataClass = data.values[i][data.values[i].length-1];
 
+            // Add keys to dictionaries
             if(!dataClasses.find(e=>e === dataClass))
                 dataClasses.push(dataClass);
             if(!pointGeometries[dataClass])
-                pointGeometries[dataClass] = new THREE.Geometry();
+                pointGeometries[dataClass] = new THREE.BufferGeometry();
             if(!pointMaterials[dataClass])
                 pointMaterials[dataClass] = this._createPointMaterial();
+            if(typeof indexes[dataClass] === 'undefined')
+                indexes[dataClass] = 0;
+            if(!positions[dataClass])
+                positions[dataClass] = new Float32Array( counts[dataClass] * 3);
 
-            pointGeometries[dataClass].vertices.push(this._getAxisVector(data,i));
+            // Sort positions to their classes
+            let pos = this._getAxisVector(data,i);
+            positions[dataClass][ 3 * indexes[dataClass] ] = pos.x;
+			positions[dataClass][ 3 * indexes[dataClass] + 1 ] = pos.y;
+            positions[dataClass][ 3 * indexes[dataClass] + 2 ] = pos.z;
+            
+            indexes[dataClass]++;
         }
 
         //Create a new Points object for each data class
-        return this._mergePoints(pointGeometries, pointMaterials, dataClasses);
+        return this._mergePoints(positions, pointGeometries, pointMaterials, dataClasses);
     }
+
+    /**
+     * Count number of values each in class
+     * @param {DataObject} data 
+     * @returns {Object.<string,number>}
+     */
+    _countDataInEachClass(data){
+        /** @type {Object.<string,number>} */
+        var counts = {};
+        for (let i = 0; i < data.values.length; i++) {
+            let dataClass = data.values[i][data.values[i].length-1];
+
+            if(typeof counts[dataClass] === 'undefined')
+                counts[dataClass] = 0;
+            counts[dataClass]++;
+        }
+        return counts;
+    }
+
     /**
      * @param {DataObject} data 
      * @param {number} index Index of value
@@ -73,14 +112,21 @@ class DataFormatter{
 
     /**
      * Relate geometry and materials together into a data cloud
-     * @param {Object<string, THREE.Geometry>} pointGeometries
+     * @param {Object.<string,Float32Array>} positions
+     * @param {Object<string, THREE.BufferGeometry>} pointGeometries
      * @param {Object<string, THREE.PointsMaterial>} pointMaterials
      * @param {string[]} dataClasses
      * @returns {THREE.Points[]}
      */
-    _mergePoints(pointGeometries, pointMaterials, dataClasses){
+    _mergePoints(positions, pointGeometries, pointMaterials, dataClasses){
         let dataCloud = [];
         for(let i = 0; i < dataClasses.length; i++){
+            pointGeometries[dataClasses[i]].addAttribute( 
+                'position', 
+                new THREE.BufferAttribute( positions[dataClasses[i]], 3 ) );
+
+            pointGeometries[dataClasses[i]].computeBoundingBox();
+
             dataCloud.push(
                 new THREE.Points( 
                     pointGeometries[dataClasses[i]], 
@@ -112,6 +158,7 @@ class DataFormatter{
             color = new THREE.Color( 0xffffff );
             color.setHex( Math.random() * 0xffffff );
         }
+
         return color;
     }
 

@@ -31,7 +31,8 @@ class LoaderView extends Component {
             let data = new FormData();
             data.append('dataFile', this.state.file);
             Axios.post("http://localhost:4000/storage", data).catch(error => {
-                this.setState({uploading: false, errorMessage: error.response.data.message});
+                if(error.response.data)
+                    this.setState({uploading: false, errorMessage: error.response.data.message});
             });
         } else {
             this.setState({errorMessage: 'No file selected'});

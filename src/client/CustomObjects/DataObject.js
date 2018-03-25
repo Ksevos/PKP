@@ -2,9 +2,9 @@
 
 /**
  * JSON response data object
- * @typedef {*} DataObject
+ * @typedef {Object} DataObject
  * @property {string[]} valueNames Axes names and additional properties
- * @property {[[]]} values Axis values
+ * @property {[[]]} values Axis values and class name at the end
  */
 var DataObject = (()=>{  
     return {
