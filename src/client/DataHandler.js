@@ -71,7 +71,7 @@ class DataHandler {
      * @returns {Promise<DataObject>}
      */
     _queryForData(){
-        return axios.get("/storage/current")
+        return axios.get("http://localhost:4000/storage/current")
             .then(response => {
                 const fileData = JSON.parse(JSON.stringify(response.data[0]));
                 if (this.fileData !== fileData
@@ -152,7 +152,7 @@ class DataHandler {
      * @returns {number}
      */
     getMaxValue(axis) {
-        let axisIndex = this._getAxisIndex(this._getAxisName(axis));
+        let axisIndex = this.getAxisIndex(this._getAxisName(axis));
 
         if(axisIndex < 0)
         return 0;
@@ -173,7 +173,7 @@ class DataHandler {
      * @returns {number}
      */
     getMinValue(axis) {
-        let axisIndex = this._getAxisIndex(this._getAxisName(axis));
+        let axisIndex = this.getAxisIndex(this._getAxisName(axis));
 
         if(axisIndex < 0)
             return 0;
@@ -190,13 +190,16 @@ class DataHandler {
      * @returns {number}
      */
     getAbsMax() {
-        let absValues = [];
+        let maxValue = 0;
 
-        this.fileData.values.forEach(function (value) {
-            absValues.push(Math.abs(...value));
-        });
-
-        return Math.max(...absValues);
+        for(let i=0; i< this.fileData.values.length; i++){
+            for(let j=0; j< this.fileData.values[i].length - 1; j++){
+                let value = Math.abs(this.fileData.values[i][j]);
+                if(value > maxValue)
+                    maxValue = value;
+            }
+        }
+        return maxValue;
     }
 
     /**
@@ -230,7 +233,7 @@ class DataHandler {
      * @param {string} axisName 
      * @returns {number}
      */
-    _getAxisIndex(axisName){
+    getAxisIndex(axisName){
         let axisIndex = -1;
         for(let i = 0; i < this.fileData.valueNames.length; i++){
             if(this.fileData.valueNames[i] === axisName){
