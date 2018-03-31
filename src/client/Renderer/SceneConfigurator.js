@@ -65,6 +65,7 @@ class SceneConfigurator{
      * @param {string} xAxis 
      * @param {string} yAxis 
      * @param {string} zAxis 
+     * @returns {THREE.Points[]}
      */
     addData(data, xAxis, yAxis, zAxis){
         if(!data)
@@ -80,7 +81,10 @@ class SceneConfigurator{
         for(let i = 0; i < dataCloud.length; i++){
             this.scene.add(dataCloud[i]);
         }
+
         this.sceneCreated.next(true);
+
+        return dataCloud;
     }
 
     /**

@@ -160,7 +160,7 @@ class DataHandler {
      * @returns {number}
      */
     getMaxValue(axis) {
-        let axisIndex = this._getAxisIndex(this._getAxisName(axis));
+        let axisIndex = this.getAxisIndex(this._getAxisName(axis));
 
         if(axisIndex < 0)
         return 0;
@@ -181,7 +181,7 @@ class DataHandler {
      * @returns {number}
      */
     getMinValue(axis) {
-        let axisIndex = this._getAxisIndex(this._getAxisName(axis));
+        let axisIndex = this.getAxisIndex(this._getAxisName(axis));
 
         if(axisIndex < 0)
             return 0;
@@ -241,7 +241,7 @@ class DataHandler {
      * @param {string} axisName 
      * @returns {number}
      */
-    _getAxisIndex(axisName){
+    getAxisIndex(axisName){
         let axisIndex = -1;
         for(let i = 0; i < this.fileData.valueNames.length; i++){
             if(this.fileData.valueNames[i] === axisName){
