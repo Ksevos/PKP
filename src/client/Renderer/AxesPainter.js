@@ -1,12 +1,13 @@
+//@ts-check
 import * as THREE from 'three';
-import {Axis} from "../CustomObjects/Enum";
+import {Axis, AxisColor} from "../CustomObjects/Enum";
 
 const DASH_LENGTH = 0.025;
 const DASH_L_LENGTH = DASH_LENGTH + 0.1;
 
-const MATERIAL_X = new THREE.LineBasicMaterial( {color: '#ff0000'} );
-const MATERIAL_Y = new THREE.LineBasicMaterial( {color: '#00ff00'} );
-const MATERIAL_Z = new THREE.LineBasicMaterial( {color: '#0000ff'} );
+const MATERIAL_X = new THREE.LineBasicMaterial( {color: AxisColor.X_AXIS} );
+const MATERIAL_Y = new THREE.LineBasicMaterial( {color: AxisColor.Y_AXIS} );
+const MATERIAL_Z = new THREE.LineBasicMaterial( {color: AxisColor.Z_AXIS} );
 
 export default class AxesPainter extends THREE.Group {
 
@@ -184,7 +185,7 @@ export default class AxesPainter extends THREE.Group {
      * Creates a new dash on axis point
      * @param {Object} centerPoint Point on the axis
      * @param {number} alignment Used to align dashes with Enum.Axis
-     * @returns {Line}
+     * @returns {THREE.Line}
      * @private
      */
     static _createAxisDash(centerPoint, alignment) {

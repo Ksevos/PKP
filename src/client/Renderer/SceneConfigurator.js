@@ -10,6 +10,7 @@ import SceneGrid from './SceneGrid';
 import Enum from '../CustomObjects/Enum';
 import DataFormatter from './DataFormatter';
 import AxesPainter from "./AxesPainter";
+import * as Rx from "rxjs/Subject";
 
 class SceneConfigurator{
     /**
@@ -25,6 +26,12 @@ class SceneConfigurator{
         scene.add(this.axesPainter);
 
         this.scene = scene;
+
+        /**
+         * Needs to check when objects are added to scene
+         * @type {Rx.Subject<any>}
+         */
+        this.sceneCreated = new Rx.Subject();
         this.turnOn3D();
     }
 
@@ -64,17 +71,19 @@ class SceneConfigurator{
         if(!data)
             return;
 
-        let dataFormatter = 
+        let dataFormatter =
             new DataFormatter(
                 data,
                 xAxis, 
                 yAxis, 
                 zAxis);
         let dataCloud = dataFormatter.getDataCloud();
-
         for(let i = 0; i < dataCloud.length; i++){
             this.scene.add(dataCloud[i]);
         }
+
+        this.sceneCreated.next(true);
+
         return dataCloud;
     }
 
@@ -96,6 +105,23 @@ class SceneConfigurator{
      */
     getScene(){
         return this.scene;
+    }
+
+    /**
+     * Returns object from scene by name
+     * @param name: string
+     * @returns {THREE.Object3D}
+     */
+    getSceneObjectByName(name) {
+        return this.scene.getObjectByName(name);
+    }
+
+    /**
+     *
+     * @returns {Rx.Subject<any>}
+     */
+    getSceneCreated() {
+        return this.sceneCreated;
     }
 }
 
