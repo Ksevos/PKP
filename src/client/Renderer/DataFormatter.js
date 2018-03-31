@@ -103,7 +103,7 @@ class DataFormatter {
 
     /**
      * Get one of default colors. If none found create a random color
-     * @returns {Color}
+     * @returns {THREE.Color}
      */
     _getColor(dataClass) {
         return new THREE.Color(this.colorGeneratorInstance.getColor(dataClass));

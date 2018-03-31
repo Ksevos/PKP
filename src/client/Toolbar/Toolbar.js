@@ -3,7 +3,7 @@
 import dat from "dat.gui";
 import Toggle2DEvent from '../Events/Event';
 import ColorGeneratorInstance from "../shared/ColorGenerator";
-import {AxesColorsConstants} from "../shared/constants/AxesColorsConstants";
+import {AxisColor} from "../CustomObjects/Enum";
 
 const Options = function () {
     this.color = "#FFF";
@@ -49,9 +49,9 @@ class Toolbar extends dat.GUI {
             let yAxis = this._addAxis(viewFolder, 'yAxis', axes);
             let zAxis = this._addAxis(viewFolder, 'zAxis', axes);
 
-            xAxis.domElement.setAttribute('style', `background-color: ${AxesColorsConstants.X_AXIS}`);
-            yAxis.domElement.setAttribute('style', `background-color: ${AxesColorsConstants.Y_AXIS}`);
-            zAxis.domElement.setAttribute('style', `background-color: ${AxesColorsConstants.Z_AXIS}`);
+            xAxis.domElement.setAttribute('style', `background-color: ${AxisColor.X_AXIS}`);
+            yAxis.domElement.setAttribute('style', `background-color: ${AxisColor.Y_AXIS}`);
+            zAxis.domElement.setAttribute('style', `background-color: ${AxisColor.Z_AXIS}`);
 
             this.add(this.options, 'dimension', ['2D', '3D']).name('Dimension')
                 .onChange((value) => {

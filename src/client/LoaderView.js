@@ -31,7 +31,9 @@ class LoaderView extends Component {
             let data = new FormData();
             data.append('dataFile', this.state.file);
             Axios.post("http://localhost:4000/storage", data).catch(error => {
-                this.setState({uploading: false, errorMessage: error.response.data.message});
+                if(error.response)
+                    if(error.response.data)
+                        this.setState({uploading: false, errorMessage: error.response.data.message});
             });
         } else {
             this.setState({errorMessage: 'No file selected'});
@@ -62,7 +64,7 @@ class LoaderView extends Component {
                         </form>
                     </div>
                     <div className="col-md-4">
-                        {this.state.uploading ? <div className='loader' uploading={"false"}></div> : null}
+                        {this.state.uploading ? <div className='loader'></div> : null}
                     </div>
                 </div>
 

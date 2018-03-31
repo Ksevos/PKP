@@ -29,7 +29,7 @@ class SceneConfigurator{
 
         /**
          * Needs to check when objects are added to scene
-         * @type {Subject<any>}
+         * @type {Rx.Subject<any>}
          */
         this.sceneCreated = new Rx.Subject();
         this.turnOn3D();
@@ -106,7 +106,7 @@ class SceneConfigurator{
     /**
      * Returns object from scene by name
      * @param name: string
-     * @returns {Object3D}
+     * @returns {THREE.Object3D}
      */
     getSceneObjectByName(name) {
         return this.scene.getObjectByName(name);
@@ -114,7 +114,7 @@ class SceneConfigurator{
 
     /**
      *
-     * @returns {Subject<any>}
+     * @returns {Rx.Subject<any>}
      */
     getSceneCreated() {
         return this.sceneCreated;
