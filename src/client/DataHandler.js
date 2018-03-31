@@ -19,6 +19,7 @@ class DataHandler {
          * @type {Rx.Subject<any>}
          */
         this.axesNames = new Rx.Subject();
+        this.classes = new Rx.Subject();
     }
 
     /**
@@ -45,10 +46,10 @@ class DataHandler {
                         return index !== data.valueNames.length - 1;});
 
             this.axesNames.next(this.axes);
-
+            this.classes.next(data.classes);
             this.currentSetAxes = this._getDefaultAxes();
 
-            this.dataChangeEvent.notify(null);
+            this.dataChangeEvent.notify(true);
         });
     }
 
@@ -71,7 +72,7 @@ class DataHandler {
      * @returns {Promise<DataObject>}
      */
     _queryForData(){
-        return axios.get("/storage/current")
+        return axios.get("http://localhost:4000/storage/current")
             .then(response => {
                 const fileData = JSON.parse(JSON.stringify(response.data[0]));
                 if (this.fileData !== fileData
@@ -99,6 +100,13 @@ class DataHandler {
     }
 
     /**
+     * @returns {Rx.Subject}
+     */
+    getClasses() {
+        return this.classes;
+    }
+
+    /**
      * Gets currently set axes
      * @returns {{x:string,y:string,z:string}}
      */
@@ -118,7 +126,7 @@ class DataHandler {
             y:yAxis,
             z:zAxis
         };
-        this.dataChangeEvent.notify(null);
+        this.dataChangeEvent.notify(false);
     }
 
     /**
@@ -183,6 +191,23 @@ class DataHandler {
             values.push(this.fileData.values[i][axisIndex]);
         }
         return Math.min(...values);
+    }
+
+    /**
+     * Gets absolute maximum value
+     * @returns {number}
+     */
+    getAbsMax() {
+        let maxValue = 0;
+
+        for(let i=0; i< this.fileData.values.length; i++){
+            for(let j=0; j< this.fileData.values[i].length - 1; j++){
+                let value = Math.abs(this.fileData.values[i][j]);
+                if(value > maxValue)
+                    maxValue = value;
+            }
+        }
+        return maxValue;
     }
 
     /**

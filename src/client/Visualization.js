@@ -57,7 +57,7 @@ class Visualization extends React.Component {
                      this.mount = mount
                  }}
             >
-                <Link to={"/"}><span className="close thick"></span></Link>
+                <Link to={"/"}><span className="close-back thick"></span></Link>
             </div>
         )
     }

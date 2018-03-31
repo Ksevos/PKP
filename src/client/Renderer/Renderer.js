@@ -6,79 +6,34 @@ import DataHandler from "../DataHandler";
 import DataObject from "../CustomObjects/DataObject"
 /* eslint-enable */
 
-import * as THREE from "three";
-import OrbitControls from '../LocalOrbitControls/OrbitControls.js';
-import DataFormatter from "./DataFormatter.js";
+// import * as THREE from "three";
+import RendererConfigurator from "./RendererConfigurator";
+import SceneConfigurator from "./SceneConfigurator";
+import Controls from "./Controls";
 
 class Renderer{
     /**
-     * @param {number} width 
-     * @param {number} height 
+     * @param {number} width
+     * @param {number} height
      */
     constructor(width, height) {
         this._animate = this._animate.bind(this);
-        
-        this.renderer = new THREE.WebGLRenderer({ antialias: true })
-        this.renderer.setClearColor('#FFF');
-        this.renderer.setSize(width, height);
+        /** @type {DataObject} */
+        this.dataHandler = null;
+        this.rendererConfigurator = new RendererConfigurator(width, height);
+        this.renderer = this.rendererConfigurator.getRenderer();
+        this.camera = this.rendererConfigurator.getCamera();
 
-        this.camera = this._createCamera(width, height);  
+        this.controls = new Controls(this.camera, this.renderer.domElement);
 
-        //Orbit controls (Rotate, pan, resize)
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.enabled = true;
-        this.controls.maxDistance = 1500;
-        this.controls.minDistance = 0;
 
-        this.scene = this._createScene();
+        this.sceneConfigurator = new SceneConfigurator();
+        this.scene = this.sceneConfigurator.getScene();
 
-        window.addEventListener('resize', this._onWindowResize.bind(this), false);
-    }
-
-    /**
-     * Create camera and set it's initial position
-     * @param {number} width 
-     * @param {number} height
-     * @returns {THREE.PerspectiveCamera} 
-     */
-    _createCamera(width, height){
-        const camera = new THREE.PerspectiveCamera(
-            75,
-            width / height,
-            0.1,
-            1000);
-        camera.position.z = 5;
-        camera.position.y = 1;
-        return camera;
-    }
-
-    /** 
-     * Create scene and add basic objects to it
-     * @returns {THREE.Scene}
-     */
-    _createScene(){
-        const scene = new THREE.Scene();
-
-        const axesHelper = new THREE.AxesHelper(100000);
-        scene.add(axesHelper);
-        
-        this.addGridHelper(scene);
-
-        return scene;
-    }
-
-    addGridHelper(scene) {
-        const gridHelper = new THREE.GridHelper(10, 10);
-        gridHelper.translateY(-0.001);
-        gridHelper.name = "GridHelper";
-
-        scene.add(gridHelper);
-
-        return gridHelper;
-    }
-
-    removeGridHelper() {
-        this.getScene().remove(this.getScene().getObjectByName("GridHelper"));
+        window.addEventListener(
+            'resize',
+            this.rendererConfigurator.onWindowResize.bind(this.rendererConfigurator),
+            false);
     }
 
     start() {
@@ -100,6 +55,11 @@ class Renderer{
         this.renderer.render(this.scene, this.camera);
     }
 
+    updateCamera(){
+        this.camera = this.rendererConfigurator.getCamera();
+        this.controls.setCamera(this.camera);
+    }
+
     /**
      * @returns {THREE.Scene}
      */
@@ -107,81 +67,61 @@ class Renderer{
         return this.scene;
     }
 
-    /** 
+    /**
      * @returns {THREE.WebGLRenderer}
-    */
+     */
     getRenderer(){
         return this.renderer;
     }
 
-    removeDataFromScene(){
-        const children = this.scene.children.slice();
-
-        for(let i=0; i<children.length; i++){
-            if(children[i].constructor === THREE.Points){
-                this.scene.remove(children[i]);
-            }
-        }
-    }
-
+    /**
+     * Callback function to change between 2D and 3D modes
+     * @param {DataHandler} sender
+     * @param {boolean} status true means go 2D, false means go 3D
+     */
     on2DToggled(sender, status){
         if(status){ // Go 2D
-            this.removeGridHelper();
-            this.camera.rotation.set(0,0,0);
-
-            this.controls.enableRotate = false;
+            this.sceneConfigurator.turnOn2D();
+            this.rendererConfigurator.turnOn2D();
+            this.controls.turnOn2D();
         }
         else{ // Go 3D
-            this.addGridHelper(this.scene);
-            this.controls.enableRotate = true;
+            this.sceneConfigurator.turnOn3D();
+            this.rendererConfigurator.turnOn3D();
+            this.controls.turnOn3D();
         }
+        this.updateCamera();
+        this.centerCameraToData(this.dataHandler);
     }
 
     /**
      * Callback function to change data in the scene
-     * @param {DataHandler} sender 
-     * @param {null} args 
+     * @param {DataHandler} sender
+     * @param {boolean} newDataDownloaded
      */
-    onDataChange(sender, args){
-        this.removeDataFromScene();
+    onDataChange(sender, newDataDownloaded){
+        this.dataHandler = sender;
+        this.sceneConfigurator.removeAllData();
 
-        this.addDataToScene(
+        this.sceneConfigurator.addData(
             sender.getData(),
             sender.getCurrentAxes().x,
             sender.getCurrentAxes().y,
             sender.getCurrentAxes().z);
-        
-        this.centerCameraToData(sender);
-    }
 
-    /**
-     * @param {DataObject} data 
-     * @param {string} xAxis 
-     * @param {string} yAxis 
-     * @param {string} zAxis 
-     */
-    addDataToScene(data, xAxis, yAxis, zAxis){
-        if(!data)
-            return;
+        if(newDataDownloaded)
+            this.centerCameraToData(sender);
 
-        let dataFormatter = 
-            new DataFormatter(
-                data,
-                xAxis, 
-                yAxis, 
-                zAxis);
-        let dataCloud = dataFormatter.getDataCloud();
-
-        for(let i = 0; i < dataCloud.length; i++){
-            this.scene.add(dataCloud[i]);
-        }
+        let absMax = this.dataHandler.getAbsMax();
+        this.sceneConfigurator.sceneGrid.scaleTo(absMax);
+        this.sceneConfigurator.axesPainter.scaleTo(absMax);
     }
 
     /**
      * Update camera and controls position
      * @param {DataHandler} dataHandler
      */
-    centerCameraToData(dataHandler) {   
+    centerCameraToData(dataHandler) {
         let coordinates = dataHandler.getCenterCoordinates();
         let x = dataHandler.getMaxValue(0) - coordinates.x;
         let y = (dataHandler.getMaxValue(1) * 2) - (coordinates.y * 2);
@@ -189,25 +129,11 @@ class Renderer{
 
         this.camera.position.set(coordinates.x, coordinates.y, Math.max(x, y, z));
 
-        this._changeControlsPivotPoint(coordinates);
+        this.controls.changePivotPoint(coordinates);
     }
 
-    /**
-     * Change a point around which controls rotate. Default is 0;0;0
-     * @param {{x:number,y:number,z:number}} coordinates
-     */
-    _changeControlsPivotPoint(coordinates) {
-        this.controls.target.set(coordinates.x, coordinates.y, coordinates.z);
-        this.controls.update();
-    }
-
-    _onWindowResize(){
-
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
-    
-        this.renderer.setSize( window.innerWidth, window.innerHeight );
-    
+    getSceneConfigurator() {
+        return this.sceneConfigurator;
     }
 }
 

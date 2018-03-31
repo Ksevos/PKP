@@ -14,9 +14,12 @@ class StorageHandler{
      * @param {SocketIO.Server} socket 
      */
     static save(request, response, socket){
+        if(!FileSystem.existsSync('./storage'))
+            FileSystem.mkdirSync('./storage');
+
         FileSystem.writeFile(
             "./storage/data.arff",
-            request.files[0].buffer, 
+            request.file.buffer, 
             err => {
                 Logger.assertError(err, "File upload");
                 if(!err){
@@ -46,9 +49,14 @@ class StorageHandler{
      * @param {Express.Response} response
      */
     static getLatest(response){
-        response.json(
-        JSON.parse(
-            FileSystem.readFileSync("./storage/data.json","utf8")));
+        try{
+            response.json(
+                JSON.parse(
+                    FileSystem.readFileSync("./storage/data.json","utf8")));
+        }
+        catch(error){
+            console.log(error);
+        }   
     }
 }
 
