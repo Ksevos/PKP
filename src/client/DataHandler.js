@@ -19,6 +19,7 @@ class DataHandler {
          * @type {Rx.Subject<any>}
          */
         this.axesNames = new Rx.Subject();
+        this.classes = new Rx.Subject();
     }
 
     /**
@@ -45,7 +46,7 @@ class DataHandler {
                         return index !== data.valueNames.length - 1;});
 
             this.axesNames.next(this.axes);
-
+            this.classes.next(data.classes);
             this.currentSetAxes = this._getDefaultAxes();
 
             this.dataChangeEvent.notify(true);
@@ -96,6 +97,13 @@ class DataHandler {
      */
     getAxesNames() {
         return this.axesNames;
+    }
+
+    /**
+     * @returns {Rx.Subject}
+     */
+    getClasses() {
+        return this.classes;
     }
 
     /**

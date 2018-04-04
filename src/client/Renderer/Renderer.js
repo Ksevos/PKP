@@ -14,8 +14,8 @@ import PointSelector from "./PointSelector";
 
 class Renderer{
     /**
-     * @param {number} width 
-     * @param {number} height 
+     * @param {number} width
+     * @param {number} height
      */
     constructor(width, height) {
         this._animate = this._animate.bind(this);
@@ -23,7 +23,7 @@ class Renderer{
         this.dataHandler = null;
         this.rendererConfigurator = new RendererConfigurator(width, height);
         this.renderer = this.rendererConfigurator.getRenderer();
-        this.camera = this.rendererConfigurator.getCamera();  
+        this.camera = this.rendererConfigurator.getCamera();
 
         this.controls = new Controls(this.camera, this.renderer.domElement);
 
@@ -33,8 +33,8 @@ class Renderer{
         this.pointSelector = new PointSelector();
 
         window.addEventListener(
-            'resize', 
-            this.rendererConfigurator.onWindowResize.bind(this.rendererConfigurator), 
+            'resize',
+            this.rendererConfigurator.onWindowResize.bind(this.rendererConfigurator),
             false);
     }
 
@@ -72,17 +72,17 @@ class Renderer{
         return this.scene;
     }
 
-    /** 
+    /**
      * @returns {THREE.WebGLRenderer}
-    */
+     */
     getRenderer(){
         return this.renderer;
     }
 
     /**
      * Callback function to change between 2D and 3D modes
-     * @param {DataHandler} sender 
-     * @param {boolean} status true means go 2D, false means go 3D 
+     * @param {DataHandler} sender
+     * @param {boolean} status true means go 2D, false means go 3D
      */
     on2DToggled(sender, status){
         if(status){ // Go 2D
@@ -101,8 +101,8 @@ class Renderer{
 
     /**
      * Callback function to change data in the scene
-     * @param {DataHandler} sender 
-     * @param {boolean} newDataDownloaded 
+     * @param {DataHandler} sender
+     * @param {boolean} newDataDownloaded
      */
     onDataChange(sender, newDataDownloaded){
         this.dataHandler = sender;
@@ -119,7 +119,6 @@ class Renderer{
             this.centerCameraToData(sender);
 
         let absMax = this.dataHandler.getAbsMax();
-        this.sceneConfigurator.sceneGrid.scaleTo(absMax);
         this.sceneConfigurator.axesPainter.scaleTo(absMax);
     }
 
@@ -127,7 +126,7 @@ class Renderer{
      * Update camera and controls position
      * @param {DataHandler} dataHandler
      */
-    centerCameraToData(dataHandler) {   
+    centerCameraToData(dataHandler) {
         let coordinates = dataHandler.getCenterCoordinates();
         let x = dataHandler.getMaxValue(0) - coordinates.x;
         let y = (dataHandler.getMaxValue(1) * 2) - (coordinates.y * 2);
@@ -136,6 +135,10 @@ class Renderer{
         this.camera.position.set(coordinates.x, coordinates.y, Math.max(x, y, z));
 
         this.controls.changePivotPoint(coordinates);
+    }
+
+    getSceneConfigurator() {
+        return this.sceneConfigurator;
     }
 
     subscribeToHoveredOnPointEvent(listener){
