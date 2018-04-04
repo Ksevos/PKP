@@ -1,13 +1,13 @@
 //@ts-check
 
-import React, { Component}  from 'react';
+import React, {Component} from 'react';
 
-import './PointInfoBox.css';
+import './InfoBox.css';
 
 /**
  * A box to show a single data point information
  */
-class PointInfoBox extends Component {
+class PointSelectionInfoBox extends Component {
     render(){
         return(
             <div className="PointInfoBox"
@@ -21,4 +21,4 @@ class PointInfoBox extends Component {
     }
 }
 
-export default PointInfoBox;
+export default PointSelectionInfoBox;

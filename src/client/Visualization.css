@@ -2,3 +2,8 @@
     width: 100vw;
     height: 100vh;
 }
+.VisualizationButtons {
+    margin-top: 10px;
+    margin-left: 100px;
+    display: inline-block;
+}

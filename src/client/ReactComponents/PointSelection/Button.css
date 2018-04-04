@@ -1,0 +1,6 @@
+.PointSelectionButton {
+    background-image: url('../../../resources/icons/point_select_button.png');
+    border-radius: 5px;
+    height: 64px;
+    width: 64px;
+}
