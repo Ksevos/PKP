@@ -2,8 +2,8 @@
 import * as THREE from 'three';
 import {Axis, AxisColor} from "../CustomObjects/Enum";
 
-const DASH_LENGTH = 0.025;
-const DASH_L_LENGTH = DASH_LENGTH + 0.1;
+const DASH_LENGTH_RATIO = 0.1; // Length to separation ratio
+const DASH_COUNT = 10;
 
 const MATERIAL_X = new THREE.LineBasicMaterial( {color: AxisColor.X_AXIS} );
 const MATERIAL_Y = new THREE.LineBasicMaterial( {color: AxisColor.Y_AXIS} );
@@ -15,14 +15,13 @@ export default class AxesPainter extends THREE.Group {
      * Paints AxesHelper and dashes on top of it, meant to be scaled with GridHelper
      * @param {number} size Grid size
      * @param {number} division Grid division
-     * @param {number} dashes Amount of dashes in each grid square
      */
-    constructor(size, division, dashes) {
+    constructor(size, division) {
         super();
 
         this.size = size            || 10;
         this.division = division    || 10;
-        this.dashes = dashes        || 3;
+        this.dashSeparation = (this.size / this.division) / DASH_COUNT;
         this.axesHelper = new THREE.AxesHelper(this.size / 2);
         this.lines = [];
 
@@ -74,10 +73,11 @@ export default class AxesPainter extends THREE.Group {
      * @param {number} size
      */
     scaleTo(size) {
-        size = Math.ceil(size) * 2 + 2;
+        size = Math.ceil(size);
 
-        this.size = size;
-        this.division = size;
+        this.size = size * 2;
+        this.division = this.size;
+        this.dashSeparation = size / DASH_COUNT;
 
         this.repaint();
     }
@@ -102,118 +102,70 @@ export default class AxesPainter extends THREE.Group {
      * @private
      */
     _paint() {
-        let limit = this.division / 2;
+        for(let i = 1; i <= DASH_COUNT; i++) {
+            let nextDistance = this.dashSeparation * i;
+            let dashLength = this.dashSeparation * DASH_LENGTH_RATIO;
 
-        for(let i = 0; i < limit; i++) {
-            for (let j = 1; j <= this.dashes; j++) {
+            let startPointX = AxesPainter._createPoint(nextDistance,0,dashLength);
+            let startPointY = AxesPainter._createPoint(dashLength,nextDistance,0);
+            let startPointZ = AxesPainter._createPoint(dashLength,0,nextDistance);
 
-                let dashX = {
-                    x: this._scaleDashDistance(i, j),
-                    y: 0,
-                    z: this._scaleDashLength(DASH_LENGTH)
-                };
-
-                let dashY = {
-                    x: this._scaleDashLength(DASH_LENGTH),
-                    y: this._scaleDashDistance(i, j),
-                    z: 0
-                };
-
-                let dashZ = {
-                    x: this._scaleDashLength(DASH_LENGTH),
-                    y: 0,
-                    z: this._scaleDashDistance(i, j)
-                };
-
-                this.lines.push(AxesPainter._createAxisDash(dashX, Axis.X));
-                this.dashesX.push(this.lines[this.lines.length - 1]);
-                this.lines.push(AxesPainter._createAxisDash(dashY, Axis.Y));
-                this.lines.push(AxesPainter._createAxisDash(dashZ, Axis.Z));
-            }
-
-            // intermediate (longer) dashes
-            if(i !== limit - 1) {
-                let longerDashX = {
-                    x: this._scaleDashDistance(i + 1, 0),
-                    y: 0,
-                    z: this._scaleDashLength(DASH_L_LENGTH)
-                };
-
-                let longerDashY = {
-                    x: this._scaleDashLength(DASH_L_LENGTH),
-                    y: this._scaleDashDistance(i + 1, 0),
-                    z: 0
-                };
-
-                let longerDashZ = {
-                    x: this._scaleDashLength(DASH_L_LENGTH),
-                    y: 0,
-                    z: this._scaleDashDistance(i + 1, 0)
-                };
-
-                this.lines.push(AxesPainter._createAxisDash(longerDashX, Axis.X));
-                this.dashesX.push(this.lines[this.lines.length - 1]);
-                this.lines.push(AxesPainter._createAxisDash(longerDashY, Axis.Y));
-                this.lines.push(AxesPainter._createAxisDash(longerDashZ, Axis.Z));
-            }
+            this.lines.push(AxesPainter._createAxisDash(startPointX, Axis.X));
+            this.dashesX.push(this.lines[this.lines.length - 1]);
+            this.lines.push(AxesPainter._createAxisDash(startPointY, Axis.Y));
+            this.lines.push(AxesPainter._createAxisDash(startPointZ, Axis.Z));
         }
     }
 
     /**
-     * Returns the point on the axis at which the next dash should be drawn
-     * @param {number} gridDistance
-     * @param {number} dashIndex
-     * @returns {number}
+     * Creates a simple point Object
+     * @param {number} x Defaults to 0
+     * @param {number} y Defaults to 0
+     * @param {number} z Defaults to 0
+     * @returns {{x: *, y: *, z: *}}
      * @private
      */
-    _scaleDashDistance(gridDistance, dashIndex) {
-        const dashSeparation = 1 / (this.dashes + 1);
-        return gridDistance / (this.division / this.size) + (this.size / this.division) * dashSeparation * dashIndex;
-    }
-
-    /**
-     * Returns dash length scaled to one grid square
-     * @param {number} length
-     * @returns {number}
-     * @private
-     */
-    _scaleDashLength(length) {
-        return (this.size / this.division) * length;
+    static _createPoint(x,y,z) {
+        return {
+            x: x || 0,
+            y: y || 0,
+            z: z || 0
+        };
     }
 
     /**
      * Creates a new dash on axis point
-     * @param {Object} centerPoint Point on the axis
+     * @param {Object} startingPoint Point on the axis
      * @param {number} alignment Used to align dashes with Enum.Axis
      * @returns {THREE.Line}
      * @private
      */
-    static _createAxisDash(centerPoint, alignment) {
+    static _createAxisDash(startingPoint, alignment) {
         // rewrite this to BufferGeometry if needed later
         let geometry = new THREE.Geometry();
         let material;
 
         switch (alignment) {
             case Axis.X:
-                geometry.vertices.push(new THREE.Vector3( centerPoint.x, centerPoint.y, centerPoint.z ));
-                geometry.vertices.push(new THREE.Vector3( centerPoint.x, centerPoint.y,-centerPoint.z ));
+                geometry.vertices.push(new THREE.Vector3( startingPoint.x, startingPoint.y, startingPoint.z ));
+                geometry.vertices.push(new THREE.Vector3( startingPoint.x, startingPoint.y,-startingPoint.z ));
                 material = MATERIAL_X;
                 break;
 
             case Axis.Y:
-                geometry.vertices.push(new THREE.Vector3( centerPoint.x, centerPoint.y, centerPoint.z ));
-                geometry.vertices.push(new THREE.Vector3(-centerPoint.x, centerPoint.y, centerPoint.z ));
+                geometry.vertices.push(new THREE.Vector3( startingPoint.x, startingPoint.y, startingPoint.z ));
+                geometry.vertices.push(new THREE.Vector3(-startingPoint.x, startingPoint.y, startingPoint.z ));
                 material = MATERIAL_Y;
                 break;
 
             case Axis.Z:
-                geometry.vertices.push(new THREE.Vector3( centerPoint.x, centerPoint.y, centerPoint.z ));
-                geometry.vertices.push(new THREE.Vector3(-centerPoint.x, centerPoint.y, centerPoint.z ));
+                geometry.vertices.push(new THREE.Vector3( startingPoint.x, startingPoint.y, startingPoint.z ));
+                geometry.vertices.push(new THREE.Vector3(-startingPoint.x, startingPoint.y, startingPoint.z ));
                 material = MATERIAL_Z;
                 break;
 
             default:
-                throw new Error('Undefined dash alignment!');
+                throw new Error('Invalid dash alignment!');
         }
 
         return new THREE.Line(geometry,material);
