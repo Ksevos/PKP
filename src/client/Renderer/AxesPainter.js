@@ -1,5 +1,6 @@
 //@ts-check
 import * as THREE from 'three';
+import * as LodashMath from 'lodash/math.js';
 import {Axis, AxisColor} from "../CustomObjects/Enum";
 
 const DASH_LENGTH_RATIO = 0.1; // Length to separation ratio
