@@ -36,6 +36,8 @@ class PointSelector {
      */
     onRender(dataHandler, pointCloud, camera){
         if ( this.toggle > 0.01 && this.mouseMoved && this.enabled) {
+            //TODO change new THREE.Vector3(0,0,0) to data center
+            this.raycaster.params.Points.threshold = (new THREE.Vector3(0,0,0)).distanceTo(camera.position) * 0.01;
             this.toggle = 0;
             this.mouseMoved = false;
             this.raycaster.setFromCamera( this.mouse, camera );
