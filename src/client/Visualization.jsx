@@ -11,7 +11,8 @@ import DataHandler from './DataHandler';
 import {Link} from 'react-router-dom'
 import Renderer from './Renderer/Renderer';
 
-import PointInfoBox from './ReactComponents/PointInfoBox';
+import PointSelectionInfoBox from './ReactComponents/PointSelection/InfoBox';
+import PointSelectionButton from './ReactComponents/PointSelection/Button';
 import DataInfoBox from './ReactComponents/DataInfoBox';
 
 //CSS
@@ -22,7 +23,7 @@ class Visualization extends Component {
         super(props);
         this.dataHandler = new DataHandler();
         this.state = {
-            pointInfoBox: {
+            PointSelectionInfoBox: {
                 show: false,
                 position: {x:0,y:0},
                 index: 0
@@ -97,7 +98,7 @@ class Visualization extends Component {
     _onShowPointData(sender, args){
         if(args.getToShow()){
             this.setState({            
-                pointInfoBox: {
+                PointSelectionInfoBox: {
                     show: true,
                     position: {
                         x: args.getMousePosition().x,
@@ -108,7 +109,14 @@ class Visualization extends Component {
             );
         }
         else
-            this.setState({ pointInfoBox: { show: false } });
+            this.setState({ PointSelectionInfoBox: { show: false } });
+    }
+
+    _onPointSelectButtonClicked(enable){
+        if(enable)
+            this.threeRenderer.enablePointSelection();
+        else
+            this.threeRenderer.disablePointSelection();
     }
 
     render() {
@@ -117,17 +125,18 @@ class Visualization extends Component {
                 ref={(mount) => {
                     this.mount = mount
                 }}>
-
-                <Link to={"/"}><span className="close-back thick"></span></Link>
-
+                <div className = "VisualizationButtons">
+                    <Link to={"/"}><span className="close-back thick"></span></Link>
+                    <PointSelectionButton onClick = {this._onPointSelectButtonClicked.bind(this)}/>
+                </div>
                 {this.state.dataInfoBox.show ? (
                     <DataInfoBox show = {this.state.dataInfoBox.show} 
                                 bounds = {this.state.dataInfoBox.bounds}/>
                     ) : null}
-                {this.state.pointInfoBox.show ? (
-                    <PointInfoBox show = {this.state.pointInfoBox.show} 
-                                position = {this.state.pointInfoBox.position} 
-                                index = {this.state.pointInfoBox.index}/>
+                {this.state.PointSelectionInfoBox.show ? (
+                    <PointSelectionInfoBox show = {this.state.PointSelectionInfoBox.show} 
+                                position = {this.state.PointSelectionInfoBox.position} 
+                                index = {this.state.PointSelectionInfoBox.index}/>
                     ) : null}
             </div>
         )

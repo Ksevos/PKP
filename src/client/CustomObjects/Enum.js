@@ -29,5 +29,13 @@ const AxisColor = Object.freeze(
     Z_AXIS: '#0000ff'
 });
 
+const Theme = Object.freeze(
+{
+    /** #429ef4 */
+    BUTTON_TOGGLED: '#429ef4',
+    /** #ffffff */
+    BUTTON_DEFAULT: "#ffffff"
+});
+
 //export default {DimensionType, Axis, AxisColor};
-module.exports = {DimensionType, Axis, AxisColor};
+module.exports = {DimensionType, Axis, AxisColor, Theme};

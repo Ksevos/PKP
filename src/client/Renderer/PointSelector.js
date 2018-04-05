@@ -15,11 +15,12 @@ class PointSelector {
         this.hoveredOnPointEvent = new HoveredOnPointEvent(this);
 
         this.raycaster = new THREE.Raycaster();
-        this.raycaster.params.Points.threshold = 0.01;
+        this.raycaster.params.Points.threshold = 0.1;
         this.mouse = new THREE.Vector2(0,0);
         this.clock = new THREE.Clock();
         this.toggle = 0;
         this.mouseMoved = false;
+        this.enabled = false;
 
         window.addEventListener(
             'mousemove', 
@@ -34,7 +35,7 @@ class PointSelector {
      * @param {THREE.Camera} camera 
      */
     onRender(dataHandler, pointCloud, camera){
-        if ( this.toggle > 0.5 && this.mouseMoved) {
+        if ( this.toggle > 0.5 && this.mouseMoved && this.enabled) {
             this.toggle = 0;
             this.mouseMoved = false;
 
@@ -90,15 +91,26 @@ class PointSelector {
 
     _onMouseMove( event ) {
         event.preventDefault();
-        this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-        this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-        this.mouseMoved = true;
+        if(this.enabled){
+            this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+            this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+            this.mouseMoved = true;
 
-        this.hoveredOnPointEvent.notify(new HoveredOnPointEventArgs(false, null, null ))
+            this.hoveredOnPointEvent.notify(new HoveredOnPointEventArgs(false, null, null ));
+        }
     }
 
     subscribeToHoveredOnPointEvent(listener){
         this.hoveredOnPointEvent.subscribe(listener);
+    }
+
+    enable(){
+                console.log("enabling");
+        this.enabled = true;
+    }
+    disable(){
+        console.log("disabling");
+        this.enabled = false;
     }
 }
 

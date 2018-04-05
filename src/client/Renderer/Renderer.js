@@ -144,6 +144,13 @@ class Renderer{
     subscribeToHoveredOnPointEvent(listener){
         this.pointSelector.subscribeToHoveredOnPointEvent(listener);
     }
+
+    enablePointSelection(){
+        this.pointSelector.enable();
+    }
+    disablePointSelection(){
+        this.pointSelector.disable();
+    }
 }
 
 export default Renderer;

@@ -22,7 +22,9 @@ class ArffToJsonParser {
     parseAndSave(filePath, newName) {
         this.fileContents = FileSystem.readFileSync(filePath);
 
-        this._parseArffContents(this.fileContents.toString("utf8").replace(/\r/g, "").split("@"));
+        let cleanedData = this._cleanData(this.fileContents.toString("utf8").replace(/\r/g, ""));
+
+        this._parseArffContents(cleanedData);
 
         FileSystem.writeFile(
             filePath.substring(0, filePath.lastIndexOf("/")) + "/data.json",
@@ -31,44 +33,84 @@ class ArffToJsonParser {
     }
 
     /**
+     * 
+     * @param {string} data 
+     * @returns {string[]}
+     */
+    _cleanData(data){
+        /** @type {string[]} */
+        let cleanData = [];
+        //Split into rows
+        let rows = data.split(/\n/g);
+        for(let i = 0; i < rows.length; i++){
+            //Remove comments
+            let commentlessSide = rows[i].split("%")[0];
+            if(!commentlessSide)
+                continue;
+            
+            //Remove tabs
+            commentlessSide = commentlessSide.replace(/\t/g, ' ');
+
+            //Remove unnecesarry spaces
+            commentlessSide = commentlessSide.replace(/\s{2,}/g, '')
+                                             .trim()
+                                             .replace(/(\s{1},\s{1})|(\s{1},)|(,\s{1})/g, ',')
+                                             .replace(/{\s/g, '{')
+                                             .replace(/\s}/g, '}');
+
+            if(commentlessSide)
+               cleanData.push(commentlessSide);
+        }
+        return cleanData;
+    }
+
+    /**
      * Parses arff file data into local variables
      * @param {string[]} data
      */
     _parseArffContents(data) {
         for (let i = 0; i < data.length; i++) {
-            if (data[i].toLowerCase().indexOf("relation") != -1)
-                this.relation = data[i].split(" ")[1];
-            if (data[i].toLowerCase().indexOf("attribute") != -1) {
-                this.attributes.push(data[i].split(" ")[1]);
-                if (data[i].toLowerCase().indexOf('class') != -1) {
-                    const rxp = /{([^}]+)}/g;
-                    let mat = null;
-                    while (mat = rxp.exec(data[i])) {
-                        this.classes = mat[1].split(',').map((item) => {
-                            return `"${item}"`;
-                        });
-                    }
-                }
+            if (data[i].toLowerCase().indexOf("@relation") != -1)
+                this.relation = data[i].substr(('@relation ').length);
+            if (data[i].toLowerCase().indexOf("@attribute") != -1) {
+                this._parseAttribute(data[i]);
             }
-            if (data[i].toLowerCase().indexOf("data") != -1) {
-                const rowLen = this.attributes.length;
-                const dataTemp = data[i].substring(data[i].indexOf("\n") + 1).split("\n").map(r => {
-                    if (r.length > 0) {
-                        const rowElements = r.split(',');
-                        let row = (rowElements.map((rowElement, index) => {
-                            if (rowLen === index + 1) {
-                                return `"${rowElement}"`;
-                            } else {
-                                return rowElement;
-                            }
-                        }));
-                        return `[${row}]`;
-                    }
-                });
-                // filter(Boolean) removes undefined values from array
-                this.data = dataTemp.filter(Boolean);
+            if (data[i].toLowerCase().indexOf("@data") != -1) {
+                this._parseData(data.slice(i+1));
             }
         };
+    }
+
+    /**
+     * @param {string} row
+     */
+    _parseAttribute(row){
+        let attributeName = row.substr(('@attribute ').length).replace(/\snumeric|\sinteger|\sreal|\sstring|\sNUMERIC|\sINTEGER|\sREAL|\sSTRING/g, '');
+        if(attributeName.toLowerCase().includes('{') || attributeName.toLowerCase().includes("}")){
+            let attributeParts = attributeName.split('{');
+            attributeName = attributeParts[0].trim();
+            let classes = attributeParts[1].replace('}','').split(',');
+
+            for(let j = 0; j < classes.length; j++){
+                this.classes.push('"' + classes[j].replace(/'/g, '').trim() + '"');
+            }
+        }
+        this.attributes.push('"' + attributeName.replace(/'/g, '').trim() + '"');
+    }
+    /**
+     * 
+     * @param {string[]} rows 
+     */
+    _parseData(rows){
+        for(let i = 0; i < rows.length; i++){
+            /** @type {any} */ // isNaN wants numeric
+            let dataRow = rows[i].replace(/'/g, '').split(',');
+            for(let j = 0; j < dataRow.length; j++){
+                if(j == dataRow.length - 1)
+                    dataRow[j] = '"' + dataRow[j] + '"';
+            }
+            this.data.push(dataRow);
+        }
     }
 
     /**
@@ -79,28 +121,12 @@ class ArffToJsonParser {
      * @returns {string} Json string
      */
     _getJsonRepresentation() {
-        let jsonFile = `"valueNames":[`;
-
-        //Add @ATTRIBUTE entries to Json
-        for (let i = 0; i < this.attributes.length; i++) {
-            jsonFile += `"${this.attributes[i]}",`;
-        }
-
-        //Remove comma at the end
-        if (jsonFile[jsonFile.length - 1] == ',')
-            jsonFile = jsonFile.substring(0, jsonFile.length - 1);
-
-        jsonFile += `],"classes":[`;
-
-        //Add @ATTRIBUTE CLASS entries to Json
-        jsonFile += `${this.classes}`;
-
-        jsonFile += `],"values":[`;
+        let jsonFile = `"valueNames":[${this.attributes}],"classes":[${this.classes}],"values":[`;
 
         //Add @DATA entries to Json
         for (let i = 0; i < this.data.length; i++) {
             if (this.data[i] != "") {
-                jsonFile += `${this.data[i]},`;
+                jsonFile += `[${this.data[i]}],`;
             }
         }
         //Remove comma at the end
