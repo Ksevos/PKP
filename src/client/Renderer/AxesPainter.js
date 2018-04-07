@@ -4,7 +4,7 @@ import * as LodashMath from 'lodash/math.js';
 import {Axis, AxisColor} from "../CustomObjects/Enum";
 
 const DASH_LENGTH_RATIO = 0.15;  // Length to separation ratio
-const MIN_DASH_COUNT = 10;     // Preferred dash count
+const DASH_COUNT = 10;     // Preferred dash count
 
 const MATERIAL_X = new THREE.LineBasicMaterial( {color: AxisColor.X_AXIS} );
 const MATERIAL_Y = new THREE.LineBasicMaterial( {color: AxisColor.Y_AXIS} );
@@ -22,8 +22,7 @@ export default class AxesPainter extends THREE.Group {
 
         this.size = size            || 10;
         this.division = division    || 10;
-        this.dashSeparation = (this.size / this.division) / MIN_DASH_COUNT;
-        this.dashCount = MIN_DASH_COUNT;
+        this.dashSeparation = (this.size / this.division) / DASH_COUNT;
         this.axesHelper = new THREE.AxesHelper(this.size / 2);
         this.lines = [];
 
@@ -83,8 +82,7 @@ export default class AxesPainter extends THREE.Group {
         let precision = -Math.round(Math.log10(size));
         size = LodashMath.ceil(size, precision);
 
-        this.dashSeparation = size / MIN_DASH_COUNT;
-        this.dashCount = Math.ceil(size / this.dashSeparation);
+        this.dashSeparation = size / DASH_COUNT;
         this.size = size;
         this.division = this.size;
 
@@ -119,7 +117,7 @@ export default class AxesPainter extends THREE.Group {
      * @private
      */
     _paint() {
-        for(let i = 1; i <= this.dashCount; i++) {
+        for(let i = 1; i <= DASH_COUNT; i++) {
             let nextDistance = this.dashSeparation * i;
             let dashLength = this.dashSeparation * DASH_LENGTH_RATIO;
             
