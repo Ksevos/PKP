@@ -35,15 +35,17 @@ class PointSelector {
      * @param {THREE.Camera} camera 
      */
     onRender(dataHandler, pointCloud, camera){
-        if ( this.toggle > 0.5 && this.mouseMoved && this.enabled) {
+        if ( this.toggle > 0.01 && this.mouseMoved && this.enabled) {
+            //TODO change new THREE.Vector3(0,0,0) to data center
+            this.raycaster.params.Points.threshold = (new THREE.Vector3(0,0,0)).distanceTo(camera.position) * 0.01;
             this.toggle = 0;
             this.mouseMoved = false;
-
             this.raycaster.setFromCamera( this.mouse, camera );
             let intersections = this.raycaster.intersectObjects( pointCloud );
             let intersection = ( intersections.length ) > 0 ? intersections[ 0 ] : null;
 
             if(intersection !== null){
+                console.log("intersecting");
                 this.hoveredOnPointEvent.notify(
                     new HoveredOnPointEventArgs(
                         true, 
@@ -105,11 +107,9 @@ class PointSelector {
     }
 
     enable(){
-                console.log("enabling");
         this.enabled = true;
     }
     disable(){
-        console.log("disabling");
         this.enabled = false;
     }
 }
