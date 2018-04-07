@@ -3,8 +3,8 @@ import * as THREE from 'three';
 import * as LodashMath from 'lodash/math.js';
 import {Axis, AxisColor} from "../CustomObjects/Enum";
 
-const DASH_LENGTH_RATIO = 0.1; // Length to separation ratio
-const DASH_COUNT = 10;
+const DASH_LENGTH_RATIO = 0.15;  // Length to separation ratio
+const DASH_COUNT = 10;     // Preferred dash count
 
 const MATERIAL_X = new THREE.LineBasicMaterial( {color: AxisColor.X_AXIS} );
 const MATERIAL_Y = new THREE.LineBasicMaterial( {color: AxisColor.Y_AXIS} );
@@ -79,11 +79,12 @@ export default class AxesPainter extends THREE.Group {
      * @param {number} size
      */
     scaleTo(size) {
-        size = Math.ceil(size);
+        let precision = -Math.round(Math.log10(size));
+        size = LodashMath.ceil(size, precision);
 
-        this.size = size * 2;
-        this.division = this.size;
         this.dashSeparation = size / DASH_COUNT;
+        this.size = size;
+        this.division = this.size;
 
         this.repaint();
     }
@@ -93,7 +94,7 @@ export default class AxesPainter extends THREE.Group {
      */
     repaint() {
         this.remove(this.axesHelper);
-        this.axesHelper = new THREE.AxesHelper(this.size / 2);
+        this.axesHelper = new THREE.AxesHelper(this.size);
         this.add(this.axesHelper);
 
         this.remove(...this.numberSprites2D);
