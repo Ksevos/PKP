@@ -13,7 +13,8 @@ class PointSelectionButton extends Component{
             <div>
                 <button className = "PointSelectionButton" 
                         style = {{
-                            backgroundColor: this.state.toggled ? Enum.Theme.BUTTON_TOGGLED : Enum.Theme.BUTTON_DEFAULT
+                            backgroundColor: this.state.toggled ? Enum.Theme.BUTTON_TOGGLED : Enum.Theme.BUTTON_DEFAULT,
+                            borderColor: this.state.toggled ? Enum.Theme.BUTTON_TOGGLED : Enum.Theme.BUTTON_DEFAULT
                         }}
                         onClick = { event => {
                             this.setState(prevState => { return {toggled: !prevState.toggled}});
