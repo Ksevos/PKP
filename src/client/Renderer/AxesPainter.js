@@ -23,55 +23,47 @@ export default class AxesPainter extends THREE.Group {
         this.size = size            || 10;
         this.division = division    || 10;
         this.dashSeparation = (this.size / this.division) / DASH_COUNT;
-        this.axesHelper = new THREE.AxesHelper(this.size / 2);
-        this.lines = [];
 
-        // TODO: refactor this and it's uses
-        this.dashesX = [];
-        this.numberSprites2D = [];
-        this.numbersZAxis = [];
+        this.axes = [];
+        this.mirroredAxes = [];
+        for(let i = 0; i < 3; i ++) {
+            this.axes.push(AxesPainter._createAxis());
+            this.mirroredAxes.push(AxesPainter._createAxis());
+        }
 
         this._paint();
-
-        this.add(...this.numberSprites2D);
-        this.add(this.axesHelper);
-        this.add(...this.lines);
     }
 
     /**
      * Change axis on 3D
      */
    setAxisLine3D(){
-       let axisLines = ([
-           0, 0, 0,	this.size/2, 0, 0,
-           0, 0, 0,	0, this.size/2, 0,
-           0, 0, 0,	0, 0, this.size/2
-       ]);
-       let axis = this.axesHelper.geometry.attributes.position.array;
-       axis.set(axisLines);
+       this.axes[2].setVisible(true);
+       this.axes[0].dashes.forEach(function (dash) {
+            dash.rotateX(0);
+        });
 
-       this.add(...this.numbersZAxis);
-       this.dashesX.forEach(function (line) {
-           line.rotateX(0);
-       })
-   }
+       this.mirroredAxes[0].dashes.forEach(function (dash) {
+           dash.rotateX(0);
+       });
+       this.mirroredAxes[0].setVisible(false);
+       this.mirroredAxes[1].setVisible(false);
+    }
 
    /**
     * Extend axis on 2D
     */
    setAxisLine2D(){
-       let axisLines = ([
-           -this.size/2, 0, 0,	this.size/2, 0, 0,
-           0, -this.size/2, 0,	0, this.size/2, 0,
-           0, 0, 0,	0, 0, 0
-       ]);
-       let axis = this.axesHelper.geometry.attributes.position.array;
-       axis.set(axisLines);
+       this.axes[2].setVisible(false);
+       this.axes[0].dashes.forEach(function (dash) {
+           dash.rotateX(1.5708);
+       });
 
-       this.remove(...this.numbersZAxis);
-       this.dashesX.forEach(function (line) {
-           line.rotateX(1.5708);
-       })
+       this.mirroredAxes[0].dashes.forEach(function (dash) {
+           dash.rotateX(1.5708);
+       });
+       this.mirroredAxes[0].setVisible(true);
+       this.mirroredAxes[1].setVisible(true);
    }
 
     /**
@@ -93,23 +85,30 @@ export default class AxesPainter extends THREE.Group {
      * Removes previous objects and paints them from scratch
      */
     repaint() {
-        this.remove(this.axesHelper);
-        this.axesHelper = new THREE.AxesHelper(this.size);
-        this.add(this.axesHelper);
 
-        this.remove(...this.numberSprites2D);
-        this.numberSprites2D = [];
-        this.remove(...this.numbersZAxis);
-        this.numbersZAxis = [];
+        for(let i = 0; i < 3; i++) {
+            let axis = this.axes[i];
+            let mirror = this.mirroredAxes[i];
 
-        this.remove(...this.lines);
-        this.lines.length = 0;
-        this.dashesX.length = 0;
+            this.remove(axis.line, mirror.line);
+            this.remove(...axis.dashes, ...mirror.dashes);
+            axis.dashes.length = 0;
+            mirror.dashes.length = 0;
+            this.remove(...axis.sprites, ...mirror.sprites);
+            axis.sprites.length = 0;
+            mirror.sprites.length = 0;
+        }
+
         this._paint();
 
-        this.add(...this.lines);
-        this.add(...this.numberSprites2D);
-        this.add(...this.numbersZAxis);
+        for(let i = 0; i < 3; i++) {
+            let axis = this.axes[i];
+            let mirror = this.mirroredAxes[i];
+
+            this.add(axis.line, mirror.line);
+            this.add(...axis.dashes, ...mirror.dashes);
+            this.add(...axis.sprites, ...mirror.sprites);
+        }
     }
 
     /**
@@ -117,6 +116,27 @@ export default class AxesPainter extends THREE.Group {
      * @private
      */
     _paint() {
+        let geometryX = new THREE.Geometry();
+        let geometryZ = new THREE.Geometry();
+        let geometryY = new THREE.Geometry();
+
+        geometryX.vertices.push(new THREE.Vector3(0,0,0));
+        geometryX.vertices.push(new THREE.Vector3(this.size));
+
+        geometryY.vertices.push(new THREE.Vector3(0,0,0));
+        geometryY.vertices.push(new THREE.Vector3(0,this.size,0));
+
+        geometryZ.vertices.push(new THREE.Vector3(0,0,0));
+        geometryZ.vertices.push(new THREE.Vector3(0,0,this.size));
+
+        this.axes[0].line = new THREE.Line(geometryX,MATERIAL_X);
+        this.axes[1].line = new THREE.Line(geometryY,MATERIAL_Y);
+        this.axes[2].line = new THREE.Line(geometryZ,MATERIAL_Z);
+
+        this.mirroredAxes[0].line = this.axes[0].line.clone().translateX(-this.size);
+        this.mirroredAxes[1].line = this.axes[1].line.clone().translateY(-this.size);
+        this.mirroredAxes[2].line = this.axes[2].line.clone().translateZ(-this.size);
+
         for(let i = 1; i <= DASH_COUNT; i++) {
             let nextDistance = this.dashSeparation * i;
             let dashLength = this.dashSeparation * DASH_LENGTH_RATIO;
@@ -125,19 +145,59 @@ export default class AxesPainter extends THREE.Group {
             let startPointY = AxesPainter._createPoint(dashLength,nextDistance,0);
             let startPointZ = AxesPainter._createPoint(dashLength,0,nextDistance);
 
-            this.lines.push(AxesPainter._createAxisDash(startPointX, Axis.X));
-            this.dashesX.push(this.lines[this.lines.length - 1]);
-            this.lines.push(AxesPainter._createAxisDash(startPointY, Axis.Y));
-            this.lines.push(AxesPainter._createAxisDash(startPointZ, Axis.Z));
+            this.axes[0].dashes.push(AxesPainter._createAxisDash(startPointX, Axis.X));
+            this.axes[1].dashes.push(AxesPainter._createAxisDash(startPointY, Axis.Y));
+            this.axes[2].dashes.push(AxesPainter._createAxisDash(startPointZ, Axis.Z));
+
+            let mirrorPointX = Object.assign({},startPointX);
+            mirrorPointX.x = -mirrorPointX.x;
+            let mirrorPointY = Object.assign({},startPointY);
+            mirrorPointY.y = -mirrorPointY.y;
+            let mirrorPointZ = Object.assign({},startPointZ);
+            mirrorPointZ.z = -mirrorPointZ.z;
+
+            this.mirroredAxes[0].dashes.push(AxesPainter._createAxisDash(mirrorPointX, Axis.X));
+            this.mirroredAxes[1].dashes.push(AxesPainter._createAxisDash(mirrorPointY, Axis.Y));
+            this.mirroredAxes[2].dashes.push(AxesPainter._createAxisDash(mirrorPointZ, Axis.Z));
 
             let text = Math.round(startPointX.x * 10) / 10; 
-            this.numberSprites2D.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointX, Axis.X)); 
+            this.axes[0].sprites.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointX, Axis.X));
+            this.mirroredAxes[0].sprites.push(AxesPainter._makeTextSprite((-text).toString(), 30, mirrorPointX, Axis.X));
 
             text = Math.round(startPointY.y * 10) / 10;
-            this.numberSprites2D.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointY, Axis.Y)); 
+            this.axes[1].sprites.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointY, Axis.Y));
+            this.mirroredAxes[1].sprites.push(AxesPainter._makeTextSprite((-text).toString(), 30, mirrorPointY, Axis.Y));
 
             text = Math.round(startPointZ.z * 10) / 10;
-            this.numbersZAxis.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointZ, Axis.Z)); 
+            this.axes[2].sprites.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointZ, Axis.Z));
+            this.mirroredAxes[2].sprites.push(AxesPainter._makeTextSprite((-text).toString(), 30, mirrorPointZ, Axis.Z));
+        }
+
+        this.mirroredAxes[0].setVisible(false);
+        this.mirroredAxes[1].setVisible(false);
+        this.mirroredAxes[2].setVisible(false);
+    }
+
+    /**
+     * Returns container object for axis elements
+     * @returns {{line: null, dashes: Array, sprites: Array, setVisible: setVisible}}
+     * @private
+     */
+    static _createAxis() {
+        return {
+            line : null,
+            dashes : [],
+            sprites: [],
+
+            setVisible: function(visible) {
+                this.line.visible = visible;
+                this.dashes.forEach(function (dash) {
+                    dash.visible = visible;
+                });
+                this.sprites.forEach(function (sprite) {
+                    sprite.visible = visible;
+                });
+            }
         }
     }
 
@@ -161,11 +221,11 @@ export default class AxesPainter extends THREE.Group {
      * Creates a new dash on axis point
      * @param {Object} startingPoint Point on the axis
      * @param {number} alignment Used to align dashes with Enum.Axis
-     * @returns {THREE.Line}
+     * @returns {Line}
      * @private
      */
     static _createAxisDash(startingPoint, alignment) {
-        // rewrite this to BufferGeometry if needed later
+        // TODO: rewrite this to BufferGeometry if needed later
         let geometry = new THREE.Geometry();
         let material;
 
