@@ -15,20 +15,21 @@ export default class AxesPainter extends THREE.Group {
     /**
      * Paints AxesHelper and dashes on top of it, meant to be scaled with GridHelper
      * @param {number} size Grid size
-     * @param {number} division Grid division
      */
-    constructor(size, division) {
+    constructor(size) {
         super();
 
-        this.size = size            || 10;
-        this.division = division    || 10;
+        this.size = size || 10;
+        this.division = size || 10;
         this.dashSeparation = (this.size / this.division) / DASH_COUNT;
         this.axesHelper = new THREE.AxesHelper(this.size / 2);
         this.lines = [];
 
         // TODO: refactor this and it's uses
         this.dashesX = [];
+        /** @type {THREE.Sprite[]} */
         this.numberSprites2D = [];
+        /** @type {THREE.Sprite[]} */
         this.numbersZAxis = [];
 
         this._paint();
@@ -42,13 +43,15 @@ export default class AxesPainter extends THREE.Group {
      * Change axis on 3D
      */
    setAxisLine3D(){
-       let axisLines = ([
+       let axisLines = [
            0, 0, 0,	this.size/2, 0, 0,
            0, 0, 0,	0, this.size/2, 0,
            0, 0, 0,	0, 0, this.size/2
-       ]);
-       let axis = this.axesHelper.geometry.attributes.position.array;
-       axis.set(axisLines);
+       ];
+       /** @type {THREE.BufferAttribute} */
+       //@ts-ignore
+       let axisAttribute = this.axesHelper.geometry.getAttribute('position');
+       axisAttribute.set(axisLines);
 
        this.add(...this.numbersZAxis);
        this.dashesX.forEach(function (line) {
@@ -60,13 +63,15 @@ export default class AxesPainter extends THREE.Group {
     * Extend axis on 2D
     */
    setAxisLine2D(){
-       let axisLines = ([
+       let axisLines = [
            -this.size/2, 0, 0,	this.size/2, 0, 0,
            0, -this.size/2, 0,	0, this.size/2, 0,
            0, 0, 0,	0, 0, 0
-       ]);
-       let axis = this.axesHelper.geometry.attributes.position.array;
-       axis.set(axisLines);
+       ];
+       /** @type {THREE.BufferAttribute} */
+       //@ts-ignore
+       let axisAttribute = this.axesHelper.geometry.getAttribute('position');
+       axisAttribute.set(axisLines);
 
        this.remove(...this.numbersZAxis);
        this.dashesX.forEach(function (line) {
@@ -85,7 +90,14 @@ export default class AxesPainter extends THREE.Group {
         this.dashSeparation = size / DASH_COUNT;
         this.size = size;
         this.division = this.size;
-
+/*
+        for(let i=0; i<this.numberSprites2D.length; i++)
+        {
+            let scale = size;
+            this.numberSprites2D[i].scale.x = scale;
+            this.numberSprites2D[i].scale.y = scale;
+        }
+*/
         this.repaint();
     }
 
@@ -131,13 +143,13 @@ export default class AxesPainter extends THREE.Group {
             this.lines.push(AxesPainter._createAxisDash(startPointZ, Axis.Z));
 
             let text = Math.round(startPointX.x * 10) / 10; 
-            this.numberSprites2D.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointX, Axis.X)); 
+            this.numberSprites2D.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointX, Axis.X, this.size));
 
             text = Math.round(startPointY.y * 10) / 10;
-            this.numberSprites2D.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointY, Axis.Y)); 
+            this.numberSprites2D.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointY, Axis.Y, this.size));
 
             text = Math.round(startPointZ.z * 10) / 10;
-            this.numbersZAxis.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointZ, Axis.Z)); 
+            this.numbersZAxis.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointZ, Axis.Z, this.size));
         }
     }
 
@@ -204,29 +216,28 @@ export default class AxesPainter extends THREE.Group {
      * @returns {THREE.Sprite}
      * @private
      */
-    static  _makeTextSprite(text, fontsize, position, alignment) {
-        var ctx, texture, sprite, spriteMaterial, 
-            canvas = document.createElement('canvas');
-        ctx = canvas.getContext('2d');
-        ctx.font = fontsize + "px Arial";
-
+    static  _makeTextSprite(text, fontsize, position, alignment, scale) {
+        let canvas = document.createElement('canvas');
+        let ctx = canvas.getContext('2d');
+        ctx.font = fontsize + "px Arial";  
         // setting canvas width/height before ctx draw, else canvas is empty
         canvas.width = ctx.measureText(text).width;
-        canvas.height = fontsize * 2;
+        canvas.height = fontsize;
+
+        let aspectRatio = canvas.width/canvas.height;
 
         // after setting the canvas width/height we have to re-set font to apply
-        ctx.font = fontsize + "px Arial";        
+        ctx.font = fontsize + "px Arial"; 
         ctx.fillText(text, 0, fontsize);
 
-        texture = new THREE.Texture(canvas);
-        texture.needsUpdate = true;
+        let texture = new THREE.CanvasTexture(canvas);
 
-        spriteMaterial = new THREE.SpriteMaterial({map : texture});
-        sprite = new THREE.Sprite(spriteMaterial);
+        let spriteMaterial = new THREE.SpriteMaterial({map : texture});
+        let sprite = new THREE.Sprite(spriteMaterial);
         sprite.scale.set(
-            0.04 + text.length * 0.025,
-            0.15, 
-            0.15
+            scale * 0.05 * aspectRatio,
+            scale * 0.05, 
+            0
         );
 
         switch (alignment) {
@@ -246,5 +257,21 @@ export default class AxesPainter extends THREE.Group {
                 throw new Error('Invalid text alignment!');
         }
         return sprite;   
+    }
+    onMouseScroll(args){
+        console.log("called onMouseScroll top");
+        let vec = new THREE.Vector3(0,0,0);
+        for(let i=0; i<this.numberSprites2D.length; i++){
+            let aspectRatio = this.numberSprites2D[i].scale.x / this.numberSprites2D[i].scale.y;
+            let scale = 0.02 * vec.distanceTo( args );
+            this.numberSprites2D[i].scale.x = scale * aspectRatio;
+            this.numberSprites2D[i].scale.y = scale;
+        }
+        for(let i=0; i<this.numbersZAxis.length; i++){
+            let aspectRatio = this.numbersZAxis[i].scale.x / this.numbersZAxis[i].scale.y;
+            let scale = 0.02 * vec.distanceTo( args );
+            this.numbersZAxis[i].scale.x = scale * aspectRatio;
+            this.numbersZAxis[i].scale.y = scale;
+        }
     }
 }

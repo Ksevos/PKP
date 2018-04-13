@@ -4,13 +4,14 @@
 /* eslint-disable */
 import DataHandler from "../DataHandler";
 import DataObject from "../CustomObjects/DataObject"
+import * as THREE from "three";
 /* eslint-enable */
 
-// import * as THREE from "three";
 import RendererConfigurator from "./RendererConfigurator";
 import SceneConfigurator from "./SceneConfigurator";
 import Controls from "./Controls";
 import PointSelector from "./PointSelector";
+import { Vector3 } from "three";
 
 class Renderer{
     /**
@@ -24,6 +25,7 @@ class Renderer{
         this.rendererConfigurator = new RendererConfigurator(width, height);
         this.renderer = this.rendererConfigurator.getRenderer();
         this.camera = this.rendererConfigurator.getCamera();
+        this.oldCameraDistance = 0;
 
         this.controls = new Controls(this.camera, this.renderer.domElement);
 
@@ -36,6 +38,7 @@ class Renderer{
             'resize',
             this.rendererConfigurator.onWindowResize.bind(this.rendererConfigurator),
             false);
+
     }
 
     start() {
@@ -57,6 +60,10 @@ class Renderer{
         if(this.dataHandler && this.pointCloud)
             this.pointSelector.onRender( this.dataHandler, this.pointCloud, this.camera);
 
+        if(this.camera.position.distanceTo(new Vector3(0,0,0)) != this.oldCameraDistance){
+            this.oldCameraDistance = this.camera.position.distanceTo(new Vector3(0,0,0))
+            this.sceneConfigurator.onMouseScroll(this.camera.position);
+        }
         this.renderer.render(this.scene, this.camera);
     }
 

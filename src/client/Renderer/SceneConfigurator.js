@@ -120,6 +120,10 @@ class SceneConfigurator{
     getSceneCreated() {
         return this.sceneCreated;
     }
+
+    onMouseScroll(args){
+        this.axesPainter.onMouseScroll(args);
+    }
 }
 
 export default SceneConfigurator;
