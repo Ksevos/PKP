@@ -10,6 +10,14 @@ const MATERIAL_X = new THREE.LineBasicMaterial( {color: AxisColor.X_AXIS} );
 const MATERIAL_Y = new THREE.LineBasicMaterial( {color: AxisColor.Y_AXIS} );
 const MATERIAL_Z = new THREE.LineBasicMaterial( {color: AxisColor.Z_AXIS} );
 
+/** 
+ * @typedef {Object} AxisObject 
+ * @property {THREE.Line} line Axis line
+ * @property {THREE.Line[]} dashes 
+ * @property {THREE.Sprite[]} sprites Number sprites
+ * @property {function(boolean)} setVisible 
+ */
+
 export default class AxesPainter extends THREE.Group {
 
     /**
@@ -18,65 +26,53 @@ export default class AxesPainter extends THREE.Group {
      */
     constructor(size) {
         super();
-
+        this.is2D = false;
         this.size = size || 10;
         this.division = size || 10;
         this.dashSeparation = (this.size / this.division) / DASH_COUNT;
-        this.axesHelper = new THREE.AxesHelper(this.size / 2);
-        this.lines = [];
 
-        // TODO: refactor this and it's uses
-        this.dashesX = [];
-        /** @type {THREE.Sprite[]} */
-        this.numberSprites2D = [];
-        /** @type {THREE.Sprite[]} */
-        this.numbersZAxis = [];
+        this.axes = [];
+        this.mirroredAxes = [];
+        for(let i = 0; i < 3; i ++) {
+            this.axes.push(AxesPainter._createAxis());
+            this.mirroredAxes.push(AxesPainter._createAxis());
+        }
 
         this._paint();
-
-        this.add(...this.numberSprites2D);
-        this.add(this.axesHelper);
-        this.add(...this.lines);
     }
 
     /**
      * Change axis on 3D
      */
    setAxisLine3D(){
-       let axisLines = [
-           0, 0, 0,	this.size/2, 0, 0,
-           0, 0, 0,	0, this.size/2, 0,
-           0, 0, 0,	0, 0, this.size/2
-       ];
-       /** @type {THREE.BufferAttribute} */
-       //@ts-ignore
-       let axisAttribute = this.axesHelper.geometry.getAttribute('position');
-       axisAttribute.set(axisLines);
+       this.axes[2].setVisible(true);
+       this.axes[0].dashes.forEach(function (dash) {
+            dash.rotateX(0);
+        });
 
-       this.add(...this.numbersZAxis);
-       this.dashesX.forEach(function (line) {
-           line.rotateX(0);
-       })
-   }
+       this.mirroredAxes[0].dashes.forEach(function (dash) {
+           dash.rotateX(0);
+       });
+       this.mirroredAxes[0].setVisible(false);
+       this.mirroredAxes[1].setVisible(false);
+       this.is2D = false;
+    }
 
    /**
     * Extend axis on 2D
     */
    setAxisLine2D(){
-       let axisLines = [
-           -this.size/2, 0, 0,	this.size/2, 0, 0,
-           0, -this.size/2, 0,	0, this.size/2, 0,
-           0, 0, 0,	0, 0, 0
-       ];
-       /** @type {THREE.BufferAttribute} */
-       //@ts-ignore
-       let axisAttribute = this.axesHelper.geometry.getAttribute('position');
-       axisAttribute.set(axisLines);
+       this.axes[2].setVisible(false);
+       this.axes[0].dashes.forEach(function (dash) {
+           dash.rotateX(1.5708);
+       });
 
-       this.remove(...this.numbersZAxis);
-       this.dashesX.forEach(function (line) {
-           line.rotateX(1.5708);
-       })
+       this.mirroredAxes[0].dashes.forEach(function (dash) {
+           dash.rotateX(1.5708);
+       });
+       this.mirroredAxes[0].setVisible(true);
+       this.mirroredAxes[1].setVisible(true);
+       this.is2D = true;
    }
 
     /**
@@ -105,23 +101,30 @@ export default class AxesPainter extends THREE.Group {
      * Removes previous objects and paints them from scratch
      */
     repaint() {
-        this.remove(this.axesHelper);
-        this.axesHelper = new THREE.AxesHelper(this.size);
-        this.add(this.axesHelper);
 
-        this.remove(...this.numberSprites2D);
-        this.numberSprites2D = [];
-        this.remove(...this.numbersZAxis);
-        this.numbersZAxis = [];
+        for(let i = 0; i < 3; i++) {
+            let axis = this.axes[i];
+            let mirror = this.mirroredAxes[i];
 
-        this.remove(...this.lines);
-        this.lines.length = 0;
-        this.dashesX.length = 0;
+            this.remove(axis.line, mirror.line);
+            this.remove(...axis.dashes, ...mirror.dashes);
+            axis.dashes.length = 0;
+            mirror.dashes.length = 0;
+            this.remove(...axis.sprites, ...mirror.sprites);
+            axis.sprites.length = 0;
+            mirror.sprites.length = 0;
+        }
+
         this._paint();
 
-        this.add(...this.lines);
-        this.add(...this.numberSprites2D);
-        this.add(...this.numbersZAxis);
+        for(let i = 0; i < 3; i++) {
+            let axis = this.axes[i];
+            let mirror = this.mirroredAxes[i];
+
+            this.add(axis.line, mirror.line);
+            this.add(...axis.dashes, ...mirror.dashes);
+            this.add(...axis.sprites, ...mirror.sprites);
+        }
     }
 
     /**
@@ -129,6 +132,27 @@ export default class AxesPainter extends THREE.Group {
      * @private
      */
     _paint() {
+        let geometryX = new THREE.Geometry();
+        let geometryZ = new THREE.Geometry();
+        let geometryY = new THREE.Geometry();
+
+        geometryX.vertices.push(new THREE.Vector3(0,0,0));
+        geometryX.vertices.push(new THREE.Vector3(this.size));
+
+        geometryY.vertices.push(new THREE.Vector3(0,0,0));
+        geometryY.vertices.push(new THREE.Vector3(0,this.size,0));
+
+        geometryZ.vertices.push(new THREE.Vector3(0,0,0));
+        geometryZ.vertices.push(new THREE.Vector3(0,0,this.size));
+
+        this.axes[0].line = new THREE.Line(geometryX,MATERIAL_X);
+        this.axes[1].line = new THREE.Line(geometryY,MATERIAL_Y);
+        this.axes[2].line = new THREE.Line(geometryZ,MATERIAL_Z);
+
+        this.mirroredAxes[0].line = this.axes[0].line.clone().translateX(-this.size);
+        this.mirroredAxes[1].line = this.axes[1].line.clone().translateY(-this.size);
+        this.mirroredAxes[2].line = this.axes[2].line.clone().translateZ(-this.size);
+
         for(let i = 1; i <= DASH_COUNT; i++) {
             let nextDistance = this.dashSeparation * i;
             let dashLength = this.dashSeparation * DASH_LENGTH_RATIO;
@@ -137,19 +161,60 @@ export default class AxesPainter extends THREE.Group {
             let startPointY = AxesPainter._createPoint(dashLength,nextDistance,0);
             let startPointZ = AxesPainter._createPoint(dashLength,0,nextDistance);
 
-            this.lines.push(AxesPainter._createAxisDash(startPointX, Axis.X));
-            this.dashesX.push(this.lines[this.lines.length - 1]);
-            this.lines.push(AxesPainter._createAxisDash(startPointY, Axis.Y));
-            this.lines.push(AxesPainter._createAxisDash(startPointZ, Axis.Z));
+            this.axes[0].dashes.push(AxesPainter._createAxisDash(startPointX, Axis.X));
+            this.axes[1].dashes.push(AxesPainter._createAxisDash(startPointY, Axis.Y));
+            this.axes[2].dashes.push(AxesPainter._createAxisDash(startPointZ, Axis.Z));
+
+            let mirrorPointX = Object.assign({},startPointX);
+            mirrorPointX.x = -mirrorPointX.x;
+            let mirrorPointY = Object.assign({},startPointY);
+            mirrorPointY.y = -mirrorPointY.y;
+            let mirrorPointZ = Object.assign({},startPointZ);
+            mirrorPointZ.z = -mirrorPointZ.z;
+
+            this.mirroredAxes[0].dashes.push(AxesPainter._createAxisDash(mirrorPointX, Axis.X));
+            this.mirroredAxes[1].dashes.push(AxesPainter._createAxisDash(mirrorPointY, Axis.Y));
+            this.mirroredAxes[2].dashes.push(AxesPainter._createAxisDash(mirrorPointZ, Axis.Z));
 
             let text = Math.round(startPointX.x * 10) / 10; 
-            this.numberSprites2D.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointX, Axis.X, this.size));
+            this.axes[0].sprites.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointX, Axis.X, this.size));
+            this.mirroredAxes[0].sprites.push(AxesPainter._makeTextSprite((-text).toString(), 30, mirrorPointX, Axis.X, this.size));
 
             text = Math.round(startPointY.y * 10) / 10;
-            this.numberSprites2D.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointY, Axis.Y, this.size));
+            this.axes[1].sprites.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointY, Axis.Y, this.size));
+            this.mirroredAxes[1].sprites.push(AxesPainter._makeTextSprite((-text).toString(), 30, mirrorPointY, Axis.Y, this.size));
 
             text = Math.round(startPointZ.z * 10) / 10;
-            this.numbersZAxis.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointZ, Axis.Z, this.size));
+            this.axes[2].sprites.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointZ, Axis.Z, this.size));
+            this.mirroredAxes[2].sprites.push(AxesPainter._makeTextSprite((-text).toString(), 30, mirrorPointZ, Axis.Z, this.size));
+        }
+
+        this.mirroredAxes[0].setVisible(false);
+        this.mirroredAxes[1].setVisible(false);
+        this.mirroredAxes[2].setVisible(false);
+    }
+
+    /**
+     * Returns container object for axis elements
+     * @returns {AxisObject}
+     * @private
+     */
+    static _createAxis() {
+        return {
+            line : null,
+            dashes : [],
+            sprites: [],
+
+            setVisible: function(visible) {
+                this.line.visible = visible;
+                this.dashes.forEach(function (dash) {
+                    dash.visible = visible;
+                });
+                this.sprites.forEach(function (sprite) {
+                    sprite.visible = visible;
+                });
+            }
+
         }
     }
 
@@ -177,7 +242,7 @@ export default class AxesPainter extends THREE.Group {
      * @private
      */
     static _createAxisDash(startingPoint, alignment) {
-        // rewrite this to BufferGeometry if needed later
+        // TODO: rewrite this to BufferGeometry if needed later
         let geometry = new THREE.Geometry();
         let material;
 
@@ -246,7 +311,7 @@ export default class AxesPainter extends THREE.Group {
                 break;
 
             case Axis.Y:
-                sprite.position.set(0.07, position.y-0.025, 0);
+                sprite.position.set(0.07, position.y, 0);
                 break;
 
             case Axis.Z:
@@ -258,20 +323,31 @@ export default class AxesPainter extends THREE.Group {
         }
         return sprite;   
     }
+
+    /**
+     * 
+     * @param {THREE.Vector3} args Camera position
+     */
     onMouseScroll(args){
-        console.log("called onMouseScroll top");
+        
         let vec = new THREE.Vector3(0,0,0);
-        for(let i=0; i<this.numberSprites2D.length; i++){
-            let aspectRatio = this.numberSprites2D[i].scale.x / this.numberSprites2D[i].scale.y;
-            let scale = 0.02 * vec.distanceTo( args );
-            this.numberSprites2D[i].scale.x = scale * aspectRatio;
-            this.numberSprites2D[i].scale.y = scale;
-        }
-        for(let i=0; i<this.numbersZAxis.length; i++){
-            let aspectRatio = this.numbersZAxis[i].scale.x / this.numbersZAxis[i].scale.y;
-            let scale = 0.02 * vec.distanceTo( args );
-            this.numbersZAxis[i].scale.x = scale * aspectRatio;
-            this.numbersZAxis[i].scale.y = scale;
+        let vec2D = new THREE.Vector3(0, 0, args.z);
+        let scaleControl = this.is2D ? 0.07 : 0.02;
+
+        for(let i=0; i<this.axes.length; i++){
+            for(let j=0; j<this.axes[i].sprites.length; j++){
+                let aspectRatio = this.axes[i].sprites[j].scale.x / this.axes[i].sprites[j].scale.y;
+                let scale = scaleControl * vec.distanceTo( this.is2D ? vec2D : args );
+                this.axes[i].sprites[j].scale.x = scale * aspectRatio;
+                this.axes[i].sprites[j].scale.y = scale;
+
+                if(this.is2D){
+                    aspectRatio = this.mirroredAxes[i].sprites[j].scale.x / this.mirroredAxes[i].sprites[j].scale.y;                   
+                    this.mirroredAxes[i].sprites[j].scale.x = scale * aspectRatio;
+                    this.mirroredAxes[i].sprites[j].scale.y = scale;
+                }
+            }
+            
         }
     }
 }
