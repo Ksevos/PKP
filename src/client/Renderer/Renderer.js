@@ -26,6 +26,7 @@ class Renderer{
         this.renderer = this.rendererConfigurator.getRenderer();
         this.camera = this.rendererConfigurator.getCamera();
         this.oldCameraDistance = 0;
+        this.oldCameraZoom = 1;
 
         this.controls = new Controls(this.camera, this.renderer.domElement);
 
@@ -60,9 +61,15 @@ class Renderer{
         if(this.dataHandler && this.pointCloud)
             this.pointSelector.onRender( this.dataHandler, this.pointCloud, this.camera);
 
-        if(this.camera.position.distanceTo(new Vector3(0,0,0)) != this.oldCameraDistance){
-            this.oldCameraDistance = this.camera.position.distanceTo(new Vector3(0,0,0))
+        if(this.camera.position.distanceTo(new Vector3(0,0,0)) != this.oldCameraDistance && 
+            this.camera.constructor.name == "PerspectiveCamera"){
+            this.oldCameraDistance = this.camera.position.distanceTo(new Vector3(0,0,0));
             this.sceneConfigurator.onMouseScroll(this.camera.position);
+        }
+        else if(this.camera.zoom != this.oldCameraZoom && 
+            this.camera.constructor.name == "OrthographicCamera"){
+            this.oldCameraZoom = this.camera.zoom;
+            this.sceneConfigurator.onMouseScroll(this.camera.zoom);
         }
         this.renderer.render(this.scene, this.camera);
     }
@@ -104,6 +111,10 @@ class Renderer{
         }
         this.updateCamera();
         this.centerCameraToData(this.dataHandler);
+        if(status)
+            this.sceneConfigurator.onMouseScroll(this.camera.zoom);
+        else
+            this.sceneConfigurator.onMouseScroll(this.camera.position);
     }
 
     /**

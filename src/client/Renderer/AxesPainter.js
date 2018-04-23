@@ -326,18 +326,18 @@ export default class AxesPainter extends THREE.Group {
 
     /**
      * 
-     * @param {THREE.Vector3} args Camera position
+     * @param {THREE.Vector3 | number} args Camera position
      */
     onMouseScroll(args){
         
         let vec = new THREE.Vector3(0,0,0);
-        let vec2D = new THREE.Vector3(0, 0, args.z);
-        let scaleControl = this.is2D ? 0.07 : 0.02;
+        let scaleControl = this.is2D ? 0.03 : 0.02;
 
         for(let i=0; i<this.axes.length; i++){
             for(let j=0; j<this.axes[i].sprites.length; j++){
                 let aspectRatio = this.axes[i].sprites[j].scale.x / this.axes[i].sprites[j].scale.y;
-                let scale = scaleControl * vec.distanceTo( this.is2D ? vec2D : args );
+                let scale =  scaleControl * (this.is2D ? 1/args : vec.distanceTo( args ));
+                
                 this.axes[i].sprites[j].scale.x = scale * aspectRatio;
                 this.axes[i].sprites[j].scale.y = scale;
 
