@@ -5,3 +5,9 @@
     width: 64px;
     margin-left: 100px;
 }
+.PointSelectionButton:focus {
+    outline:0;
+}
+.PointSelectionButton:hover {
+    outline:0;
+}
