@@ -328,7 +328,7 @@ export default class AxesPainter extends THREE.Group {
      * 
      * @param {THREE.Vector3 | number} args Camera position
      */
-    onMouseScroll(args){
+    onTextScaleShouldUpdate(args){
         
         let vec = new THREE.Vector3(0,0,0);
         let scaleControl = this.is2D ? 0.03 : 0.02;
@@ -336,6 +336,7 @@ export default class AxesPainter extends THREE.Group {
         for(let i=0; i<this.axes.length; i++){
             for(let j=0; j<this.axes[i].sprites.length; j++){
                 let aspectRatio = this.axes[i].sprites[j].scale.x / this.axes[i].sprites[j].scale.y;
+                //@ts-ignore
                 let scale =  scaleControl * (this.is2D ? 1/args : vec.distanceTo( args ));
                 
                 this.axes[i].sprites[j].scale.x = scale * aspectRatio;

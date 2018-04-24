@@ -64,12 +64,15 @@ class Renderer{
         if(this.camera.position.distanceTo(new Vector3(0,0,0)) != this.oldCameraDistance && 
             this.camera.constructor.name == "PerspectiveCamera"){
             this.oldCameraDistance = this.camera.position.distanceTo(new Vector3(0,0,0));
-            this.sceneConfigurator.onMouseScroll(this.camera.position);
+            this.sceneConfigurator.onTextScaleShouldUpdate(this.camera.position);
         }
+        //@ts-ignore
         else if(this.camera.zoom != this.oldCameraZoom && 
             this.camera.constructor.name == "OrthographicCamera"){
+            //@ts-ignore
             this.oldCameraZoom = this.camera.zoom;
-            this.sceneConfigurator.onMouseScroll(this.camera.zoom);
+            //@ts-ignore
+            this.sceneConfigurator.onTextScaleShouldUpdate(this.camera.zoom);
         }
         this.renderer.render(this.scene, this.camera);
     }
@@ -112,9 +115,10 @@ class Renderer{
         this.updateCamera();
         this.centerCameraToData(this.dataHandler);
         if(status)
-            this.sceneConfigurator.onMouseScroll(this.camera.zoom);
+            //@ts-ignore
+            this.sceneConfigurator.onTextScaleShouldUpdate(this.camera.zoom);
         else
-            this.sceneConfigurator.onMouseScroll(this.camera.position);
+            this.sceneConfigurator.onTextScaleShouldUpdate(this.camera.position);
     }
 
     /**

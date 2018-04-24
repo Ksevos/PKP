@@ -121,8 +121,8 @@ class SceneConfigurator{
         return this.sceneCreated;
     }
 
-    onMouseScroll(args){
-        this.axesPainter.onMouseScroll(args);
+    onTextScaleUpdate(args){
+        this.axesPainter.onTextScaleUpdate(args);
     }
 }
 
