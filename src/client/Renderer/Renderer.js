@@ -113,12 +113,14 @@ class Renderer{
             this.controls.turnOn3D();
         }
         this.updateCamera();
-        this.centerCameraToData(this.dataHandler);
-        if(status)
+        if(status){
             //@ts-ignore
+            this.center2DCameraToData(this.dataHandler);
             this.sceneConfigurator.onTextScaleShouldUpdate(this.camera.zoom);
-        else
+        }else{
+            this.center2DCameraToData(this.dataHandler);
             this.sceneConfigurator.onTextScaleShouldUpdate(this.camera.position);
+        }
     }
 
     /**
@@ -138,17 +140,17 @@ class Renderer{
                 sender.getCurrentAxes().z);
         
         if(newDataDownloaded)
-            this.centerCameraToData(sender);
+            this.center3DCameraToData(sender);
 
         let absMax = this.dataHandler.getAbsMax();
         this.sceneConfigurator.axesPainter.scaleTo(absMax);
     }
 
-    /**
-     * Update camera and controls position
+     /**
+     * Update 3D camera and controls position
      * @param {DataHandler} dataHandler
      */
-    centerCameraToData(dataHandler) {
+    center3DCameraToData(dataHandler) {
         let coordinates = dataHandler.getCenterCoordinates();
         let x = dataHandler.getMaxValue(0) - coordinates.x;
         let y = (dataHandler.getMaxValue(1) * 2) - (coordinates.y * 2);
@@ -156,6 +158,28 @@ class Renderer{
 
         this.camera.position.set(coordinates.x, coordinates.y, Math.max(x, y, z));
 
+        this.controls.changePivotPoint(coordinates);
+    }
+
+    /**
+     * Update 2D camera and controls position
+     * @param {DataHandler} dataHandler
+     */
+    center2DCameraToData(dataHandler) {
+        let coordinates = this.dataHandler.getCenterCoordinates();
+       
+        let dataCenterToAxisCenterX = coordinates.x > 2.5 ? coordinates.x + 2.5 : 1; 
+        let dataCenterToAxisCenterY = coordinates.y > 2 ? coordinates.y + 2 : 1; 
+
+        let centerToMaxValueX = Math.abs(dataHandler.getMaxValue(0) - coordinates.x);
+        let centerToMaxValueY = Math.abs(dataHandler.getMaxValue(1) - coordinates.y);
+        
+        let maxZoomValueX = centerToMaxValueX > 2.5 && centerToMaxValueX > coordinates.x-2.5? centerToMaxValueX + 2.5: 1; 
+        let maxZoomValueY = centerToMaxValueY > 2 && centerToMaxValueY > coordinates.y-2 ? centerToMaxValueY + 2 : 1; 
+        
+        coordinates.z = 0;
+        this.camera.position.set(coordinates.x, coordinates.y, 1);
+        this.controls.controls.dollyOut(Math.max(dataCenterToAxisCenterX,dataCenterToAxisCenterY,maxZoomValueX,maxZoomValueY));
         this.controls.changePivotPoint(coordinates);
     }
 

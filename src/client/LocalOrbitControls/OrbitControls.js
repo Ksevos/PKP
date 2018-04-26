@@ -398,6 +398,7 @@ export default class OrbitControls extends EventDispatcher {
 
     }();
 
+    this.dollyIn = dollyIn;
     function dollyIn(dollyScale) {
 
       if (Object.getPrototypeOf(scope.object).isPerspectiveCamera) {
@@ -419,6 +420,7 @@ export default class OrbitControls extends EventDispatcher {
 
     }
 
+    this.dollyOut = dollyOut;
     function dollyOut(dollyScale) {
 
       if (Object.getPrototypeOf(scope.object).isPerspectiveCamera) {
