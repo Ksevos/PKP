@@ -18,10 +18,12 @@ const MATERIAL_Z = new THREE.LineBasicMaterial( {color: AxisColor.Z_AXIS} );
  * @property {function(boolean)} setVisible 
  */
 
+/**
+ * Used to draw x,y and z axis
+ */
 export default class AxesPainter extends THREE.Group {
 
     /**
-     * Paints AxesHelper and dashes on top of it, meant to be scaled with GridHelper
      * @param {number} size Grid size
      */
     constructor(size) {
@@ -31,8 +33,14 @@ export default class AxesPainter extends THREE.Group {
         this.division = size || 10;
         this.dashSeparation = (this.size / this.division) / DASH_COUNT;
 
+        /** @type {THREE.Vector3 | number} args Camera position needed to scale numbers */
+        this.cameraPosition = null;
+
+        /** @type {AxisObject[]} */
         this.axes = [];
+        /** @type {AxisObject[]} */
         this.mirroredAxes = [];
+
         for(let i = 0; i < 3; i ++) {
             this.axes.push(AxesPainter._createAxis());
             this.mirroredAxes.push(AxesPainter._createAxis());
@@ -42,29 +50,29 @@ export default class AxesPainter extends THREE.Group {
     }
 
     /**
-     * Change axis on 3D
+     * Change axes on 3D
      */
-   setAxisLine3D(){
-       this.axes[2].setVisible(true);
-       this.axes[0].dashes.forEach(function (dash) {
+    setAxisLine3D(){
+        this.axes[2].setVisible(true);
+        this.axes[0].dashes.forEach(function (dash) {
             dash.rotateX(0);
         });
 
-       this.mirroredAxes[0].dashes.forEach(function (dash) {
-           dash.rotateX(0);
-       });
-       this.mirroredAxes[0].setVisible(false);
-       this.mirroredAxes[1].setVisible(false);
-       this.is2D = false;
+        this.mirroredAxes[0].dashes.forEach(function (dash) {
+            dash.rotateX(0);
+        });
+        this.mirroredAxes[0].setVisible(false);
+        this.mirroredAxes[1].setVisible(false);
+        this.is2D = false;
     }
 
    /**
-    * Extend axis on 2D
+    * Extend axes on 2D
     */
    setAxisLine2D(){
        this.axes[2].setVisible(false);
        this.axes[0].dashes.forEach(function (dash) {
-           dash.rotateX(1.5708);
+            dash.rotateX(1.5708);
        });
 
        this.mirroredAxes[0].dashes.forEach(function (dash) {
@@ -76,7 +84,7 @@ export default class AxesPainter extends THREE.Group {
    }
 
     /**
-     * Scales axes to new grid size
+     * Scales axes to new size
      * @param {number} size
      */
     scaleTo(size) {
@@ -86,14 +94,7 @@ export default class AxesPainter extends THREE.Group {
         this.dashSeparation = size / DASH_COUNT;
         this.size = size;
         this.division = this.size;
-/*
-        for(let i=0; i<this.numberSprites2D.length; i++)
-        {
-            let scale = size;
-            this.numberSprites2D[i].scale.x = scale;
-            this.numberSprites2D[i].scale.y = scale;
-        }
-*/
+
         this.repaint();
     }
 
@@ -128,7 +129,7 @@ export default class AxesPainter extends THREE.Group {
     }
 
     /**
-     * Paints axis dashes scaled with grid size and division
+     * Constructs all axis objects
      * @private
      */
     _paint() {
@@ -149,8 +150,11 @@ export default class AxesPainter extends THREE.Group {
         this.axes[1].line = new THREE.Line(geometryY,MATERIAL_Y);
         this.axes[2].line = new THREE.Line(geometryZ,MATERIAL_Z);
 
+        //@ts-ignore
         this.mirroredAxes[0].line = this.axes[0].line.clone().translateX(-this.size);
+        //@ts-ignore
         this.mirroredAxes[1].line = this.axes[1].line.clone().translateY(-this.size);
+        //@ts-ignore
         this.mirroredAxes[2].line = this.axes[2].line.clone().translateZ(-this.size);
 
         for(let i = 1; i <= DASH_COUNT; i++) {
@@ -192,6 +196,9 @@ export default class AxesPainter extends THREE.Group {
         this.mirroredAxes[0].setVisible(false);
         this.mirroredAxes[1].setVisible(false);
         this.mirroredAxes[2].setVisible(false);
+
+        if(this.cameraPosition)
+            this.onTextScaleShouldUpdate(this.cameraPosition);
     }
 
     /**
@@ -223,7 +230,7 @@ export default class AxesPainter extends THREE.Group {
      * @param {number} x Defaults to 0
      * @param {number} y Defaults to 0
      * @param {number} z Defaults to 0
-     * @returns {{x: *, y: *, z: *}}
+     * @returns {{x: number, y: number, z: number}}
      * @private
      */
     static _createPoint(x,y,z) {
@@ -307,15 +314,15 @@ export default class AxesPainter extends THREE.Group {
 
         switch (alignment) {
             case Axis.X:
-                sprite.position.set(position.x, 0.01, 0);
+                sprite.position.set(position.x, 0.3 * (scale/10), 0);
                 break;
 
             case Axis.Y:
-                sprite.position.set(0.07, position.y, 0);
+                sprite.position.set(0.3* (scale/10), position.y+0.05* (scale/10), 0);
                 break;
 
             case Axis.Z:
-                sprite.position.set(0, 0.01, position.z);
+                sprite.position.set(0, 0.3* (scale/10), position.z);
                 break;
 
             default:
@@ -325,11 +332,11 @@ export default class AxesPainter extends THREE.Group {
     }
 
     /**
-     * 
-     * @param {THREE.Vector3 | number} args Camera position
+     * Scale numbers to camera
+     * @param {THREE.Vector3 | number} args Camera position or zoom
      */
     onTextScaleShouldUpdate(args){
-        
+        this.cameraPosition = args;
         let vec = new THREE.Vector3(0,0,0);
         let scaleControl = this.is2D ? 0.03 : 0.02;
 

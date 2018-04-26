@@ -29,7 +29,7 @@ class PointSelector {
     }
 
     /**
-     * 
+     * On render frame raycast to points and calculate intersections
      * @param {DataHandler} dataHandler 
      * @param {THREE.Points[]} pointCloud 
      * @param {THREE.Camera} camera 
@@ -57,9 +57,11 @@ class PointSelector {
     }
 
     /**
+     * Get point index in data array
      * @param {DataHandler} dataHandler 
      * @param {THREE.Vector3} position 
      * @returns {number}
+     * @private
      */
     _getDataIndexFromPosition(dataHandler, position){
         let values = dataHandler.getData().values;
@@ -91,6 +93,11 @@ class PointSelector {
         return bestMatch.index;
     }
 
+    /**
+     * Callback to mousemove event
+     * @param {MouseEvent} event 
+     * @private
+     */
     _onMouseMove( event ) {
         event.preventDefault();
         if(this.enabled){
@@ -102,13 +109,24 @@ class PointSelector {
         }
     }
 
+    /**
+     * Subscribe to hovered on point event
+     * @param {function(HoveredOnPointEventArgs)} listener 
+     */
     subscribeToHoveredOnPointEvent(listener){
         this.hoveredOnPointEvent.subscribe(listener);
     }
 
+    /**
+     * Enable point selection
+     */
     enable(){
         this.enabled = true;
     }
+
+    /**
+     * Disable point selection
+     */
     disable(){
         this.enabled = false;
     }

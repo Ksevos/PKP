@@ -29,13 +29,19 @@ const AxisColor = Object.freeze(
     Z_AXIS: '#0000ff'
 });
 
+/**
+ * Enum of default colors for React components
+ */
 const Theme = Object.freeze(
 {
     /** #429ef4 */
-    BUTTON_TOGGLED: '#429ef4',
+    BUTTON_TOGGLED_BACKGROUND: '#429ef4',
     /** #ffffff */
-    BUTTON_DEFAULT: "#ffffff"
+    BUTTON_DEFAULT_BACKGROUND: "#ffffff",
+    /** #4d7886 */
+    BUTTON_TOGGLED_BORDER: 'rgba(77, 120, 134, 0.781)',
+    /** #a1c7d4 */
+    BUTTON_DEFAULT_BORDER: 'rgba(161, 199, 212, 0.781)'
 });
 
-//export default {DimensionType, Axis, AxisColor};
-module.exports = {DimensionType, Axis, AxisColor, Theme};
+module.exports = { DimensionType, Axis, AxisColor, Theme };

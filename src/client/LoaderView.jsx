@@ -1,10 +1,13 @@
 //@ts-check
 
-import React, {Component} from 'react';
+import React, {Component, FormEvent} from 'react';
 import './LoaderView.css';
 import Axios from 'axios';
 import SocketIOClient from 'socket.io-client';
 
+/**
+ * Page used to upload data
+ */
 class LoaderView extends Component {
     constructor(props) {
         super(props);
@@ -23,6 +26,10 @@ class LoaderView extends Component {
         });
     }
 
+    /**
+     * Callback to upload button
+     * @param {FormEvent} e 
+     */
     onFormSubmit(e) {
         e.preventDefault(); // Stop from submit
 
@@ -39,6 +46,10 @@ class LoaderView extends Component {
             this.setState({errorMessage: 'No file selected'});
         }
     }
+
+    /**
+     * Close error message
+     */
     closeAlert() {
         this.setState({errorMessage: null});
     }

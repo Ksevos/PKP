@@ -11,6 +11,9 @@ import DataFormatter from './DataFormatter';
 import AxesPainter from "./AxesPainter";
 import * as Rx from "rxjs/Subject";
 
+/**
+ * A class for dealing with scene objects
+ */
 class SceneConfigurator{
     /**
      * Creates scene, adds axes
@@ -114,13 +117,16 @@ class SceneConfigurator{
     }
 
     /**
-     *
      * @returns {Rx.Subject<any>}
      */
     getSceneCreated() {
         return this.sceneCreated;
     }
 
+    /**
+     * Update axis number scaling
+     * @param {THREE.Vector3 | number} args camera position or zoom
+     */
     onTextScaleShouldUpdate(args){
         this.axesPainter.onTextScaleShouldUpdate(args);
     }

@@ -42,21 +42,31 @@ class Renderer{
 
     }
 
+    /** Begin render loop */
     start() {
         if (!this.frameId) {
             this.frameId = requestAnimationFrame(this._animate);
         }
     }
 
+    /** Stop render loop */
     stop() {
         cancelAnimationFrame(this.frameId);
     }
 
+    /** 
+     * Outer render loop 
+     * @private 
+     */
     _animate() {
         this._renderScene();
         this.frameId = window.requestAnimationFrame(this._animate);
     }
 
+    /**
+     * Inner render loop
+     * @private
+     */
     _renderScene() {
         if(this.dataHandler && this.pointCloud)
             this.pointSelector.onRender( this.dataHandler, this.pointCloud, this.camera);
@@ -77,6 +87,10 @@ class Renderer{
         this.renderer.render(this.scene, this.camera);
     }
 
+    /** 
+     * Update camera type 
+     * 
+     */
     updateCamera(){
         this.camera = this.rendererConfigurator.getCamera();
         this.controls.setCamera(this.camera);
@@ -146,7 +160,7 @@ class Renderer{
         this.sceneConfigurator.axesPainter.scaleTo(absMax);
     }
 
-     /**
+    /**
      * Update 3D camera and controls position
      * @param {DataHandler} dataHandler
      */
@@ -183,17 +197,30 @@ class Renderer{
         this.controls.changePivotPoint(coordinates);
     }
 
+    /**
+     * @returns {SceneConfigurator}
+     */
     getSceneConfigurator() {
         return this.sceneConfigurator;
     }
 
+    /**
+     * @param {function(*)} listener 
+     */
     subscribeToHoveredOnPointEvent(listener){
         this.pointSelector.subscribeToHoveredOnPointEvent(listener);
     }
 
+    /**
+     * Enable point selection
+     */
     enablePointSelection(){
         this.pointSelector.enable();
     }
+
+    /**
+     * Disable point selection
+     */
     disablePointSelection(){
         this.pointSelector.disable();
     }

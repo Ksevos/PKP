@@ -17,7 +17,11 @@ import DataInfoBox from './ReactComponents/DataInfoBox';
 
 //CSS
 import './Visualization.css';
+import DimensionToggleButton from "./ReactComponents/DimensionToggleButton";
 
+/**
+ * Page used to visualize and interact with uploaded data
+ */
 class Visualization extends Component {
     constructor(props) {
         super(props);
@@ -57,7 +61,7 @@ class Visualization extends Component {
 
         //ControlsGUI
         this.toolbar = new Toolbar(this.threeRenderer, this.dataHandler);
-        this.toolbar.subscribeToToggle2DEvent(this.threeRenderer.on2DToggled.bind(this.threeRenderer));
+       // this.toolbar.subscribeToToggle2DEvent(this.threeRenderer.on2DToggled.bind(this.threeRenderer));
 
         this.componentMounted = true;
     }
@@ -72,6 +76,12 @@ class Visualization extends Component {
         }
     }
 
+    /**
+     * Callback to DataChanged event
+     * @param {*} sender 
+     * @param {*} args 
+     * @private
+     */
     _onDataChange(sender, args){
         this.setState(prevState => { 
             return {
@@ -91,9 +101,10 @@ class Visualization extends Component {
     }
 
     /**
-     * 
+     * Callback to ShowPointData event
      * @param {*} sender 
      * @param {HoveredOnPointEventArgs} args 
+     * @private
      */
     _onShowPointData(sender, args){
         if(args.getToShow()){
@@ -112,11 +123,27 @@ class Visualization extends Component {
             this.setState({ PointSelectionInfoBox: { show: false } });
     }
 
+    /**
+     * Callback to when PointSelectButton gets clicked
+     * @param {boolean} enable 
+     * @private
+     */
     _onPointSelectButtonClicked(enable){
         if(enable)
             this.threeRenderer.enablePointSelection();
         else
             this.threeRenderer.disablePointSelection();
+    }
+
+    /**
+     * Callback to when 2D/3D change button is clicked
+     * @param {boolean} enable2D 
+     */
+    _onDimensionToggleButtonClicked(enable2D){
+        this.toolbar.onToggle2D(enable2D);
+        this.threeRenderer.on2DToggled(this.dataHandler, enable2D);
+        
+
     }
 
     render() {
@@ -128,6 +155,7 @@ class Visualization extends Component {
                 <div className = "VisualizationButtons">
                     <Link to={"/"}><span className="close-back thick"></span></Link>
                     <PointSelectionButton onClick = {this._onPointSelectButtonClicked.bind(this)}/>
+                    <DimensionToggleButton onClick = {this._onDimensionToggleButtonClicked.bind(this)}/>
                 </div>
                 {this.state.dataInfoBox.show ? (
                     <DataInfoBox show = {this.state.dataInfoBox.show} 
