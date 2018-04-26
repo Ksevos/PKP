@@ -68,7 +68,11 @@ class Toolbar extends dat.GUI {
                     this.toggle2DEvent.notify(!this.isView3D);
                 });
             this.add(this.options, 'restore').name('Restore').onChange((value) => {
-                this.threeRenderer.centerCameraToData(this.dataHandlerInstance);
+                if (this.isView3D) {
+                    this.threeRenderer.center3DCameraToData(this.dataHandlerInstance);
+                }else{
+                    this.threeRenderer.center2DCameraToData(this.dataHandlerInstance);
+                }
             });
         });
 
