@@ -121,8 +121,8 @@ class SceneConfigurator{
         return this.sceneCreated;
     }
 
-    onTextScaleUpdate(args){
-        this.axesPainter.onTextScaleUpdate(args);
+    onTextScaleShouldUpdate(args){
+        this.axesPainter.onTextScaleShouldUpdate(args);
     }
 }
 
