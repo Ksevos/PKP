@@ -3,6 +3,9 @@ import React, {Component} from 'react';
 
 import './Tooltip.css';
 
+/**
+ * A box which shows description and title of an item
+ */
 class Tooltip extends Component{
     constructor(props){
         super(props);
@@ -15,7 +18,7 @@ class Tooltip extends Component{
                     left: this.props.position.x + 'px',
                     bottom: this.props.position.y + 'px'
                 }}>
-                <p>{this.props.title}</p>
+                <h2>{this.props.title}</h2>
                 <p>{this.props.description}</p>
             </div>
         );

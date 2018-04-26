@@ -7,6 +7,9 @@ import axios from 'axios';
 import ChangeEvent from "./Events/Event";
 import * as Rx from "rxjs";
 
+/**
+ * Used to download, store and modify data
+ */
 class DataHandler {
     constructor() {
         /** @type {DataObject} */
@@ -25,6 +28,7 @@ class DataHandler {
     /**
      * Checks if values are in array and are not empty
      * @param {DataObject} data 
+     * @private
      */
     _isDataValid(data) {
         return Array.isArray(data.values) && data.values.length;
@@ -56,6 +60,7 @@ class DataHandler {
     /**
      * Gets axes set by default
      * @returns {{x:string,y:string,z:string}}
+     * @private
      */
     _getDefaultAxes(){
         if(!this.axes)
@@ -70,6 +75,7 @@ class DataHandler {
     /**
      * Queries for uploaded data and returns response from the server
      * @returns {Promise<DataObject>}
+     * @private
      */
     _queryForData(){
         return axios.get("http://localhost:4000/storage/current")
@@ -259,6 +265,7 @@ class DataHandler {
      * OR
      * 0, 1, 2, 
      * @returns {string}
+     * @private
      */
     _getAxisName(axis){
         if(axis === 'x' || axis === 0)

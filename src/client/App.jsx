@@ -6,6 +6,9 @@ import LoaderView from './LoaderView';
 import {Switch, Route} from 'react-router-dom'
 import Stats from "stats.js";
 
+/**
+ * Program entry point
+ */
 class App extends Component {
     constructor(props) {
         super(props);
@@ -16,6 +19,9 @@ class App extends Component {
         this.createStatsPanel();
     }
 
+    /**
+     * Create FPS counter
+     */
     createStatsPanel() {
         const statsPanel = new Stats();
         statsPanel.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom

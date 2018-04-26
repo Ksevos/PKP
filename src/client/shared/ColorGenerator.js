@@ -1,3 +1,6 @@
+/**
+ * Used to generate color for data class
+ */
 class ColorGenerator {
     defaultColors = ["#FF0000", "#00FFFF", "#FF00FF"];
     generatedColors = new Map();
@@ -14,7 +17,7 @@ class ColorGenerator {
     }
 
     /**
-     * @param dataClass: string
+     * @param {string} dataClass
      * @returns {string}
      */
     getColor(dataClass) {
@@ -31,6 +34,11 @@ class ColorGenerator {
         return color;
     }
 
+    /**
+     * 
+     * @param {*} dataClass 
+     * @param {*} color 
+     */
     changeGeneratedColor(dataClass, color) {
         this.generatedColors.set(dataClass, color);
     }
