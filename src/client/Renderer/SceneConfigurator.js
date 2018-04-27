@@ -120,6 +120,10 @@ class SceneConfigurator{
     getSceneCreated() {
         return this.sceneCreated;
     }
+
+    onTextScaleShouldUpdate(args){
+        this.axesPainter.onTextScaleShouldUpdate(args);
+    }
 }
 
 export default SceneConfigurator;

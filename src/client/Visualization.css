@@ -3,7 +3,8 @@
     height: 100vh;
 }
 .VisualizationButtons {
-    margin-top: 10px;
-    margin-left: 100px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
     display: inline-block;
 }

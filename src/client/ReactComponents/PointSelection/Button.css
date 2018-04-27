@@ -3,4 +3,11 @@
     border-radius: 5px;
     height: 64px;
     width: 64px;
+    margin-left: 100px;
+}
+.PointSelectionButton:focus {
+    outline:0;
+}
+.PointSelectionButton:hover {
+    outline:0;
 }

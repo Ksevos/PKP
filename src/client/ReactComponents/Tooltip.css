@@ -1,0 +1,9 @@
+.Tooltip {
+    background-color: lavender;
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    white-space: nowrap;
+    overflow: hidden;
+
+}

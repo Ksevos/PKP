@@ -10,18 +10,25 @@ const MATERIAL_X = new THREE.LineBasicMaterial( {color: AxisColor.X_AXIS} );
 const MATERIAL_Y = new THREE.LineBasicMaterial( {color: AxisColor.Y_AXIS} );
 const MATERIAL_Z = new THREE.LineBasicMaterial( {color: AxisColor.Z_AXIS} );
 
+/** 
+ * @typedef {Object} AxisObject 
+ * @property {THREE.Line} line Axis line
+ * @property {THREE.Line[]} dashes 
+ * @property {THREE.Sprite[]} sprites Number sprites
+ * @property {function(boolean)} setVisible 
+ */
+
 export default class AxesPainter extends THREE.Group {
 
     /**
      * Paints AxesHelper and dashes on top of it, meant to be scaled with GridHelper
      * @param {number} size Grid size
-     * @param {number} division Grid division
      */
-    constructor(size, division) {
+    constructor(size) {
         super();
-
-        this.size = size            || 10;
-        this.division = division    || 10;
+        this.is2D = false;
+        this.size = size || 10;
+        this.division = size || 10;
         this.dashSeparation = (this.size / this.division) / DASH_COUNT;
 
         this.axes = [];
@@ -48,6 +55,7 @@ export default class AxesPainter extends THREE.Group {
        });
        this.mirroredAxes[0].setVisible(false);
        this.mirroredAxes[1].setVisible(false);
+       this.is2D = false;
     }
 
    /**
@@ -64,6 +72,7 @@ export default class AxesPainter extends THREE.Group {
        });
        this.mirroredAxes[0].setVisible(true);
        this.mirroredAxes[1].setVisible(true);
+       this.is2D = true;
    }
 
     /**
@@ -77,7 +86,14 @@ export default class AxesPainter extends THREE.Group {
         this.dashSeparation = size / DASH_COUNT;
         this.size = size;
         this.division = this.size;
-
+/*
+        for(let i=0; i<this.numberSprites2D.length; i++)
+        {
+            let scale = size;
+            this.numberSprites2D[i].scale.x = scale;
+            this.numberSprites2D[i].scale.y = scale;
+        }
+*/
         this.repaint();
     }
 
@@ -161,16 +177,16 @@ export default class AxesPainter extends THREE.Group {
             this.mirroredAxes[2].dashes.push(AxesPainter._createAxisDash(mirrorPointZ, Axis.Z));
 
             let text = Math.round(startPointX.x * 10) / 10; 
-            this.axes[0].sprites.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointX, Axis.X));
-            this.mirroredAxes[0].sprites.push(AxesPainter._makeTextSprite((-text).toString(), 30, mirrorPointX, Axis.X));
+            this.axes[0].sprites.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointX, Axis.X, this.size));
+            this.mirroredAxes[0].sprites.push(AxesPainter._makeTextSprite((-text).toString(), 30, mirrorPointX, Axis.X, this.size));
 
             text = Math.round(startPointY.y * 10) / 10;
-            this.axes[1].sprites.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointY, Axis.Y));
-            this.mirroredAxes[1].sprites.push(AxesPainter._makeTextSprite((-text).toString(), 30, mirrorPointY, Axis.Y));
+            this.axes[1].sprites.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointY, Axis.Y, this.size));
+            this.mirroredAxes[1].sprites.push(AxesPainter._makeTextSprite((-text).toString(), 30, mirrorPointY, Axis.Y, this.size));
 
             text = Math.round(startPointZ.z * 10) / 10;
-            this.axes[2].sprites.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointZ, Axis.Z));
-            this.mirroredAxes[2].sprites.push(AxesPainter._makeTextSprite((-text).toString(), 30, mirrorPointZ, Axis.Z));
+            this.axes[2].sprites.push(AxesPainter._makeTextSprite(text.toString(), 30, startPointZ, Axis.Z, this.size));
+            this.mirroredAxes[2].sprites.push(AxesPainter._makeTextSprite((-text).toString(), 30, mirrorPointZ, Axis.Z, this.size));
         }
 
         this.mirroredAxes[0].setVisible(false);
@@ -180,7 +196,7 @@ export default class AxesPainter extends THREE.Group {
 
     /**
      * Returns container object for axis elements
-     * @returns {{line: null, dashes: Array, sprites: Array, setVisible: setVisible}}
+     * @returns {AxisObject}
      * @private
      */
     static _createAxis() {
@@ -198,6 +214,7 @@ export default class AxesPainter extends THREE.Group {
                     sprite.visible = visible;
                 });
             }
+
         }
     }
 
@@ -221,7 +238,7 @@ export default class AxesPainter extends THREE.Group {
      * Creates a new dash on axis point
      * @param {Object} startingPoint Point on the axis
      * @param {number} alignment Used to align dashes with Enum.Axis
-     * @returns {Line}
+     * @returns {THREE.Line}
      * @private
      */
     static _createAxisDash(startingPoint, alignment) {
@@ -264,29 +281,28 @@ export default class AxesPainter extends THREE.Group {
      * @returns {THREE.Sprite}
      * @private
      */
-    static  _makeTextSprite(text, fontsize, position, alignment) {
-        var ctx, texture, sprite, spriteMaterial, 
-            canvas = document.createElement('canvas');
-        ctx = canvas.getContext('2d');
-        ctx.font = fontsize + "px Arial";
-
+    static  _makeTextSprite(text, fontsize, position, alignment, scale) {
+        let canvas = document.createElement('canvas');
+        let ctx = canvas.getContext('2d');
+        ctx.font = fontsize + "px Arial";  
         // setting canvas width/height before ctx draw, else canvas is empty
         canvas.width = ctx.measureText(text).width;
-        canvas.height = fontsize * 2;
+        canvas.height = fontsize;
+
+        let aspectRatio = canvas.width/canvas.height;
 
         // after setting the canvas width/height we have to re-set font to apply
-        ctx.font = fontsize + "px Arial";        
+        ctx.font = fontsize + "px Arial"; 
         ctx.fillText(text, 0, fontsize);
 
-        texture = new THREE.Texture(canvas);
-        texture.needsUpdate = true;
+        let texture = new THREE.CanvasTexture(canvas);
 
-        spriteMaterial = new THREE.SpriteMaterial({map : texture});
-        sprite = new THREE.Sprite(spriteMaterial);
+        let spriteMaterial = new THREE.SpriteMaterial({map : texture});
+        let sprite = new THREE.Sprite(spriteMaterial);
         sprite.scale.set(
-            0.04 + text.length * 0.025,
-            0.15, 
-            0.15
+            scale * 0.05 * aspectRatio,
+            scale * 0.05, 
+            0
         );
 
         switch (alignment) {
@@ -295,7 +311,7 @@ export default class AxesPainter extends THREE.Group {
                 break;
 
             case Axis.Y:
-                sprite.position.set(0.07, position.y-0.025, 0);
+                sprite.position.set(0.07, position.y, 0);
                 break;
 
             case Axis.Z:
@@ -306,5 +322,33 @@ export default class AxesPainter extends THREE.Group {
                 throw new Error('Invalid text alignment!');
         }
         return sprite;   
+    }
+
+    /**
+     * 
+     * @param {THREE.Vector3 | number} args Camera position
+     */
+    onTextScaleShouldUpdate(args){
+        
+        let vec = new THREE.Vector3(0,0,0);
+        let scaleControl = this.is2D ? 0.03 : 0.02;
+
+        for(let i=0; i<this.axes.length; i++){
+            for(let j=0; j<this.axes[i].sprites.length; j++){
+                let aspectRatio = this.axes[i].sprites[j].scale.x / this.axes[i].sprites[j].scale.y;
+                //@ts-ignore
+                let scale =  scaleControl * (this.is2D ? 1/args : vec.distanceTo( args ));
+                
+                this.axes[i].sprites[j].scale.x = scale * aspectRatio;
+                this.axes[i].sprites[j].scale.y = scale;
+
+                if(this.is2D){
+                    aspectRatio = this.mirroredAxes[i].sprites[j].scale.x / this.mirroredAxes[i].sprites[j].scale.y;                   
+                    this.mirroredAxes[i].sprites[j].scale.x = scale * aspectRatio;
+                    this.mirroredAxes[i].sprites[j].scale.y = scale;
+                }
+            }
+            
+        }
     }
 }

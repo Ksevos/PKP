@@ -5,6 +5,12 @@ import Toggle2DEvent from '../Events/Event';
 import ColorGeneratorInstance from "../shared/ColorGenerator";
 import {AxisColor} from "../CustomObjects/Enum";
 
+const AxesConstants = {
+    X_AXIS: "xAxis",
+    Y_AXIS: "yAxis",
+    Z_AXIS: "zAxis",
+};
+
 const Options = function () {
     this.color = "#FFF";
     this.xAxis = null;
@@ -45,19 +51,15 @@ class Toolbar extends dat.GUI {
 
         dataHandlerInstance.getAxesNames().subscribe((axes) => {
             this.setDefaultAxes();
-            let xAxis = this._addAxis(viewFolder, 'xAxis', axes);
-            let yAxis = this._addAxis(viewFolder, 'yAxis', axes);
-            let zAxis = this._addAxis(viewFolder, 'zAxis', axes);
-
-            xAxis.domElement.setAttribute('style', `background-color: ${AxisColor.X_AXIS}`);
-            yAxis.domElement.setAttribute('style', `background-color: ${AxisColor.Y_AXIS}`);
-            zAxis.domElement.setAttribute('style', `background-color: ${AxisColor.Z_AXIS}`);
+            let xAxis = this._addAxis(viewFolder, AxesConstants.X_AXIS, axes);
+            let yAxis = this._addAxis(viewFolder, AxesConstants.Y_AXIS, axes);
+            let zAxis = this._addAxis(viewFolder, AxesConstants.Z_AXIS, axes);
 
             this.add(this.options, 'dimension', ['2D', '3D']).name('Dimension')
                 .onChange((value) => {
                     if (value === '3D') {
                         this.isView3D = true;
-                        zAxis = this._addAxis(viewFolder, 'zAxis', axes);
+                        zAxis = this._addAxis(viewFolder, AxesConstants.Z_AXIS, axes);
                     } else {
                         this.isView3D = false;
                         viewFolder.remove(zAxis);
@@ -66,7 +68,11 @@ class Toolbar extends dat.GUI {
                     this.toggle2DEvent.notify(!this.isView3D);
                 });
             this.add(this.options, 'restore').name('Restore').onChange((value) => {
-                this.threeRenderer.centerCameraToData(this.dataHandlerInstance);
+                if (this.isView3D) {
+                    this.threeRenderer.center3DCameraToData(this.dataHandlerInstance);
+                }else{
+                    this.threeRenderer.center2DCameraToData(this.dataHandlerInstance);
+                }
             });
         });
 
@@ -110,6 +116,22 @@ class Toolbar extends dat.GUI {
         controller.onChange(() => {
             this._rerenderAxis();
         });
+        let color = null;
+        switch (optionName) {
+            case AxesConstants.X_AXIS: {
+                color = AxisColor.X_AXIS;
+                break;
+            }
+            case AxesConstants.Y_AXIS: {
+                color = AxisColor.Y_AXIS;
+                break;
+            }
+            case AxesConstants.Z_AXIS: {
+                color = AxisColor.Z_AXIS;
+                break;
+            }
+        }
+        controller.domElement.setAttribute('style', `background-color: ${color}`);
         return controller;
     }
 
