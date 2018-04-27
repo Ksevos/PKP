@@ -256,8 +256,8 @@ export default class OrbitControls extends EventDispatcher {
     //
     // internals
     //
-
     var scope = this;
+    this.scope = scope;
 
     var changeEvent = {
       type: 'change'
