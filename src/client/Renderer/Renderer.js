@@ -34,6 +34,7 @@ class Renderer{
         this.scene = this.sceneConfigurator.getScene();
 
         this.pointSelector = new PointSelector();
+        this.zoomCount2D = null;
 
         window.addEventListener(
             'resize',
@@ -193,7 +194,13 @@ class Renderer{
         
         coordinates.z = 0;
         this.camera.position.set(coordinates.x, coordinates.y, 1);
-        this.controls.controls.dollyOut(Math.max(dataCenterToAxisCenterX,dataCenterToAxisCenterY,maxZoomValueX,maxZoomValueY));
+        if (!this.zoomCount2D){
+            this.controls.controls.dollyOut(Math.max(dataCenterToAxisCenterX,dataCenterToAxisCenterY,maxZoomValueX,maxZoomValueY));
+            this.zoomCount2D =  this.controls.controls.scope.object.zoom;
+        }else{
+            this.controls.controls.scope.object.zoom = this.zoomCount2D;
+            this.controls.controls.dollyOut(1);
+        }
         this.controls.changePivotPoint(coordinates);
     }
 
