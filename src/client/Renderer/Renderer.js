@@ -156,7 +156,7 @@ class Renderer{
         if(newDataDownloaded)
             this.center3DCameraToData(sender);
 
-        let absMax = this.dataHandler.getAbsMax();
+        let absMax = this.dataHandler.getAbsMax(this.dataHandler.getCurrentAxes());
         this.sceneConfigurator.axesPainter.scaleTo(absMax);
     }
 

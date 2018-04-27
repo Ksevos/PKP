@@ -201,19 +201,40 @@ class DataHandler {
 
     /**
      * Gets absolute maximum value
+     * @param axes Specifies which axes to search in. If not given, searches over entirety of data.
      * @returns {number}
      */
-    getAbsMax() {
-        let maxValue = 0;
+    getAbsMax(axes) {
 
-        for(let i=0; i< this.fileData.values.length; i++){
-            for(let j=0; j< this.fileData.values[i].length - 1; j++){
-                let value = Math.abs(this.fileData.values[i][j]);
-                if(value > maxValue)
-                    maxValue = value;
+        if(axes == null) {
+            let maxValue = this.fileData.values[0][0];
+
+            for(let i = 0; i < this.fileData.values.length; i++){
+                for(let j = 0; j < this.fileData.values[i].length - 1; j++){
+                    let value = Math.abs(this.fileData.values[i][j]);
+                    if(value > maxValue)
+                        maxValue = value;
+                }
             }
+            return maxValue;
+        } else {
+            let maxValue = this.fileData.values[0][this.getAxisIndex(axes.x)];
+
+            Object.keys(axes).forEach(axis => {
+                const colIndex = this.getAxisIndex(axes[axis]);
+
+                for(let i = 0; i < this.fileData.values.length; i++) {
+                    const value = this.fileData.values[i][colIndex];
+
+                    if (value > maxValue) {
+                        maxValue = value;
+                    }
+                }
+            });
+
+            return maxValue;
         }
-        return maxValue;
+
     }
 
     /**
