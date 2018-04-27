@@ -1,30 +1,26 @@
 //@ts-check
 import React, {Component} from 'react';
-import Enum from '../../CustomObjects/Enum'
-import '../Button.css';
-import Tooltip from '../Tooltip';
-//@ts-ignore
-import backgroundImageW from '../../../resources/icons/point_select_button_White.png';
-//@ts-ignore
-import backgroundImageB from '../../../resources/icons/point_select_button_Blue.png';
+import Enum from '../CustomObjects/Enum'
+import './Button.css';
+import Tooltip from './Tooltip';
 
 /**
- * Button to toggle point selection on and off
+ * Button to toggle 2D mode on and off
  */
-class PointSelectionButton extends Component{
+class DimensionToggleButton extends Component{
     constructor(props){
         super(props);
         this.state = {toggled: false, showTooltip: false};
     }
 
     componentDidMount(){
-        document.getElementById("pointSelectionButton")
+        document.getElementById("dimensionToggleButton")
             .addEventListener(
                 "mouseover",
                 event=>{
                     this.setState({showTooltip: true})
                 });
-        document.getElementById("pointSelectionButton")
+        document.getElementById("dimensionToggleButton")
             .addEventListener(
                 "mouseout",
                 event=>{
@@ -34,26 +30,30 @@ class PointSelectionButton extends Component{
 
     render(){
         return(
-            <div id="pointSelectionButton" >
+            <div id="dimensionToggleButton" >
                 <button 
                     className = "Button" 
                     style = {{
                         backgroundColor: this.state.toggled ? Enum.Theme.BUTTON_TOGGLED_BACKGROUND : Enum.Theme.BUTTON_DEFAULT_BACKGROUND,
-                        backgroundImage: this.state.toggled ? `url(${backgroundImageW})`: `url(${backgroundImageB})`,
-                        borderColor: this.state.toggled ? Enum.Theme.BUTTON_TOGGLED_BORDER : Enum.Theme.BUTTON_DEFAULT_BORDER
+                        borderColor: this.state.toggled ? Enum.Theme.BUTTON_TOGGLED_BORDER : Enum.Theme.BUTTON_DEFAULT_BORDER,
+                        color: this.state.toggled ? Enum.Theme.BUTTON_DEFAULT_BACKGROUND : Enum.Theme.BUTTON_TOGGLED_BORDER,
+                        fontSize: 30,
+                        fontWeight: 'bold'
                     }}
                     onClick = { event => {
                         this.setState(prevState => { return {toggled: !prevState.toggled}});
                         this.props.onClick(!this.state.toggled);
-                    }}/>
+                    }}>
+                    {this.state.toggled ? '2D' : '3D'}
+                </button>
                 {this.state.showTooltip 
-                    ? <Tooltip position = {{x:100, y:-100}}
-                        title = "Point Selection Button"
-                        description = "When toggled, hover on a point to get it's index in the data array"/> 
+                    ? <Tooltip position = {{x:185, y:-100}}
+                        title = "2D/3D toggle button"
+                        description = "Switch between 2D and 3D modes"/> 
                     : null}
             </div>
         );
     }
 }
 
-export default PointSelectionButton;
+export default DimensionToggleButton;

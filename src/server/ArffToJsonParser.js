@@ -3,6 +3,9 @@
 import FileSystem from 'fs';
 import Logger from './Logger';
 
+/**
+ * Used for uploaded .arff file parsing
+ */
 class ArffToJsonParser {
     constructor() {
         /** @type {Buffer} */
@@ -33,7 +36,7 @@ class ArffToJsonParser {
     }
 
     /**
-     * 
+     * Clean up .arff file of comments, unwanted symbols and newlines
      * @param {string} data 
      * @returns {string[]}
      */
@@ -67,6 +70,7 @@ class ArffToJsonParser {
     /**
      * Parses arff file data into local variables
      * @param {string[]} data
+     * @private
      */
     _parseArffContents(data) {
         for (let i = 0; i < data.length; i++) {
@@ -82,7 +86,9 @@ class ArffToJsonParser {
     }
 
     /**
+     * Parse @ATTRIBUTE part of the file
      * @param {string} row
+     * @private
      */
     _parseAttribute(row){
         let attributeName = row.substr(('@attribute ').length).replace(/\snumeric|\sinteger|\sreal|\sstring|\sNUMERIC|\sINTEGER|\sREAL|\sSTRING/g, '');
@@ -98,8 +104,9 @@ class ArffToJsonParser {
         this.attributes.push('"' + attributeName.replace(/'/g, '').trim() + '"');
     }
     /**
-     * 
+     * Parse @DATA part of the file
      * @param {string[]} rows 
+     * @private
      */
     _parseData(rows){
         for(let i = 0; i < rows.length; i++){
@@ -119,6 +126,7 @@ class ArffToJsonParser {
      * Note. Not using native Json parser for more control over construction
      * process
      * @returns {string} Json string
+     * @private
      */
     _getJsonRepresentation() {
         let jsonFile = `"valueNames":[${this.attributes}],"classes":[${this.classes}],"values":[`;

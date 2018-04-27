@@ -108,9 +108,16 @@ class RendererConfigurator{
         this.renderer.setSize( window.innerWidth, window.innerHeight );
     }
 
+    /**
+     * @returns {THREE.Camera}
+     */
     getCamera(){
         return this.camera;
     }
+
+    /**
+     * @returns {THREE.Renderer}
+     */
     getRenderer(){
         return this.renderer;
     }
