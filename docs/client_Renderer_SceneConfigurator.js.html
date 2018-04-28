@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: client/Renderer/SceneConfigurator.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: client/Renderer/SceneConfigurator.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>//@ts-check
+
+//For Jsdoc
+/* eslint-disable */
+import DataObject from "../CustomObjects/DataObject"
+/* eslint-enable */
+
+import * as THREE from "three";
+import Enum from '../CustomObjects/Enum';
+import DataFormatter from './DataFormatter';
+import AxesPainter from "./AxesPainter";
+import * as Rx from "rxjs/Subject";
+
+/**
+ * A class for dealing with scene objects
+ */
+class SceneConfigurator{
+    /**
+     * Creates scene, adds axes
+     */
+    constructor(){
+        this.currentDimension = Enum.DimensionType.NONE;
+        const scene = new THREE.Scene();
+
+
+        this.axesPainter = new AxesPainter(3);
+        scene.add(this.axesPainter);
+
+        this.scene = scene;
+
+        /**
+         * Needs to check when objects are added to scene
+         * @type {Rx.Subject&lt;any>}
+         */
+        this.sceneCreated = new Rx.Subject();
+        this.turnOn3D();
+    }
+
+    /**
+     *  Turns on z axis
+     */
+    turnOn3D(){
+        if(this.currentDimension === Enum.DimensionType.THREE_D)
+            return null;
+        
+        this.axesPainter.setAxisLine3D();
+
+        // Turn on z axis
+    }   
+
+    /**
+     * Hides grid and z axis
+     */
+    turnOn2D(){
+        if(this.currentDimension === Enum.DimensionType.TWO_D)
+            return null;
+        
+        this.axesPainter.setAxisLine2D();
+        // Turn off z axis
+    } 
+
+    /**
+     * Adds data to the scene
+     * @param {DataObject} data 
+     * @param {string} xAxis 
+     * @param {string} yAxis 
+     * @param {string} zAxis 
+     * @returns {THREE.Points[]}
+     */
+    addData(data, xAxis, yAxis, zAxis){
+        if(!data)
+            return;
+
+        let dataFormatter =
+            new DataFormatter(
+                data,
+                xAxis, 
+                yAxis, 
+                zAxis);
+        let dataCloud = dataFormatter.getDataCloud();
+        for(let i = 0; i &lt; dataCloud.length; i++){
+            this.scene.add(dataCloud[i]);
+        }
+
+        this.sceneCreated.next(true);
+
+        return dataCloud;
+    }
+
+    /**
+     * Removes data only from the scene
+     */
+    removeAllData(){
+        const children = this.scene.children.slice();
+
+        for(let i=0; i&lt;children.length; i++){
+            if(children[i].constructor === THREE.Points){
+                this.scene.remove(children[i]);
+            }
+        }
+    }
+
+    /**
+     * @returns {THREE.Scene}
+     */
+    getScene(){
+        return this.scene;
+    }
+
+    /**
+     * Returns object from scene by name
+     * @param name: string
+     * @returns {THREE.Object3D}
+     */
+    getSceneObjectByName(name) {
+        return this.scene.getObjectByName(name);
+    }
+
+    /**
+     * @returns {Rx.Subject&lt;any>}
+     */
+    getSceneCreated() {
+        return this.sceneCreated;
+    }
+
+    /**
+     * Update axis number scaling
+     * @param {THREE.Vector3 | number} args camera position or zoom
+     */
+    onTextScaleShouldUpdate(args){
+        this.axesPainter.onTextScaleShouldUpdate(args);
+    }
+}
+
+export default SceneConfigurator;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-DataObject.html">DataObject</a></li><li><a href="module-Enum.html">Enum</a></li><li><a href="module-Logger.html">Logger</a></li></ul><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="ArffToJsonParser.html">ArffToJsonParser</a></li><li><a href="AxesPainter.html">AxesPainter</a></li><li><a href="ColorGenerator.html">ColorGenerator</a></li><li><a href="Controls.html">Controls</a></li><li><a href="DataFormatter.html">DataFormatter</a></li><li><a href="DataHandler.html">DataHandler</a></li><li><a href="DataInfoBox.html">DataInfoBox</a></li><li><a href="DimensionToggleButton.html">DimensionToggleButton</a></li><li><a href="Event.html">Event</a></li><li><a href="HoveredOnPointEventArgs.html">HoveredOnPointEventArgs</a></li><li><a href="LoaderView.html">LoaderView</a></li><li><a href="PointSelectionButton.html">PointSelectionButton</a></li><li><a href="PointSelectionInfoBox.html">PointSelectionInfoBox</a></li><li><a href="PointSelector.html">PointSelector</a></li><li><a href="Renderer.html">Renderer</a></li><li><a href="RendererConfigurator.html">RendererConfigurator</a></li><li><a href="SceneConfigurator.html">SceneConfigurator</a></li><li><a href="StorageHandler.html">StorageHandler</a></li><li><a href="Toolbar.html">Toolbar</a></li><li><a href="Tooltip.html">Tooltip</a></li><li><a href="Visualization.html">Visualization</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat Apr 28 2018 16:17:02 GMT+0300 (FLE Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

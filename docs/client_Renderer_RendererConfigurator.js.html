@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: client/Renderer/RendererConfigurator.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: client/Renderer/RendererConfigurator.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>//@ts-check
+
+import * as THREE from 'three';
+import Enum from '../CustomObjects/Enum'
+
+/**
+ * A class for dealing with camera and renderer
+ */
+class RendererConfigurator{
+    
+    /**
+     * Creates a renderer with perspective camera
+     * @param {number} width 
+     * @param {number} height 
+     */
+    constructor(width, height){
+        this.currentDimension = Enum.DimensionType.NONE;
+
+        this.width = width;
+        this.height = height;
+
+        /**@type {THREE.Camera} */
+        this.camera = null;
+
+        this.renderer = new THREE.WebGLRenderer({ antialias: true});
+        this.renderer.setClearColor('#FFF');
+        this.renderer.setSize(width, height);
+
+        this.turnOn3D();
+    }
+
+    /**
+     * Sets perspective camera
+     */
+    turnOn3D(){
+        if(this.currentDimension === Enum.DimensionType.THREE_D)
+            return null;
+        
+        this.camera = this._createPerspectiveCamera();
+
+        this.currentDimension = Enum.DimensionType.THREE_D;
+    }   
+
+    /**
+     * Sets orthographic camera and resets any rotation 
+     */
+    turnOn2D(){
+        if(this.currentDimension === Enum.DimensionType.TWO_D)
+            return null;
+        
+        this.camera = this._createOrthographicCamera();
+        this.camera.rotation.set(0,0,0);
+
+        this.currentDimension = Enum.DimensionType.TWO_D;
+    } 
+
+    /**
+     * @private
+     */
+    _createOrthographicCamera(){
+        let aspectRatio = 1 / (this.height / this.width);
+        const camera = new THREE.OrthographicCamera(
+            -aspectRatio, 
+            aspectRatio,
+            1,
+            -1,
+            0.1,
+            2000);
+        camera.position.z = 5;
+        return camera;
+    }
+
+    /**
+     * @private
+     */
+    _createPerspectiveCamera(){
+        const camera = new THREE.PerspectiveCamera(
+            75, 
+            this.width / this.height,
+            0.001);
+        camera.position.z = 5;
+        return camera;
+    }
+
+    /**
+     * Callback to window resize event
+     */
+    onWindowResize(){
+        if(this.currentDimension === Enum.DimensionType.THREE_D){
+            /** @type {THREE.PerspectiveCamera} */
+            //@ts-ignore
+            let camera = this.camera;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        }
+        else if(this.currentDimension === Enum.DimensionType.TWO_D){
+            /** @type {THREE.OrthographicCamera} */
+            //@ts-ignore
+            let camera = this.camera;
+            let aspectRatio = 1 / (this.height / this.width);
+            camera.left = -aspectRatio; 
+            camera.right = aspectRatio;
+            camera.top = 1;
+            camera.bottom = -1;
+            camera.updateProjectionMatrix();
+        }
+
+        this.renderer.setSize( window.innerWidth, window.innerHeight );
+    }
+
+    /**
+     * @returns {THREE.Camera}
+     */
+    getCamera(){
+        return this.camera;
+    }
+
+    /**
+     * @returns {THREE.Renderer}
+     */
+    getRenderer(){
+        return this.renderer;
+    }
+}
+
+export default RendererConfigurator;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-DataObject.html">DataObject</a></li><li><a href="module-Enum.html">Enum</a></li><li><a href="module-Logger.html">Logger</a></li></ul><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="ArffToJsonParser.html">ArffToJsonParser</a></li><li><a href="AxesPainter.html">AxesPainter</a></li><li><a href="ColorGenerator.html">ColorGenerator</a></li><li><a href="Controls.html">Controls</a></li><li><a href="DataFormatter.html">DataFormatter</a></li><li><a href="DataHandler.html">DataHandler</a></li><li><a href="DataInfoBox.html">DataInfoBox</a></li><li><a href="DimensionToggleButton.html">DimensionToggleButton</a></li><li><a href="Event.html">Event</a></li><li><a href="HoveredOnPointEventArgs.html">HoveredOnPointEventArgs</a></li><li><a href="LoaderView.html">LoaderView</a></li><li><a href="PointSelectionButton.html">PointSelectionButton</a></li><li><a href="PointSelectionInfoBox.html">PointSelectionInfoBox</a></li><li><a href="PointSelector.html">PointSelector</a></li><li><a href="Renderer.html">Renderer</a></li><li><a href="RendererConfigurator.html">RendererConfigurator</a></li><li><a href="SceneConfigurator.html">SceneConfigurator</a></li><li><a href="StorageHandler.html">StorageHandler</a></li><li><a href="Toolbar.html">Toolbar</a></li><li><a href="Tooltip.html">Tooltip</a></li><li><a href="Visualization.html">Visualization</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat Apr 28 2018 16:17:02 GMT+0300 (FLE Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
