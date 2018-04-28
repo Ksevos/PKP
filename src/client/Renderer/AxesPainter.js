@@ -33,12 +33,16 @@ class AxesPainter extends THREE.Group {
         this.division = size || 10;
         this.dashSeparation = (this.size / this.division) / DASH_COUNT;
 
-        /** @type {THREE.Vector3 | number} args Camera position needed to scale numbers */
+        /** Camera position. Needed to scale numbers
+         *  @type {THREE.Vector3 | number} */
         this.cameraPosition = null;
 
-        /** @type {AxisObject[]} */
+        /** Container for axis objects
+         *  @type {AxisObject[]} */
         this.axes = [];
-        /** @type {AxisObject[]} */
+
+        /** Container for mirrored axis objects. Used in 2D view
+         *  @type {AxisObject[]} */
         this.mirroredAxes = [];
 
         for(let i = 0; i < 3; i ++) {

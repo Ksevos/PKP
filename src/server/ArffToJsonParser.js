@@ -8,9 +8,9 @@ import Logger from './Logger';
  */
 class ArffToJsonParser {
     constructor() {
-        /** @type {Buffer} */
+        /** @type {Buffer}*/
         this.fileContents = null;
-        /** @type {string} Title*/
+        /** @type {string}*/
         this.relation = null;
         this.attributes = [];
         this.data = [];
