@@ -1,5 +1,8 @@
 //@ts-check
 
+/**
+ * Container for HoveredOnPoint arguments
+ */
 class HoveredOnPointEventArgs{
     constructor(toShow, mousePosition, index){
         this.toShow = toShow;
