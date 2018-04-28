@@ -1,0 +1,1 @@
+jsdoc --private --recurse ./src/ ./README.md -d ./docs
