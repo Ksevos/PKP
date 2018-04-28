@@ -6,7 +6,7 @@ Develop [![Build Status](https://travis-ci.org/Ksevos/PKP.svg?branch=develop)](h
 ## 2D/3D visualization app
 
 ## Coding style
-1. Write private methods with _ i.e. _calculateSomething()
+1. Write private methods with _ i.e. \_calculateSomething()
 2. Functions that return boolean value should be formed with
 a is/has/does/etc. in front like isBlue(), isLoaded(),  
 isValid()
@@ -19,7 +19,7 @@ isValid()
 3. Make a push request if you finished your task
 4. If you can, document the function like this:
 ```
-  /** 
+  /**
   * Your description goes here
   * @param {Expected parameter type goes here} 'parameter' goes here
   */
@@ -52,6 +52,16 @@ cmd 2
 1. **npm run build**
 2. **serve -s -p 3000 build**
 3. View localhost:3000 in web
+
+## Documentation
+
+Make sure to do this in project's root directory.
+
+To generate JSDocs use the following command:
+
+    jsdoc -p -r ./src/ ./README.md -d ./docs
+
+Alternatively, launch shell script  ```/src/resources/generate_jsdocs.bat```.
 
 ## Vidinis API
 
