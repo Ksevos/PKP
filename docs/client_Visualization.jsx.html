@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: client/Visualization.jsx</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: client/Visualization.jsx</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>//@ts-check
+
+//For jsdoc only
+/* eslint-disable */
+import HoveredOnPointEventArgs from "./Events/HoveredOnPointEventArgs";
+/* eslint-enable */
+
+import React, {Component} from 'react';
+import Toolbar from "./Toolbar/Toolbar";
+import DataHandler from './DataHandler';
+import {Link} from 'react-router-dom'
+import Renderer from './Renderer/Renderer';
+
+import PointSelectionInfoBox from './ReactComponents/PointSelection/InfoBox';
+import PointSelectionButton from './ReactComponents/PointSelection/Button';
+import DataInfoBox from './ReactComponents/DataInfoBox';
+
+//CSS
+import './Visualization.css';
+import DimensionToggleButton from "./ReactComponents/DimensionToggleButton";
+
+/**
+ * Page used to visualize and interact with uploaded data
+ */
+class Visualization extends Component {
+    constructor(props) {
+        super(props);
+        this.dataHandler = new DataHandler();
+        this.state = {
+            PointSelectionInfoBox: {
+                show: false,
+                position: {x:0,y:0},
+                index: 0
+            },
+            dataInfoBox: {
+                show: true,
+                bounds: {
+                    xMin: 0,
+                    xMax: 0,
+                    yMin: 0,
+                    yMax: 0,
+                    zMin: 0,
+                    zMax: 0
+                }
+            }
+        }
+    }
+
+    componentDidMount() {
+        if(!this.threeRenderer)
+            this.threeRenderer = new Renderer(this.mount.clientWidth, this.mount.clientHeight);
+
+        this.dataHandler.subscribeToChangeEvent(this.threeRenderer.onDataChange.bind(this.threeRenderer));
+        this.dataHandler.subscribeToChangeEvent(this._onDataChange.bind(this));
+        this.threeRenderer.subscribeToHoveredOnPointEvent(this._onShowPointData.bind(this));
+
+        this.mount.appendChild(this.threeRenderer.getRenderer().domElement);
+        this.threeRenderer.start();
+
+        this.dataHandler.downloadData();
+
+        //ControlsGUI
+        this.toolbar = new Toolbar(this.threeRenderer, this.dataHandler);
+       // this.toolbar.subscribeToToggle2DEvent(this.threeRenderer.on2DToggled.bind(this.threeRenderer));
+
+        this.componentMounted = true;
+    }
+
+    componentWillUnmount() {
+        this.toolbar.destroy();
+        this.threeRenderer.stop();
+        this.dataHandler.unsubscribeFromChangeEvent(this.threeRenderer.onDataChange);
+        //Remove all children
+        while(this.mount.firstChild){
+            this.mount.removeChild(this.mount.firstChild);
+        }
+    }
+
+    /**
+     * Callback to DataChanged event
+     * @param {*} sender 
+     * @param {*} args 
+     * @private
+     */
+    _onDataChange(sender, args){
+        this.setState(prevState => { 
+            return {
+                dataInfoBox:{
+                    show: prevState.dataInfoBox.show,
+                    bounds:{         
+                        xMin: this.dataHandler.getMinValue('x'),
+                        xMax: this.dataHandler.getMaxValue('x'),
+                        yMin: this.dataHandler.getMinValue('y'),
+                        yMax: this.dataHandler.getMaxValue('y'),
+                        zMin: this.dataHandler.getMinValue('z'),
+                        zMax: this.dataHandler.getMaxValue('z')
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Callback to ShowPointData event
+     * @param {*} sender 
+     * @param {HoveredOnPointEventArgs} args 
+     * @private
+     */
+    _onShowPointData(sender, args){
+        if(args.getToShow()){
+            this.setState({            
+                PointSelectionInfoBox: {
+                    show: true,
+                    position: {
+                        x: args.getMousePosition().x,
+                        y: args.getMousePosition().y
+                    },
+                    index: args.getIndex()
+                },}
+            );
+        }
+        else
+            this.setState({ PointSelectionInfoBox: { show: false } });
+    }
+
+    /**
+     * Callback to when PointSelectButton gets clicked
+     * @param {boolean} enable 
+     * @private
+     */
+    _onPointSelectButtonClicked(enable){
+        if(enable)
+            this.threeRenderer.enablePointSelection();
+        else
+            this.threeRenderer.disablePointSelection();
+    }
+
+    /**
+     * Callback to when 2D/3D change button is clicked
+     * @param {boolean} enable2D 
+     */
+    _onDimensionToggleButtonClicked(enable2D){
+        this.toolbar.onToggle2D(enable2D);
+        this.threeRenderer.on2DToggled(this.dataHandler, enable2D);
+        
+
+    }
+
+    render() {
+        return (
+            &lt;div className="Visualization"
+                ref={(mount) => {
+                    this.mount = mount
+                }}>
+                &lt;div className = "VisualizationButtons">
+                    &lt;Link to={"/"}>&lt;span className="close-back thick">&lt;/span>&lt;/Link>
+                    &lt;PointSelectionButton onClick = {this._onPointSelectButtonClicked.bind(this)}/>
+                    &lt;DimensionToggleButton onClick = {this._onDimensionToggleButtonClicked.bind(this)}/>
+                &lt;/div>
+                {this.state.dataInfoBox.show ? (
+                    &lt;DataInfoBox show = {this.state.dataInfoBox.show} 
+                                bounds = {this.state.dataInfoBox.bounds}/>
+                    ) : null}
+                {this.state.PointSelectionInfoBox.show ? (
+                    &lt;PointSelectionInfoBox show = {this.state.PointSelectionInfoBox.show} 
+                                position = {this.state.PointSelectionInfoBox.position} 
+                                index = {this.state.PointSelectionInfoBox.index}/>
+                    ) : null}
+            &lt;/div>
+        )
+    }
+}
+
+export default Visualization;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-DataObject.html">DataObject</a></li><li><a href="module-Enum.html">Enum</a></li><li><a href="module-Logger.html">Logger</a></li></ul><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="ArffToJsonParser.html">ArffToJsonParser</a></li><li><a href="AxesPainter.html">AxesPainter</a></li><li><a href="ColorGenerator.html">ColorGenerator</a></li><li><a href="Controls.html">Controls</a></li><li><a href="DataFormatter.html">DataFormatter</a></li><li><a href="DataHandler.html">DataHandler</a></li><li><a href="DataInfoBox.html">DataInfoBox</a></li><li><a href="DimensionToggleButton.html">DimensionToggleButton</a></li><li><a href="Event.html">Event</a></li><li><a href="HoveredOnPointEventArgs.html">HoveredOnPointEventArgs</a></li><li><a href="LoaderView.html">LoaderView</a></li><li><a href="PointSelectionButton.html">PointSelectionButton</a></li><li><a href="PointSelectionInfoBox.html">PointSelectionInfoBox</a></li><li><a href="PointSelector.html">PointSelector</a></li><li><a href="Renderer.html">Renderer</a></li><li><a href="RendererConfigurator.html">RendererConfigurator</a></li><li><a href="SceneConfigurator.html">SceneConfigurator</a></li><li><a href="StorageHandler.html">StorageHandler</a></li><li><a href="Toolbar.html">Toolbar</a></li><li><a href="Tooltip.html">Tooltip</a></li><li><a href="Visualization.html">Visualization</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Sat Apr 28 2018 16:17:02 GMT+0300 (FLE Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

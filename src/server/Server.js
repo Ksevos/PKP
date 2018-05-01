@@ -61,6 +61,7 @@ class Server{
     }
 
     /**
+     * Used for file upload
      * @returns {Multer.Instance}
      */
     configureMulter(){

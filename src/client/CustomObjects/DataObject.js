@@ -1,14 +1,16 @@
 //@ts-check
 
 /**
- * JSON response data object
- * @typedef {*} DataObject
+ * @module DataObject
+ * @description JSON response data object
  * @property {string[]} valueNames Axes names and additional properties
- * @property {[[]]} values Axis values
+ * @property {string[]} classes Class names
+ * @property {Array[]} values Axis values. Last column is reserved for class names
  */
-var DataObject = (()=>{  
+let DataObject = (()=>{
     return {
         valueNames: [],
+        classes: [],
         values: [[]]
     };
   })();

@@ -1,10 +1,13 @@
 //@ts-check
 
-import React, {Component} from 'react';
+import React, {Component, FormEvent} from 'react';
 import './LoaderView.css';
 import Axios from 'axios';
 import SocketIOClient from 'socket.io-client';
 
+/**
+ * Page used to upload data
+ */
 class LoaderView extends Component {
     constructor(props) {
         super(props);
@@ -23,6 +26,10 @@ class LoaderView extends Component {
         });
     }
 
+    /**
+     * Callback to upload button
+     * @param {FormEvent} e 
+     */
     onFormSubmit(e) {
         e.preventDefault(); // Stop from submit
 
@@ -31,12 +38,18 @@ class LoaderView extends Component {
             let data = new FormData();
             data.append('dataFile', this.state.file);
             Axios.post("http://localhost:4000/storage", data).catch(error => {
-                this.setState({uploading: false, errorMessage: error.response.data.message});
+                if(error.response)
+                    if(error.response.data)
+                        this.setState({uploading: false, errorMessage: error.response.data.message});
             });
         } else {
             this.setState({errorMessage: 'No file selected'});
         }
     }
+
+    /**
+     * Close error message
+     */
     closeAlert() {
         this.setState({errorMessage: null});
     }
@@ -62,7 +75,7 @@ class LoaderView extends Component {
                         </form>
                     </div>
                     <div className="col-md-4">
-                        {this.state.uploading ? <div className='loader' uploading={"false"}></div> : null}
+                        {this.state.uploading ? <div className='loader'></div> : null}
                     </div>
                 </div>
 

@@ -2,81 +2,210 @@
 
 import dat from "dat.gui";
 import Toggle2DEvent from '../Events/Event';
+import colorGenerator from "../shared/ColorGenerator";
+import {AxisColor} from "../CustomObjects/Enum";
+import Renderer from "../Renderer/Renderer";
+import DataHandler from "../DataHandler";
 
+const AxesConstants = {
+    X_AXIS: "xAxis",
+    Y_AXIS: "yAxis",
+    Z_AXIS: "zAxis",
+};
 
 const Options = function () {
     this.color = "#FFF";
-    this.xAxis = 'x1';
-    this.yAxis = 'x2';
-    this.zAxis = 'x3';
+    this.xAxis = null;
+    this.yAxis = null;
+    this.zAxis = null;
     this.dimension = '3D';
+    this.restore = () => {
+    };
+    this.classes = new Map();
 };
 
+/**
+ * Used to modify settings and for axis selection
+ */
 class Toolbar extends dat.GUI {
-    constructor(threeRendererInstance, dataHandlerInstance) {
+    /**
+     * @param {Renderer} threeRenderer
+     * @param {DataHandler} dataHandler
+     */
+    constructor(threeRenderer, dataHandler) {
         super();
-        this.toggle2DEvent = new Toggle2DEvent(this);
+        this.colorGenerator = colorGenerator;
 
         this.isView3D = true;
-        this.threeRendererInstance = threeRendererInstance;
-        this.dataHandlerInstance = dataHandlerInstance;
+        this.threeRenderer = threeRenderer;
+        this.dataHandler = dataHandler;
+        this.sceneConfigurator = threeRenderer.getSceneConfigurator();
 
         this.options = new Options();
-        const renderer = threeRendererInstance.getRenderer();
 
-        //backgroundFolder
-        const backgroundFolder = this.addFolder('Background');
+        this.controllers = {
+            xAxis: null,
+            yAxis: null,
+            zAxis: null,
+            axesFolder: null,
+            backgroundFolder: null
+        };
 
-        backgroundFolder.addColor(this.options, 'color')
+        /**@type {string[]} */
+        this.axesNames = [];
+
+        this._addBackgroundSelection();
+        this._addAxisSelectionFolder();
+        this._addClassSelectionFolder();
+        this._addRestoreButton();
+    }
+
+    /**
+     * Add a section for Background color customization
+     * @private
+     */
+    _addBackgroundSelection(){
+        const renderer = this.threeRenderer.getRenderer();
+
+        this.backgroundFolder = this.addFolder('Background');
+
+        this.backgroundFolder.addColor(this.options, 'color').name('Color')
             .onChange((value) => {
                 renderer.setClearColor(value);
             });
+    }
 
-        //viewFolder
-        const viewFolder = this.addFolder('View');
+    /**
+     * Add a section for Axis selection
+     * @private
+     */
+    _addAxisSelectionFolder(){
 
-        dataHandlerInstance.getAxesNames().subscribe((axes) => {
-            this._addAxis(viewFolder, 'xAxis', axes);
-            this._addAxis(viewFolder, 'yAxis', axes);
-            let zAxis = this._addAxis(viewFolder, 'zAxis', axes);
+        this.controllers.axesFolder = this.addFolder('Data Axes');
 
-            this.add(this.options, 'dimension', ['2D', '3D']).name('Dimension')
-                .onChange((value) => {
-                    if (value === '3D') {
-                        this.isView3D = true;
-                        zAxis = this._addAxis(viewFolder, 'zAxis', axes);
-                    } else {
-                        this.isView3D = false;
-                        viewFolder.remove(zAxis);
-                    }
-                    this._rerenderAxis();
-                    this.toggle2DEvent.notify(!this.isView3D);
+        this.dataHandler.getAxesNames().subscribe((axes) => {
+            this.axesNames = axes;
+            this.setDefaultAxes();
+            this.controllers.xAxis = this._addAxisSelectList(this.controllers.axesFolder, AxesConstants.X_AXIS, "X Axis", axes);
+            this.controllers.yAxis = this._addAxisSelectList(this.controllers.axesFolder, AxesConstants.Y_AXIS, "Y Axis", axes);
+            this.controllers.zAxis = this._addAxisSelectList(this.controllers.axesFolder, AxesConstants.Z_AXIS, "Z Axis", axes);
+        });
+    }
+
+    /**
+     * Add a section for class color customization
+     * @private
+     */
+    _addClassSelectionFolder(){
+        //classesFolder
+        const classesFolder = this.addFolder('Classes');
+        let classesFolderControllers = [];
+        let sceneConfigurator = this.threeRenderer.getSceneConfigurator();
+
+        this.dataHandler.getClasses().subscribe((dataClasses) => {
+            sceneConfigurator.getSceneCreated().subscribe((e) => {
+                classesFolderControllers.forEach((controller) => {
+                    classesFolder.remove(controller);
                 });
+                classesFolderControllers = [];
+                this.options.classes = this.colorGenerator.generatedColors;
+                dataClasses.map((dataClass) => {
+                    const pointsObject = sceneConfigurator.getSceneObjectByName('name__' + dataClass);
+                    if (pointsObject) {
+                        let controller = classesFolder.addColor({classes: this.options.classes.get(dataClass)}, 'classes')
+                            .name(dataClass).onChange((colorValue) => {
+                            //@ts-ignore
+                            pointsObject.material.color.setHex(colorValue.replace('#', '0x'));
+                            this.colorGenerator.changeGeneratedColor(dataClass, colorValue);
+                        });
+                        classesFolderControllers.push(controller);
+                    }
+                });
+            })
+
+        });
+    }
+
+    /**
+     * Add a restore button
+     * @private
+     */
+    _addRestoreButton(){
+        this.add(this.options, 'restore').name('Restore').onChange((value) => {
+            if (this.isView3D) {
+                this.threeRenderer.center3DCameraToData(this.dataHandler);
+            }else{
+                this.threeRenderer.center2DCameraToData(this.dataHandler);
+            }
         });
     }
 
     /**
      * Creates axes select list
-     * @param {dat.GUI} folder
-     * @param {string} optionName
-     * @param {string[]} axisNames
+     * @param {dat.GUI} folder Container to add to
+     * @param {string} optionName Axis object name in controller
+     * @param {string} axisName Axis select list title
+     * @param {string[]} axisNames List of currently selected axes
      * @returns {dat.GUIController}
      * @private
      */
-    _addAxis(folder, optionName, axisNames) {
-        let controller =  folder.add(this.options, optionName, axisNames);
+    _addAxisSelectList(folder, optionName, axisName, axisNames) {
+        let controller = folder.add(this.options, optionName, axisNames).name(axisName);
         controller.onChange(() => {
-                this._rerenderAxis();
-            });
+            this._rerenderAxis();
+        });
+        let color = null;
+        switch (optionName) {
+            case AxesConstants.X_AXIS: {
+                color = AxisColor.X_AXIS;
+                break;
+            }
+            case AxesConstants.Y_AXIS: {
+                color = AxisColor.Y_AXIS;
+                break;
+            }
+            case AxesConstants.Z_AXIS: {
+                color = AxisColor.Z_AXIS;
+                break;
+            }
+        }
+        //@ts-ignore
+        controller.domElement.setAttribute('style', `background-color: ${color}`);
         return controller;
     }
 
+    /**
+     * Change currently selected axes, which should also rerender them
+     * @private
+     */
     _rerenderAxis() {
-        this.dataHandlerInstance.changeAxes(this.options.xAxis, this.options.yAxis, this.isView3D ? this.options.zAxis : null);
+        this.dataHandler.changeAxes(this.options.xAxis, this.options.yAxis, this.isView3D ? this.options.zAxis : null);
     }
 
-    subscribeToToggle2DEvent(listener){
-        this.toggle2DEvent.subscribe(listener);
+    /**
+     * Set default selected axes
+     */
+    setDefaultAxes() {
+        let defaultAxes = this.dataHandler._getDefaultAxes();
+        this.options.xAxis = defaultAxes.x;
+        this.options.yAxis = defaultAxes.y;
+        this.options.zAxis = defaultAxes.z;
+    }
+
+    /**
+     * Callback for 2D toggle event
+     * @param {boolean} status true if 2D mode is toggled on
+     */
+    onToggle2D(status){
+        if (status) {
+            this.isView3D = false;
+            this.controllers.axesFolder.remove(this.controllers.zAxis);
+        } 
+        else {
+            this.isView3D = true;
+            this.controllers.zAxis = this._addAxisSelectList(this.controllers.axesFolder, AxesConstants.Z_AXIS, "Z Axis", this.axesNames);
+        }
+        this._rerenderAxis();
     }
 }
 

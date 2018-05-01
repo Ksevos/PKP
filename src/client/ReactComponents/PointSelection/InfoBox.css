@@ -1,0 +1,17 @@
+.PointInfoBox {
+    background-color: rgba(255, 255, 255, 0.95);
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+
+    border-color: lavender;
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.PointInfoBox p{
+    margin: 0px;
+    padding: 0px;
+}

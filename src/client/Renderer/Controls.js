@@ -2,6 +2,7 @@
 
 import OrbitControls from '../LocalOrbitControls/OrbitControls.js';
 import Enum from '../CustomObjects/Enum';
+import THREE from 'three';
 
 class Controls {
     /** Creates orbit controlls */

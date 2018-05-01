@@ -6,12 +6,16 @@ import ArffToJsonParser from './ArffToJsonParser';
 import Logger from './Logger';
 import Socket from 'socket.io';
 
+/**
+ * Methods to interract with local storage
+ */
 class StorageHandler{
 
     /** 
+     * Save uplodaded data
      * @param {Express.Request} request
      * @param {Express.Response} response
-     * @param {SocketIO.Server} socket 
+     * @param {Socket.Server} socket 
      */
     static save(request, response, socket){
         if(!FileSystem.existsSync('./storage'))
@@ -29,14 +33,20 @@ class StorageHandler{
             }
         );
     }
+
     /**
-     * 
-     * @param {SocketIO.Server} socket 
+     * Broadcast to client, that data has been uploaded
+     * @param {Socket.Server} socket
+     * @private
      */
     static _broadcastMessage(socket){
         socket.emit('dataUploaded', true);
     } 
 
+    /**
+     * Parse uploaded .arff file
+     * @private
+     */
     static _parseArffToJson(){
         Logger.log("Parsing .arff file into .json");
 
@@ -46,6 +56,7 @@ class StorageHandler{
     }
 
     /** 
+     * Get latest uploaded data from the storage
      * @param {Express.Response} response
      */
     static getLatest(response){

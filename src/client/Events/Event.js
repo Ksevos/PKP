@@ -6,7 +6,7 @@ class Event{
      */
     constructor(sender){
         this.sender = sender;
-        /** @type {function(*,*)[]} */
+        /** @type {Function[]} */
         this.listeners = [];
     }
 
@@ -15,14 +15,14 @@ class Event{
      * 
      * Note. Don't forget to bind listener to it's original object like this:  
      * someEvent.subscribe(someObject.callbackFunction.bind(someObject))
-     * @param {function(*,*)} listener 
+     * @param {function} listener
      */
     subscribe(listener) {
         this.listeners.push(listener);
     }
 
     /**
-     * @param {function(*,*)} listener 
+     * @param {function} listener
      */
     unsubscribe(listener) {
         const index = this.listeners.indexOf(listener);

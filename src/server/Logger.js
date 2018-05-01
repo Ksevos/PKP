@@ -1,30 +1,43 @@
 //@ts-check
 
 /**
- * Helper for server logging
+ * @module Logger
+ * @description Helper for server logging
  */
-var Logger = (()=>{
+let Logger = (() => {
     let _loggerOn = false;
 
     return {
+
+        /**
+         * Prints out log message to console
+         * @param {String} message Log message
+         */
         log: message => {
-            if(_loggerOn) 
+            if (_loggerOn)
                 console.log(message);
         },
+
         /**
          * Asserts errors for callbacks
-         * @param error
-         * @param {string} actionDescription
+         * @param {Error} error Error object
+         * @param {string} actionDescription Error description
          */
         assertError: (error, actionDescription) => {
-            if(!_loggerOn)
+            if (!_loggerOn)
                 return;
-            if(error)
+            if (error)
                 console.log(`${actionDescription} - failed. ${error.message}`);
             else
                 console.log(`${actionDescription} - successful`);
         },
-        turnOn: () =>{_loggerOn = true}
+
+        /**
+         * Turns the logger on
+         */
+        turnOn: () => {
+            _loggerOn = true
+        }
     };
 })();
 

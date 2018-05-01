@@ -7,6 +7,9 @@ import axios from 'axios';
 import ChangeEvent from "./Events/Event";
 import * as Rx from "rxjs";
 
+/**
+ * Used to download, store and modify data
+ */
 class DataHandler {
     constructor() {
         /** @type {DataObject} */
@@ -19,11 +22,13 @@ class DataHandler {
          * @type {Rx.Subject<any>}
          */
         this.axesNames = new Rx.Subject();
+        this.classes = new Rx.Subject();
     }
 
     /**
      * Checks if values are in array and are not empty
      * @param {DataObject} data 
+     * @private
      */
     _isDataValid(data) {
         return Array.isArray(data.values) && data.values.length;
@@ -45,7 +50,7 @@ class DataHandler {
                         return index !== data.valueNames.length - 1;});
 
             this.axesNames.next(this.axes);
-
+            this.classes.next(data.classes);
             this.currentSetAxes = this._getDefaultAxes();
 
             this.dataChangeEvent.notify(true);
@@ -55,6 +60,7 @@ class DataHandler {
     /**
      * Gets axes set by default
      * @returns {{x:string,y:string,z:string}}
+     * @private
      */
     _getDefaultAxes(){
         if(!this.axes)
@@ -69,6 +75,7 @@ class DataHandler {
     /**
      * Queries for uploaded data and returns response from the server
      * @returns {Promise<DataObject>}
+     * @private
      */
     _queryForData(){
         return axios.get("http://localhost:4000/storage/current")
@@ -96,6 +103,13 @@ class DataHandler {
      */
     getAxesNames() {
         return this.axesNames;
+    }
+
+    /**
+     * @returns {Rx.Subject}
+     */
+    getClasses() {
+        return this.classes;
     }
 
     /**
@@ -152,7 +166,7 @@ class DataHandler {
      * @returns {number}
      */
     getMaxValue(axis) {
-        let axisIndex = this._getAxisIndex(this._getAxisName(axis));
+        let axisIndex = this.getAxisIndex(this._getAxisName(axis));
 
         if(axisIndex < 0)
         return 0;
@@ -173,7 +187,7 @@ class DataHandler {
      * @returns {number}
      */
     getMinValue(axis) {
-        let axisIndex = this._getAxisIndex(this._getAxisName(axis));
+        let axisIndex = this.getAxisIndex(this._getAxisName(axis));
 
         if(axisIndex < 0)
             return 0;
@@ -187,19 +201,40 @@ class DataHandler {
 
     /**
      * Gets absolute maximum value
+     * @param axes Specifies which axes to search in. If not given, searches over entirety of data.
      * @returns {number}
      */
-    getAbsMax() {
-        let maxValue = 0;
+    getAbsMax(axes) {
 
-        for(let i=0; i< this.fileData.values.length; i++){
-            for(let j=0; j< this.fileData.values[i].length - 1; j++){
-                let value = Math.abs(this.fileData.values[i][j]);
-                if(value > maxValue)
-                    maxValue = value;
+        if(axes == null) {
+            let maxValue = this.fileData.values[0][0];
+
+            for(let i = 0; i < this.fileData.values.length; i++){
+                for(let j = 0; j < this.fileData.values[i].length - 1; j++){
+                    let value = Math.abs(this.fileData.values[i][j]);
+                    if(value > maxValue)
+                        maxValue = value;
+                }
             }
+            return maxValue;
+        } else {
+            let maxValue = this.fileData.values[0][this.getAxisIndex(axes.x)];
+
+            Object.keys(axes).forEach(axis => {
+                const colIndex = this.getAxisIndex(axes[axis]);
+
+                for(let i = 0; i < this.fileData.values.length; i++) {
+                    const value = this.fileData.values[i][colIndex];
+
+                    if (value > maxValue) {
+                        maxValue = value;
+                    }
+                }
+            });
+
+            return maxValue;
         }
-        return maxValue;
+
     }
 
     /**
@@ -233,7 +268,7 @@ class DataHandler {
      * @param {string} axisName 
      * @returns {number}
      */
-    _getAxisIndex(axisName){
+    getAxisIndex(axisName){
         let axisIndex = -1;
         for(let i = 0; i < this.fileData.valueNames.length; i++){
             if(this.fileData.valueNames[i] === axisName){
@@ -251,6 +286,7 @@ class DataHandler {
      * OR
      * 0, 1, 2, 
      * @returns {string}
+     * @private
      */
     _getAxisName(axis){
         if(axis === 'x' || axis === 0)
