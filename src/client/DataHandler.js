@@ -78,7 +78,7 @@ class DataHandler {
      * @private
      */
     _queryForData(){
-        return axios.get(process.env.BACKEND_URL || "http://localhost:4000" + "/storage/current")
+        return axios.get("https://vgtupkp-be.herokuapp.com" + "/storage/current")
             .then(response => {
                 const fileData = JSON.parse(JSON.stringify(response.data[0]));
                 if (this.fileData !== fileData
