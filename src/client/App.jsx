@@ -16,7 +16,7 @@ class App extends Component {
             loaderView: new LoaderView(),
             visualization: new Visualization()
         };
-        this.createStatsPanel();
+        //this.createStatsPanel();
     }
 
     /**
