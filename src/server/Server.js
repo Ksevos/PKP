@@ -9,7 +9,8 @@ import Path from 'path';
 class Server{
     constructor(){
         this.app = Express();
-        this.app.set('port', process.env.PORT || 4000);
+        this.PORT = process.env.PORT || 4000;
+        this.app.set('port', this.PORT);
         this.app.use(this.configureAccessControl);
         this.upload = this.configureMulter();
 
@@ -20,7 +21,10 @@ class Server{
         this.app.use(this.configureUploadErrorHandling);
 
         this.server = 
-            this.app.listen(4000, () => console.log('Server listening on port 4000!'));
+            this.app.listen(this.PORT, (err) =>  {
+                if (err) throw err;
+                console.log(`Server listening on port ${this.PORT}!`)
+            });
 
         this.socket = Socket.listen(this.server);
     }
@@ -33,7 +37,7 @@ class Server{
      * @param {Express.NextFunction} next 
      */
     configureAccessControl(req, res, next){
-        res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+        res.header("Access-Control-Allow-Origin",  process.env.FRONTEND_URL || "http://localhost:3000");
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         res.header("Access-Control-Allow-Credentials", "true");
         next();
