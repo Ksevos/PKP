@@ -133,7 +133,7 @@ class Renderer{
             this.center2DCameraToData(this.dataHandler);
             this.sceneConfigurator.onTextScaleShouldUpdate(this.camera.zoom);
         }else{
-            this.center2DCameraToData(this.dataHandler);
+            this.center3DCameraToData(this.dataHandler);
             this.sceneConfigurator.onTextScaleShouldUpdate(this.camera.position);
         }
     }
