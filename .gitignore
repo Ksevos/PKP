@@ -17,7 +17,6 @@ src/resources/duomenys_generated.arff
 /coverage
 
 # production
-/build
 /build-server
 
 # misc
