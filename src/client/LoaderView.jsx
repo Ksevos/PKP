@@ -18,7 +18,7 @@ class LoaderView extends Component {
         };
         this.closeAlert = this.closeAlert.bind(this);
         //Listens for "dataUploaded" message from the server
-        this.socket = SocketIOClient("http://localhost:4000/");
+        this.socket = SocketIOClient(process.env.BACKEND_URL || "http://localhost:4000");
         this.socket.on('dataUploaded', (message) => {
             if (this.props) {
                 this.props.history.push('/viewer');
@@ -37,7 +37,7 @@ class LoaderView extends Component {
             this.setState({uploading: true});
             let data = new FormData();
             data.append('dataFile', this.state.file);
-            Axios.post("http://localhost:4000/storage", data).catch(error => {
+            Axios.post(process.env.BACKEND_URL || "http://localhost:4000" + "/storage", data).catch(error => {
                 if(error.response)
                     if(error.response.data)
                         this.setState({uploading: false, errorMessage: error.response.data.message});
