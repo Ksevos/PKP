@@ -6,7 +6,6 @@ import DataObject from './CustomObjects/DataObject'; // eslint-disable-line
 import axios from 'axios';
 import ChangeEvent from "./Events/Event";
 import * as Rx from "rxjs";
-import Configuration from '../common/Configuration'
 
 /**
  * Used to download, store and modify data
@@ -79,7 +78,7 @@ class DataHandler {
      * @private
      */
     _queryForData(){
-        return axios.get(Configuration.getFullServerLink() + "/storage/current")
+        return axios.get("https://vgtupkp-be.herokuapp.com" + "/storage/current")
             .then(response => {
                 const fileData = JSON.parse(JSON.stringify(response.data[0]));
                 if (this.fileData !== fileData
