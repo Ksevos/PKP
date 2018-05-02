@@ -5,6 +5,7 @@ import Express from 'express';
 import Multer from 'multer';
 import Socket from 'socket.io';
 import Path from 'path';
+import Configuration from '../common/Configuration'
 
 class Server{
     constructor(){
@@ -33,7 +34,7 @@ class Server{
      * @param {Express.NextFunction} next 
      */
     configureAccessControl(req, res, next){
-        res.header("Access-Control-Allow-Origin", "https://vgtupkp.herokuapp.com");
+        res.header("Access-Control-Allow-Origin", Configuration.getFullClientLink());
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
         res.header("Access-Control-Allow-Credentials", "true");
         next();
